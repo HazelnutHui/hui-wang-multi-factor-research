@@ -1,0 +1,21 @@
+strategy:
+  name: "cn_reversal_v1"
+  id: "cn_reversal_v1"
+  version: "0.1"
+  output_dir: "strategies/cn_reversal_v1"
+
+backtest_periods:
+  train_start: "2015-01-01"
+  train_end: "2019-12-31"
+  test_start: "2020-01-01"
+  test_end: "2025-12-31"
+
+execution:
+  long_pct: 0.2
+  short_pct: 0.0
+  rebalance_freq: 5
+  holding_period: 3
+
+factors:
+  weights:
+    reversal: 1.0

@@ -1,0 +1,22 @@
+# iTerm Commands (V4) - Stage 2 (Updated 2026-02-11)
+
+# Low-vol segmented backtest (Stage 2 institutional: industry + size/beta neutral + zscore)
+PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/python3.11 \
+  /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors low_vol --years 2 \
+  --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set INDUSTRY_NEUTRAL=True \
+  --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True \
+  |& tee /Users/hui/quant_score/v4/logs/low_vol_segment_stage2_inst_2026-02-11.log
+
+# Value segmented backtest (Stage 2 institutional: industry + size/beta neutral + zscore)
+PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/python3.11 \
+  /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors value --years 2 \
+  --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set INDUSTRY_NEUTRAL=True \
+  --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True \
+  |& tee /Users/hui/quant_score/v4/logs/value_segment_stage2_inst_2026-02-11.log
+
+# Quality segmented backtest (Stage 2 institutional: industry + size/beta neutral + zscore)
+PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/python3.11 \
+  /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors quality --years 2 \
+  --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set INDUSTRY_NEUTRAL=True \
+  --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True \
+  |& tee /Users/hui/quant_score/v4/logs/quality_segment_stage2_inst_2026-02-11.log

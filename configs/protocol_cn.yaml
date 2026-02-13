@@ -1,0 +1,95 @@
+protocol:
+  version: "cn_v1"
+  name: "cn_default"
+  notes: "China A-share protocol (separate from US)."
+
+paths:
+  price_dir_active: "../data/cn/prices"
+  price_dir_delisted: "../data/cn/prices_delisted"
+  price_dir_active_adj: "../data/cn/prices_adj"
+  price_dir_delisted_adj: "../data/cn/prices_delisted_adj"
+  delisted_info: "../data/cn/delisted_companies.csv"
+  earnings_dir: "../data/cn/earnings"
+  fundamentals_dir: "../data/cn/fundamentals_quality"
+  value_dir: "../data/cn/fundamentals_value"
+  industry_map_path: "../data/cn/industry_map.csv"
+
+calendar:
+  calendar_symbol: "000300.SH"
+  rebalance_mode: null
+
+universe:
+  min_market_cap: 500000000.0
+  min_dollar_volume: 5000000.0
+  min_price: 2.0
+  max_volatility: null
+  vol_lookback: null
+  exclude_symbols_path: "../data/cn/blacklist_symbols.txt"
+
+execution:
+  rebalance_freq: 5
+  holding_period: 5
+  execution_delay: 1
+  transaction_cost: 0.0005
+  apply_stamp_tax: true
+  stamp_tax_rate: 0.001
+  apply_limit_up_down: true
+  limit_up_down_pct: 0.1
+  long_pct: 0.2
+  short_pct: 0.0
+
+neutralization:
+  industry_neutral: false
+  industry_min_group: 5
+  industry_col: "industry"
+  signal_zscore: false
+  signal_winsor_z: null
+  signal_rank: false
+  signal_rank_method: "average"
+  signal_rank_pct: true
+  signal_missing_policy: "drop"
+  signal_missing_fill: null
+
+factors:
+  lag_days: 0
+  include_components: false
+  weights: {}
+  momentum:
+    lookback: 120
+    skip: 10
+    vol_lookback: null
+    lag_days: null
+    use_monthly: false
+    lookback_months: 6
+    skip_months: 0
+    zscore: false
+    winsor_z: null
+  pead:
+    sue_threshold: 0.5
+    lookback_quarters: 8
+    date_shift_days: 0
+    lag_days: null
+    use_shifted_factor: false
+  reversal:
+    lookback: 3
+    mode: "intraday"
+    vol_lookback: 20
+    earnings_filter_days: 1
+    lag_days: null
+  quality:
+    weights:
+      roe: 1.0
+      gross_margin: 1.0
+      cfo_to_assets: 1.0
+    lag_days: null
+  value:
+    weights:
+      earnings_yield: 1.0
+      fcf_yield: 1.0
+      ev_ebitda_yield: 1.0
+    lag_days: null
+  low_vol:
+    lag_days: null
+
+data_selection:
+  use_adj_prices: true

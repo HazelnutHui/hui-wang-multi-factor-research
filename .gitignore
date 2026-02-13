@@ -1,0 +1,38 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Local datasets and generated artifacts (do not publish)
+data/
+logs/
+results/
+segment_results/
+segment_results_stage0/
+walk_forward_results/
+archive/
+
+# Strategy run artifacts
+strategies/*/results/
+strategies/*/runs/
+strategies/*/reports/
+
+# Optional local research artifacts
+brain/results/
+brain/logs/
+
+# Notion/private notes
+NOTION_PROJECT_UPDATE.md

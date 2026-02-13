@@ -1,0 +1,27 @@
+strategy:
+  id: "pead_v1"
+  name: "PEAD_SUE_Shifted"
+  version: "1.0"
+  output_dir: "strategies/pead_v1"
+
+backtest_periods:
+  train_start: "2015-01-01"
+  train_end: "2020-12-31"
+  test_start: "2021-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 5
+  holding_period: 1
+
+factors:
+  weights:
+    pead: 1.0
+    momentum: 0.0
+    reversal: 0.0
+    low_vol: 0.0
+  pead:
+    sue_threshold: 0.5
+    lookback_quarters: 8
+    date_shift_days: 0
+    use_shifted_factor: true
