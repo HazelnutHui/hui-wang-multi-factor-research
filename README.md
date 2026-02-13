@@ -4,6 +4,9 @@ A bias-aware, reproducible, daily-frequency factor research system for US equiti
 
 This project focuses on turning factor ideas into decision-grade research outputs with a consistent validation protocol, not one-off backtest screenshots.
 
+## Recruiter Quick Link
+- Start here: [`PROJECT_SUMMARY.md`](PROJECT_SUMMARY.md)
+
 ## What This Project Does
 - Builds rebalance-date-driven backtests for factor strategies
 - Evaluates factors with segmented IC, fixed train/test, and walk-forward
