@@ -36,3 +36,9 @@ brain/logs/
 
 # Notion/private notes
 NOTION_PROJECT_UPDATE.md
+
+# Localized/non-English docs excluded from public repo
+*_CN.md
+strategies/*/strategy_cn.md
+strategies/strategy_compare_cn.md
+A_SHARE_STATUS.md

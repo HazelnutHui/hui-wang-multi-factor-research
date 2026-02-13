@@ -2,7 +2,7 @@
 
 Last checked: 2026-02-12
 
-Purpose: define a complete, modular baseline workflow for a new single factor before组合.
+Purpose: define a complete, modular baseline workflow for a new single factor before combination.
 
 ---
 
