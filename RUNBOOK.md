@@ -55,3 +55,37 @@ python -m pytest tests
 - Large datasets and logs are intentionally excluded from this public repository.
 - You need your own local data cache and API key to fully reproduce historical runs.
 - Do not commit secrets or API credentials.
+
+## 5) Code Sync Workflow (Local <-> Workstation)
+- Recommended rule:
+  - Code/docs: sync via Git (`push`/`pull`)
+  - Data/results/logs: sync via `rsync`
+
+If you configured local zsh helpers:
+
+```bash
+sync_push "docs: update runbook"
+sync_pull_ws
+sync_all "feat: update strategy config"
+```
+
+Without helper functions:
+
+```bash
+# local machine
+cd /Users/hui/quant_score/v4
+git add -A
+git commit -m "your message"
+git push
+
+# workstation
+cd ~/projects/hui-wang-multi-factor-research
+git pull
+```
+
+Example data/result sync (run on local machine):
+
+```bash
+rsync -avh --progress /Users/hui/quant_score/v4/data/ hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ /Users/hui/quant_score/v4/segment_results/
+```
