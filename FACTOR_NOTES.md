@@ -12,14 +12,12 @@ Purpose: summarize current implementation logic and practical caveats for major 
 
 ## Quality
 - Implementation: composite quality score (profitability, margin, cashflow quality, leverage penalty).
-- Status (new protocol Stage 1 rerun): completed.
-- Interim metrics: `ic_mean=0.000957`, `ic_std=0.008283`, `% positive segments=44.44%`.
+- Status: Stage 1 rerun in progress (8-core parallel segments).
 - Notes: sensitive to data coverage and specification details.
 
 ## Low-vol
 - Implementation: residual/downside volatility style signal.
-- Status (new protocol Stage 1 rerun): completed.
-- Interim metrics: `ic_mean=0.003209`, `ic_std=0.034677`, `% positive segments=44.44%`.
+- Status: Stage 1 rerun in progress (8-core parallel segments).
 - Notes: robustness improves with stronger neutralization but remains inconsistent.
 
 ## Momentum
@@ -30,12 +28,10 @@ Purpose: summarize current implementation logic and practical caveats for major 
 
 ## Reversal
 - Implementation: short-horizon reversal signal.
-- Status (new protocol Stage 1 rerun): completed.
-- Interim metrics: `ic_mean=0.003564`, `ic_std=0.010793`, `% positive segments=44.44%`.
+- Status: Stage 1 rerun in progress (8-core parallel segments).
 - Notes: transaction-cost sensitivity is usually high.
 
 ## PEAD
 - Implementation: event-driven earnings surprise alignment.
-- Status (new protocol Stage 1 rerun): completed.
-- Interim metrics: `ic_mean=0.000766`, `ic_std=0.030426`, `% positive segments=55.56%`.
+- Status: Stage 1 rerun in progress (8-core parallel segments).
 - Notes: strict event-date alignment and execution timing assumptions are critical.

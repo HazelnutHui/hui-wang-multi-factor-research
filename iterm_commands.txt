@@ -1,22 +1,22 @@
-# iTerm Commands (V4) - Clean Residual + Stage1 2Y-Segment Parallel
+# V4 Commands - Rerun Remaining 4 Factors with 8-Core Parallelism
+# Keep existing value/momentum results, rerun: reversal/low_vol/quality/pead
 # Run on workstation: ~/projects/hui-wang-multi-factor-research
 
-# 1) Clean residual process/logs/results for reversal & pead
 cd ~/projects/hui-wang-multi-factor-research
 source .venv/bin/activate
 export PYTHONPATH=$(pwd)
-mkdir -p logs
 
-pgrep -af "scripts/run_segmented_factors.py" || true
+# 1) Stop residual jobs and clean only remaining-factor artifacts
 pkill -f "scripts/run_segmented_factors.py" || true
-sleep 2
+sleep 1
 pgrep -af "scripts/run_segmented_factors.py" || echo "no residual process"
 
-rm -f logs/reversal_segment_stage1_*.log logs/pead_segment_stage1_*.log
-find segment_results -type d \( -path "*/reversal" -o -path "*/pead" \) -prune -exec rm -rf {} +
+find logs -type f \( -name "reversal_stage1_*.log" -o -name "low_vol_stage1_*.log" -o -name "quality_stage1_*.log" -o -name "pead_stage1_*.log" \) -delete
+find segment_results -type d \( -name reversal -o -name low_vol -o -name quality -o -name pead \) -prune -exec rm -rf {} +
+rm -rf segment_results/stage1_parallel_remaining
 
-# 2) Stage1 rerun by 2-year segments in parallel (reversal + pead)
-# Note: each segment writes to its own out-dir to avoid concurrent file overwrite.
+# 2) Run remaining factors by 2-year segments in parallel (8 workers)
+# Total tasks: 4 factors * 9 segments = 36
 printf "%s\n" \
   "reversal 2010-01-04 2012-01-03" \
   "reversal 2012-01-04 2014-01-03" \
@@ -27,6 +27,24 @@ printf "%s\n" \
   "reversal 2022-01-04 2024-01-03" \
   "reversal 2024-01-04 2026-01-03" \
   "reversal 2026-01-04 2026-01-28" \
+  "low_vol 2010-01-04 2012-01-03" \
+  "low_vol 2012-01-04 2014-01-03" \
+  "low_vol 2014-01-04 2016-01-03" \
+  "low_vol 2016-01-04 2018-01-03" \
+  "low_vol 2018-01-04 2020-01-03" \
+  "low_vol 2020-01-04 2022-01-03" \
+  "low_vol 2022-01-04 2024-01-03" \
+  "low_vol 2024-01-04 2026-01-03" \
+  "low_vol 2026-01-04 2026-01-28" \
+  "quality 2010-01-04 2012-01-03" \
+  "quality 2012-01-04 2014-01-03" \
+  "quality 2014-01-04 2016-01-03" \
+  "quality 2016-01-04 2018-01-03" \
+  "quality 2018-01-04 2020-01-03" \
+  "quality 2020-01-04 2022-01-03" \
+  "quality 2022-01-04 2024-01-03" \
+  "quality 2024-01-04 2026-01-03" \
+  "quality 2026-01-04 2026-01-28" \
   "pead 2010-01-04 2012-01-03" \
   "pead 2012-01-04 2014-01-03" \
   "pead 2014-01-04 2016-01-03" \
@@ -36,13 +54,13 @@ printf "%s\n" \
   "pead 2022-01-04 2024-01-03" \
   "pead 2024-01-04 2026-01-03" \
   "pead 2026-01-04 2026-01-28" \
-| xargs -n3 -P4 bash -lc '
+| xargs -n3 -P8 bash -lc '
   f="$1"; s="$2"; e="$3"
   cd ~/projects/hui-wang-multi-factor-research || exit 1
   source .venv/bin/activate
   export PYTHONPATH=$(pwd)
   tag="${s//-/}_${e//-/}"
-  out="segment_results/stage1_parallel/${f}/${tag}"
+  out="segment_results/stage1_parallel_remaining/${f}/${tag}"
   mkdir -p "$(dirname "$out")" logs
   echo "===== Stage1 ${f} ${s}->${e} $(date) ====="
   python scripts/run_segmented_factors.py \
@@ -55,21 +73,19 @@ printf "%s\n" \
     |& tee "logs/${f}_stage1_${tag}.log"
 ' _
 
-# 3) Merge parallel segment outputs into one summary csv per factor
-python3 - <<'PY'
+# 3) Merge segment outputs for remaining factors
+python - <<'PY'
 from pathlib import Path
 import pandas as pd
 
-root = Path("segment_results/stage1_parallel")
-for f in ["reversal", "pead"]:
+root = Path("segment_results/stage1_parallel_remaining")
+for f in ["reversal", "low_vol", "quality", "pead"]:
     files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
     if not files:
         print(f"{f}: no files")
         continue
     dfs = [pd.read_csv(p) for p in files]
-    out_df = pd.concat(dfs, ignore_index=True).drop_duplicates(
-        subset=["segment_start", "segment_end"]
-    )
+    out_df = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["segment_start", "segment_end"])
     out_df = out_df.sort_values(["segment_start", "segment_end"]).reset_index(drop=True)
     out_dir = root / "merged" / f
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -78,36 +94,17 @@ for f in ["reversal", "pead"]:
     print(f"{f}: {len(out_df)} rows -> {out_path}")
 PY
 
-# 4) Check IC results (all segment_summary.csv on workstation)
-cd ~/projects/hui-wang-multi-factor-research
-python3 - <<'PY'
-import pandas as pd
-from pathlib import Path
-
-paths = sorted(Path("segment_results").glob("**/segment_summary.csv"))
-for p in paths:
-    df = pd.read_csv(p)
-    if "ic" not in df.columns:
-        continue
-    ic = pd.to_numeric(df["ic"], errors="coerce")
-    print(f"\n=== {p} ===")
-    print(df[["segment_start", "segment_end", "ic"]].to_string(index=False))
-    print(f"ic_mean={ic.mean():.6f}, pos_ratio={(ic > 0).mean():.4f}, valid={ic.notna().sum()}/{len(ic)}")
-PY
-
-# 5) Final Stage1 summary ranking (6 factors)
-cd ~/projects/hui-wang-multi-factor-research
-source .venv/bin/activate
+# 4) Final 6-factor Stage1 ranking (value/momentum old run + remaining merged rerun)
 python - <<'PY'
 import pandas as pd
 
 targets = {
-    "value": "segment_results/2026-02-14_191712/value/segment_summary.csv",
-    "quality": "segment_results/2026-02-14_201931/quality/segment_summary.csv",
-    "low_vol": "segment_results/2026-02-14_212203/low_vol/segment_summary.csv",
-    "momentum": "segment_results/2026-02-14_225751/momentum/segment_summary.csv",
-    "reversal": "segment_results/stage1_parallel/merged/reversal/segment_summary.csv",
-    "pead": "segment_results/stage1_parallel/merged/pead/segment_summary.csv",
+    "value": "segment_results/2026-02-15_155516/value/segment_summary.csv",
+    "momentum": "segment_results/2026-02-15_165743/momentum/segment_summary.csv",
+    "reversal": "segment_results/stage1_parallel_remaining/merged/reversal/segment_summary.csv",
+    "low_vol": "segment_results/stage1_parallel_remaining/merged/low_vol/segment_summary.csv",
+    "quality": "segment_results/stage1_parallel_remaining/merged/quality/segment_summary.csv",
+    "pead": "segment_results/stage1_parallel_remaining/merged/pead/segment_summary.csv",
 }
 
 rows = []

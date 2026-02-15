@@ -18,15 +18,13 @@ Built a reproducible, bias-aware daily-factor research platform that distinguish
 Factors that fail segmented stability are filtered out early.
 
 ## Current Findings (Updated 2026-02-15 UTC)
-- Full Stage 1 rerun is complete for all six target single factors.
-- Stage 1 ranking by segmented `ic_mean`:
-  1. `value` (`0.054063`)
-  2. `momentum` (`0.012868`, 6-1 specification)
-  3. `reversal` (`0.003564`)
-  4. `low_vol` (`0.003209`)
-  5. `quality` (`0.000957`)
-  6. `pead` (`0.000766`)
-- Current shortlist for Stage 2 priority: `value`, `momentum`, then `reversal`.
+- Stage 1 rerun is partially completed under latest formula logic updates.
+- Completed so far:
+  - `value` (`ic_mean=0.054063`)
+  - `momentum` (`ic_mean=0.012868`, 6-1 specification)
+- Running now (8-core parallel segmented rerun):
+  - `reversal`, `low_vol`, `quality`, `pead`
+- Stage 2 shortlist will be finalized after the remaining four factors complete Stage 1.
 
 ## Engineering Strengths Demonstrated
 - Research infra design instead of one-off scripts
