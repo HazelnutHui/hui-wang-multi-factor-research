@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|
 | PEAD v1 | SUE-driven earnings drift | Earnings + Prices | High | Low (event-driven) | Event strategies, drift validation |
 | Reversal v1 | Intraday reversal (-Close/Open) | Daily OHLCV | Medium | High (daily) | Short-term mean reversion |
-| Momentum v1 | 12-1 momentum | Adjusted prices | Low | Low (monthly) | Medium-term trend capture |
+| Momentum v1 | 6-1 momentum | Adjusted prices | Low | Medium (daily calc, monthly rebalance) | Medium-term trend capture |
 
 ---
 
@@ -30,7 +30,7 @@
 |---|---|
 | PEAD v1 | `SUE_THRESHOLD=0.5`, `LOOKBACK_QUARTERS=8`, `DATE_SHIFT_DAYS=0`, `HOLDING=1` |
 | Reversal v1 | `REVERSAL_MODE=intraday`, `REVERSAL_VOL_LOOKBACK=20`, `EARNINGS_FILTER=1` |
-| Momentum v1 | `MOMENTUM_LOOKBACK=252`, `MOMENTUM_SKIP=21`, `MOMENTUM_VOL_LOOKBACK=60` |
+| Momentum v1 | `MOMENTUM_LOOKBACK=126`, `MOMENTUM_SKIP=21`, `MOMENTUM_VOL_LOOKBACK=None` |
 
 ---
 
@@ -63,4 +63,3 @@
 - PEAD: `strategies/pead_v1/`
 - Reversal: `strategies/reversal_v1/`
 - Momentum: `strategies/momentum_v1/`
-

@@ -1,4 +1,4 @@
-# Medium-Term Momentum Strategy v1 (12-1 Momentum)
+# Medium-Term Momentum Strategy v1 (6-1 Momentum)
 
 > Goal: Capture medium-term trend persistence. Signals are computed after close; trades execute at next open.
 
@@ -8,10 +8,10 @@
 
 **Core hypothesis**: Medium-term price trends tend to persist (momentum effect).
 
-**Signal definition (12-1 momentum)**:
-- Compute 12-month cumulative return on daily bars, skipping the most recent 1 month:
+**Signal definition (6-1 momentum)**:
+- Compute 6-month cumulative return on daily bars, skipping the most recent 1 month:
   \[
-  mom_{12-1} = \frac{P_{t-21}}{P_{t-252}} - 1
+  mom_{6-1} = \frac{P_{t-21}}{P_{t-126}} - 1
   \]
 - Interpretation:
   - Strong medium-term winners → higher signal
@@ -29,7 +29,7 @@
 **Execution flow**:
 1) Build trading calendar and rebalance dates
 2) Build tradable universe (delisting/price/liquidity filters)
-3) Compute momentum signals (12-1)
+3) Compute momentum signals (6-1)
 4) Rank and build positions (long-only)
 5) Execute next open; hold 21 trading days
 6) Compute returns and output results
@@ -55,8 +55,8 @@
   - Optional volatility filter (`UNIVERSE_MAX_VOL`, `UNIVERSE_VOL_LOOKBACK`)
 
 ### 3.3 FactorEngine
-- Computes 12-1 momentum (daily bars):
-  - 252-day lookback, skip recent 21 days
+- Computes 6-1 momentum (daily bars):
+  - 126-day lookback, skip recent 21 days
 - Parameters: `MOMENTUM_LOOKBACK`, `MOMENTUM_SKIP`
 - Optional winsorization: `MOMENTUM_WINSOR_Z`
 - Optional industry neutralization: `INDUSTRY_NEUTRAL` (needs `INDUSTRY_MAP_PATH`)
@@ -80,18 +80,18 @@
 
 Location: `strategies/momentum_v1/config.py`
 
-- `MOMENTUM_LOOKBACK = 252`
+- `MOMENTUM_LOOKBACK = 126`
 - `MOMENTUM_SKIP = 21`
-- `MOMENTUM_VOL_LOOKBACK = 60`
-- `MOMENTUM_WINSOR_Z = 3.0`
+- `MOMENTUM_VOL_LOOKBACK = None`
+- `MOMENTUM_WINSOR_Z = None`
 - `HOLDING_PERIOD = 21`
-- `REBALANCE_FREQ = 21`
+- `REBALANCE_FREQ = 1`
 - `EXECUTION_DELAY = 1`
 - `TRANSACTION_COST = 0.0020`
 - `MIN_PRICE = 5.0`
 - `MIN_DOLLAR_VOLUME = 1e6`
-- `UNIVERSE_VOL_LOOKBACK = 60`
-- `UNIVERSE_MAX_VOL = 0.08`
+- `UNIVERSE_VOL_LOOKBACK = None`
+- `UNIVERSE_MAX_VOL = None`
 - `USE_ADJ_PRICES = True`
 
 ---

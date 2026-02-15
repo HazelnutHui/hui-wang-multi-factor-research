@@ -24,21 +24,21 @@ Each factor follows the same research gate:
 
 If a factor fails step 1, it does not move forward.
 
-## Current Research Snapshot
-Completed single-factor runs:
-- Value: strongest and most stable among completed factors
-- Quality: weak out-of-sample signal
-- Low-vol: mixed, regime-sensitive stability
+## Current Research Snapshot (New Protocol Rerun)
+As of 2026-02-15 (UTC), Stage 1 rerun status:
+- Completed: `value`, `quality`, `low_vol`, `momentum`
+- Running: `reversal`, `pead` (2-year segment parallel rerun)
 
-Next queue:
-- Momentum
-- Reversal
-- PEAD
+Interim Stage 1 metrics (2-year segmented IC):
+- `value`: `ic_mean=0.054063`, `ic_std=0.021962`, `pos_ratio=0.8889`
+- `momentum`: `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`
+- `quality`: `ic_mean=0.000957`, `ic_std=0.008283`, `pos_ratio=0.4444`
+- `low_vol`: `ic_mean=0.003209`, `ic_std=0.034677`, `pos_ratio=0.4444`
 
-Current policy:
-- Use Stage 1 for screening
-- Use Stage 2 as robustness comparison
-- Move to multi-factor only after 2-3 stable single factors
+Policy for this rerun cycle:
+- Finish Stage 1 for all target factors first
+- Then run Stage 2 robustness under the same protocol
+- Update train/test and walk-forward only after Stage 1/2 refresh is complete
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration

@@ -1,6 +1,6 @@
 strategy:
   id: "momentum_v1_check"
-  name: "MOMENTUM_12_1"
+  name: "MOMENTUM_6_1"
   version: "1.0"
   output_dir: "strategies/_check_momentum_v1"
 
@@ -11,7 +11,7 @@ backtest_periods:
   test_end: "2026-01-28"
 
 execution:
-  rebalance_freq: 21
+  rebalance_freq: 1
   holding_period: 21
 
 calendar:
@@ -24,8 +24,10 @@ factors:
     reversal: 0.0
     low_vol: 0.0
   momentum:
-    use_monthly: true
-    lookback_months: 12
+    lookback: 126
+    skip: 21
+    use_monthly: false
+    lookback_months: 6
     skip_months: 1
     zscore: false
     winsor_z: null

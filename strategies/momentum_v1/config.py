@@ -3,7 +3,7 @@ Medium-Term Momentum Strategy v1 - Locked Configuration
 """
 
 STRATEGY_VERSION = "1.0"
-STRATEGY_NAME = "MOMENTUM_12_1"
+STRATEGY_NAME = "MOMENTUM_6_1"
 
 # Factor (LOCKED)
 # Daily 6-1 momentum: 6-month lookback, skip last 1 month (daily bars)

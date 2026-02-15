@@ -64,12 +64,12 @@ factors:
   include_components: false
   weights: {}
   momentum:
-    lookback: 252
+    lookback: 126
     skip: 21
     vol_lookback: null
     lag_days: null
-    use_monthly: true
-    lookback_months: 12
+    use_monthly: false
+    lookback_months: 6
     skip_months: 1
     zscore: false
     winsor_z: null
