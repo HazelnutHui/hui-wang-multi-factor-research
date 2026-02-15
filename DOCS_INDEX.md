@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-13
+Last updated: 2026-02-15
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary

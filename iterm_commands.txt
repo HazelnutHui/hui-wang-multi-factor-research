@@ -77,3 +77,46 @@ for f in ["reversal", "pead"]:
     out_df.to_csv(out_path, index=False)
     print(f"{f}: {len(out_df)} rows -> {out_path}")
 PY
+
+# 4) Check IC results (all segment_summary.csv on workstation)
+cd ~/projects/hui-wang-multi-factor-research
+python3 - <<'PY'
+import pandas as pd
+from pathlib import Path
+
+paths = sorted(Path("segment_results").glob("**/segment_summary.csv"))
+for p in paths:
+    df = pd.read_csv(p)
+    if "ic" not in df.columns:
+        continue
+    ic = pd.to_numeric(df["ic"], errors="coerce")
+    print(f"\n=== {p} ===")
+    print(df[["segment_start", "segment_end", "ic"]].to_string(index=False))
+    print(f"ic_mean={ic.mean():.6f}, pos_ratio={(ic > 0).mean():.4f}, valid={ic.notna().sum()}/{len(ic)}")
+PY
+
+# 5) Final Stage1 summary ranking (6 factors)
+cd ~/projects/hui-wang-multi-factor-research
+source .venv/bin/activate
+python - <<'PY'
+import pandas as pd
+
+targets = {
+    "value": "segment_results/2026-02-14_191712/value/segment_summary.csv",
+    "quality": "segment_results/2026-02-14_201931/quality/segment_summary.csv",
+    "low_vol": "segment_results/2026-02-14_212203/low_vol/segment_summary.csv",
+    "momentum": "segment_results/2026-02-14_225751/momentum/segment_summary.csv",
+    "reversal": "segment_results/stage1_parallel/merged/reversal/segment_summary.csv",
+    "pead": "segment_results/stage1_parallel/merged/pead/segment_summary.csv",
+}
+
+rows = []
+for f, p in targets.items():
+    df = pd.read_csv(p)
+    ic = pd.to_numeric(df["ic"], errors="coerce")
+    rows.append([f, ic.mean(), ic.std(), (ic > 0).mean(), ic.notna().sum(), len(ic), p])
+
+out = pd.DataFrame(rows, columns=["factor", "ic_mean", "ic_std", "pos_ratio", "valid", "rows", "file"])
+out = out.sort_values("ic_mean", ascending=False).reset_index(drop=True)
+print(out.to_string(index=False))
+PY

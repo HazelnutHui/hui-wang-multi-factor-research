@@ -24,21 +24,26 @@ Each factor follows the same research gate:
 
 If a factor fails step 1, it does not move forward.
 
-## Current Research Snapshot (New Protocol Rerun)
-As of 2026-02-15 (UTC), Stage 1 rerun status:
-- Completed: `value`, `quality`, `low_vol`, `momentum`
-- Running: `reversal`, `pead` (2-year segment parallel rerun)
-
-Interim Stage 1 metrics (2-year segmented IC):
+## Current Research Snapshot (Updated 2026-02-15 UTC)
+Stage 1 rerun (2-year segmented IC) is complete for all target factors:
 - `value`: `ic_mean=0.054063`, `ic_std=0.021962`, `pos_ratio=0.8889`
-- `momentum`: `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`
-- `quality`: `ic_mean=0.000957`, `ic_std=0.008283`, `pos_ratio=0.4444`
+- `momentum` (6-1): `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`
+- `reversal`: `ic_mean=0.003564`, `ic_std=0.010793`, `pos_ratio=0.4444`
 - `low_vol`: `ic_mean=0.003209`, `ic_std=0.034677`, `pos_ratio=0.4444`
+- `quality`: `ic_mean=0.000957`, `ic_std=0.008283`, `pos_ratio=0.4444`
+- `pead`: `ic_mean=0.000766`, `ic_std=0.030426`, `pos_ratio=0.5556`
 
-Policy for this rerun cycle:
-- Finish Stage 1 for all target factors first
-- Then run Stage 2 robustness under the same protocol
-- Update train/test and walk-forward only after Stage 1/2 refresh is complete
+Current Stage 1 ranking (by `ic_mean`):
+1. `value`
+2. `momentum`
+3. `reversal`
+4. `low_vol`
+5. `quality`
+6. `pead`
+
+Next policy:
+- Run Stage 2 robustness on prioritized factors first (`value`, `momentum`, then `reversal`)
+- Refresh fixed train/test under the same updated protocol
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration

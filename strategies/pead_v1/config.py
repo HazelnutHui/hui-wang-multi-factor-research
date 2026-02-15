@@ -9,7 +9,8 @@ STRATEGY_NAME = "PEAD_SUE_Shifted"
 # Factor (LOCKED)
 SUE_THRESHOLD = 0.5
 LOOKBACK_QUARTERS = 8
-DATE_SHIFT_DAYS = 0  # align to earnings_date (avoid look-ahead)
+DATE_SHIFT_DAYS = 0  # signal uses event date (no forward date lookup)
+PEAD_EVENT_MAX_AGE_DAYS = 5  # allow recent event carry-over (e.g., weekend event dates)
 
 # Execution (LOCKED)
 HOLDING_PERIOD = 1
@@ -35,13 +36,13 @@ TEST_END    = "2026-01-28"
 # Alignment rules (AUDITABLE)
 ALIGNMENT_RULES = {
     "earnings_date_definition": "FMP earnings API 'date' field",
-    "date_interpretation": "Day AFTER market reaction (assume announcement is after-market)",
-    "signal_date_shift": "+1 day forward (earnings_date + 1 = signal_date)",
+    "date_interpretation": "event date is used as signal reference date",
+    "signal_date_shift": "0 day (no forward lookup)",
     "example": {
         "fmp_date": "2024-02-01",
         "assumed_announcement": "2024-01-31 after-market",
-        "signal_generated": "2024-02-02",
-        "execution": "2024-02-03 open"
+        "signal_generated": "2024-02-01 close",
+        "execution": "2024-02-02 open"
     },
     "execution_timing": {
         "signal_day": "T (close)",

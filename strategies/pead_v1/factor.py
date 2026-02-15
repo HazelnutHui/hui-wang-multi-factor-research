@@ -20,7 +20,10 @@ class ShiftedPEADFactor(CachedPEADFactor):
         # Cache: symbol -> dict(date -> row)
         self._sue_map_cache = {}
         # Signal date shift (days)
-        self.date_shift_days = 1
+        self.date_shift_days = 0
+        # Accept latest event on or before target date within age window (days).
+        # This avoids missing signals when event date falls on non-trading days.
+        self.max_event_age_days = 5
 
     def _get_sue_table(self, symbol: str) -> pd.DataFrame:
         if symbol in self._sue_table_cache:
@@ -74,7 +77,14 @@ class ShiftedPEADFactor(CachedPEADFactor):
         m = self._sue_map_cache.get(symbol, {})
         row = m.get(pd.Timestamp(target_date))
         if row is None:
-            return {'has_event': False, 'sue': None, 'reason': 'no_event_on_date'}
+            eligible = [d for d in m.keys() if d <= pd.Timestamp(target_date)]
+            if not eligible:
+                return {'has_event': False, 'sue': None, 'reason': 'no_event_on_or_before_date'}
+            last_event_date = max(eligible)
+            age_days = int((pd.Timestamp(target_date) - pd.Timestamp(last_event_date)).days)
+            if age_days > int(self.max_event_age_days):
+                return {'has_event': False, 'sue': None, 'reason': 'event_too_old'}
+            row = m.get(pd.Timestamp(last_event_date))
 
         sue_value = row.get('sue', np.nan)
         if pd.isna(sue_value):

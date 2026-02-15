@@ -160,6 +160,7 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "SUE_THRESHOLD": pead.get("sue_threshold"),
         "LOOKBACK_QUARTERS": pead.get("lookback_quarters"),
         "DATE_SHIFT_DAYS": pead.get("date_shift_days"),
+        "PEAD_EVENT_MAX_AGE_DAYS": pead.get("event_max_age_days"),
         "PEAD_LAG_DAYS": pead.get("lag_days"),
 
         "REVERSAL_LOOKBACK": reversal.get("lookback"),
@@ -169,8 +170,10 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "REVERSAL_LAG_DAYS": reversal.get("lag_days"),
 
         "QUALITY_WEIGHTS": quality.get("weights"),
+        "QUALITY_MAX_STALENESS_DAYS": quality.get("max_staleness_days"),
         "QUALITY_LAG_DAYS": quality.get("lag_days"),
         "VALUE_WEIGHTS": value.get("weights"),
+        "VALUE_MAX_STALENESS_DAYS": value.get("max_staleness_days"),
         "VALUE_LAG_DAYS": value.get("lag_days"),
         "LOW_VOL_LAG_DAYS": low_vol.get("lag_days"),
         "BETA_LOOKBACK": factors.get("beta", {}).get("lookback"),

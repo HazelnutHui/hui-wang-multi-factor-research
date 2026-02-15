@@ -7,7 +7,7 @@ STRATEGY_NAME = "SHORT_TERM_REVERSAL_3D"
 
 # Factor (LOCKED)
 REVERSAL_LOOKBACK = 3
-REVERSAL_MODE = "intraday"  # use same-day close/open reversal
+REVERSAL_MODE = "intraday"  # use multi-day average of -(close/open-1), window=REVERSAL_LOOKBACK
 REVERSAL_VOL_LOOKBACK = 20
 REVERSAL_EARNINGS_FILTER_DAYS = 1
 

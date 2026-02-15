@@ -70,9 +70,15 @@ class FactorEngine:
         self._earnings_date_cache = {}
 
         fundamentals_dir = self.config.get('FUNDAMENTALS_DIR', '../data/fmp/ratios/quality')
-        self.fundamentals_engine = FundamentalsEngine(fundamentals_dir)
+        self.fundamentals_engine = FundamentalsEngine(
+            fundamentals_dir,
+            max_staleness_days=self.config.get('QUALITY_MAX_STALENESS_DAYS', 270),
+        )
         value_dir = self.config.get('VALUE_DIR', '../data/fmp/ratios/value')
-        self.value_engine = ValueFundamentalsEngine(value_dir)
+        self.value_engine = ValueFundamentalsEngine(
+            value_dir,
+            max_staleness_days=self.config.get('VALUE_MAX_STALENESS_DAYS', 270),
+        )
 
         # Optional industry neutralization
         self.industry_neutral = bool(self.config.get('INDUSTRY_NEUTRAL', False))
@@ -87,6 +93,8 @@ class FactorEngine:
             self.pead_factor.lookback_quarters = int(self.config.get("LOOKBACK_QUARTERS"))
         if hasattr(self.pead_factor, "date_shift_days") and self.config.get("DATE_SHIFT_DAYS") is not None:
             self.pead_factor.date_shift_days = int(self.config.get("DATE_SHIFT_DAYS"))
+        if hasattr(self.pead_factor, "max_event_age_days") and self.config.get("PEAD_EVENT_MAX_AGE_DAYS") is not None:
+            self.pead_factor.max_event_age_days = int(self.config.get("PEAD_EVENT_MAX_AGE_DAYS"))
 
     def _load_industry_map(self, path: Optional[str]) -> Dict[str, str]:
         if not path:
@@ -195,13 +203,17 @@ class FactorEngine:
             df = df[df['date'] <= pd.Timestamp(date)]
             if len(df) == 0:
                 return None
-            row = df.iloc[-1]
             if 'open' not in df.columns or 'close' not in df.columns:
                 return None
-            if row['open'] is None or pd.isna(row['open']) or row['open'] <= 0:
+            intraday = df[['open', 'close']].copy()
+            intraday['open'] = pd.to_numeric(intraday['open'], errors='coerce')
+            intraday['close'] = pd.to_numeric(intraday['close'], errors='coerce')
+            intraday = intraday.dropna(subset=['open', 'close'])
+            intraday = intraday[intraday['open'] > 0]
+            if len(intraday) < lookback:
                 return None
-            intraday_ret = (float(row['close']) / float(row['open'])) - 1.0
-            signal = float(-intraday_ret)
+            intraday_ret = (intraday['close'] / intraday['open']) - 1.0
+            signal = float(-intraday_ret.tail(lookback).mean())
         else:
             start_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback * 3)).strftime('%Y-%m-%d')
             df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
@@ -221,6 +233,10 @@ class FactorEngine:
                 signal = float(signal / vol)
 
         return float(signal)
+
+    def _compress_component(self, value: float) -> float:
+        # Signed log compression to reduce metric scale dominance.
+        return float(np.sign(value) * np.log1p(abs(value)))
 
     def _has_earnings_near_date(self, symbol: str, date: str, days: int) -> bool:
         if symbol not in self._earnings_date_cache:
@@ -367,16 +383,18 @@ class FactorEngine:
             return None
         weights = self.config.get('QUALITY_WEIGHTS') or {}
         score = 0.0
-        used = False
+        wsum = 0.0
         for k, w in weights.items():
             v = metrics.get(k)
             if v is None or (isinstance(v, float) and np.isnan(v)):
                 continue
-            score += float(w) * float(v)
-            used = True
-        if not used:
+            wf = float(w)
+            vf = self._compress_component(float(v))
+            score += wf * vf
+            wsum += abs(wf)
+        if wsum <= 0:
             return None
-        return float(score)
+        return float(score / wsum)
 
     def calculate_value(self, symbol: str, date: str) -> Optional[float]:
         if not self.value_engine:
@@ -386,16 +404,18 @@ class FactorEngine:
             return None
         weights = self.config.get('VALUE_WEIGHTS') or {}
         score = 0.0
-        used = False
+        wsum = 0.0
         for k, w in weights.items():
             v = metrics.get(k)
             if v is None or (isinstance(v, float) and np.isnan(v)):
                 continue
-            score += float(w) * float(v)
-            used = True
-        if not used:
+            wf = float(w)
+            vf = self._compress_component(float(v))
+            score += wf * vf
+            wsum += abs(wf)
+        if wsum <= 0:
             return None
-        return float(score)
+        return float(score / wsum)
 
     def calculate_all_factors(self, symbol: str, date: str,
                               needed: Optional[set] = None) -> Dict[str, Optional[float]]:

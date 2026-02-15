@@ -24,4 +24,5 @@ factors:
     sue_threshold: 0.5
     lookback_quarters: 8
     date_shift_days: 0
+    event_max_age_days: 5
     use_shifted_factor: true

@@ -6,9 +6,10 @@ from typing import Optional, Dict
 
 
 class ValueFundamentalsEngine:
-    def __init__(self, fundamentals_dir: str):
+    def __init__(self, fundamentals_dir: str, max_staleness_days: Optional[int] = None):
         self.fundamentals_dir = Path(fundamentals_dir)
         self._cache: Dict[str, pd.DataFrame] = {}
+        self.max_staleness_days = int(max_staleness_days) if max_staleness_days else None
 
     def _load_symbol(self, symbol: str) -> Optional[pd.DataFrame]:
         p = self.fundamentals_dir / f"{symbol}.pkl"
@@ -36,6 +37,11 @@ class ValueFundamentalsEngine:
         if len(df) == 0:
             return None
         row = df.iloc[-1]
+        asof = row.get(date_col)
+        if self.max_staleness_days is not None and pd.notna(asof):
+            age_days = int((d - pd.Timestamp(asof)).days)
+            if age_days > self.max_staleness_days:
+                return None
         out = {
             'earnings_yield': row.get('earnings_yield'),
             'fcf_yield': row.get('fcf_yield'),

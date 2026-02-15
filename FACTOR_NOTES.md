@@ -30,10 +30,12 @@ Purpose: summarize current implementation logic and practical caveats for major 
 
 ## Reversal
 - Implementation: short-horizon reversal signal.
-- Status: Stage 1 rerun in progress (parallel 2-year segments).
+- Status (new protocol Stage 1 rerun): completed.
+- Interim metrics: `ic_mean=0.003564`, `ic_std=0.010793`, `% positive segments=44.44%`.
 - Notes: transaction-cost sensitivity is usually high.
 
 ## PEAD
 - Implementation: event-driven earnings surprise alignment.
-- Status: Stage 1 rerun in progress (parallel 2-year segments).
+- Status (new protocol Stage 1 rerun): completed.
+- Interim metrics: `ic_mean=0.000766`, `ic_std=0.030426`, `% positive segments=55.56%`.
 - Notes: strict event-date alignment and execution timing assumptions are critical.
