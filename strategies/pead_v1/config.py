@@ -10,6 +10,7 @@ STRATEGY_NAME = "PEAD_SUE_Shifted"
 SUE_THRESHOLD = 0.5
 LOOKBACK_QUARTERS = 8
 DATE_SHIFT_DAYS = 0  # signal uses event date (no forward date lookup)
+PEAD_USE_TRADING_DAY_SHIFT = True
 PEAD_EVENT_MAX_AGE_DAYS = 5  # allow recent event carry-over (e.g., weekend event dates)
 
 # Execution (LOCKED)

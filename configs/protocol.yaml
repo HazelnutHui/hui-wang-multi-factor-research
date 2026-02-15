@@ -77,6 +77,7 @@ factors:
     sue_threshold: 0.5
     lookback_quarters: 8
     date_shift_days: 0
+    use_trading_day_shift: true
     event_max_age_days: 5
     lag_days: null
     use_shifted_factor: true

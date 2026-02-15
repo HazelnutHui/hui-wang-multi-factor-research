@@ -95,6 +95,8 @@ class FactorEngine:
             self.pead_factor.date_shift_days = int(self.config.get("DATE_SHIFT_DAYS"))
         if hasattr(self.pead_factor, "max_event_age_days") and self.config.get("PEAD_EVENT_MAX_AGE_DAYS") is not None:
             self.pead_factor.max_event_age_days = int(self.config.get("PEAD_EVENT_MAX_AGE_DAYS"))
+        if hasattr(self.pead_factor, "use_trading_day_shift") and self.config.get("PEAD_USE_TRADING_DAY_SHIFT") is not None:
+            self.pead_factor.use_trading_day_shift = bool(self.config.get("PEAD_USE_TRADING_DAY_SHIFT"))
 
     def _load_industry_map(self, path: Optional[str]) -> Dict[str, str]:
         if not path:

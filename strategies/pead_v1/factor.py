@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from pandas.tseries.offsets import BDay
 
 # IMPORTANT: we reuse your existing CachedPEADFactor implementation
 # It should provide:
@@ -21,6 +22,7 @@ class ShiftedPEADFactor(CachedPEADFactor):
         self._sue_map_cache = {}
         # Signal date shift (days)
         self.date_shift_days = 0
+        self.use_trading_day_shift = True
         # Accept latest event on or before target date within age window (days).
         # This avoids missing signals when event date falls on non-trading days.
         self.max_event_age_days = 5
@@ -68,7 +70,11 @@ class ShiftedPEADFactor(CachedPEADFactor):
           }
         """
         date_ts = pd.Timestamp(date)
-        target_date = date_ts + pd.Timedelta(days=int(self.date_shift_days))
+        shift_days = int(self.date_shift_days)
+        if self.use_trading_day_shift and shift_days != 0:
+            target_date = date_ts + BDay(shift_days)
+        else:
+            target_date = date_ts + pd.Timedelta(days=shift_days)
 
         tbl = self._get_sue_table(symbol)
         if tbl is None or len(tbl) == 0:

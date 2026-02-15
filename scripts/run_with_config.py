@@ -160,6 +160,7 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "SUE_THRESHOLD": pead.get("sue_threshold"),
         "LOOKBACK_QUARTERS": pead.get("lookback_quarters"),
         "DATE_SHIFT_DAYS": pead.get("date_shift_days"),
+        "PEAD_USE_TRADING_DAY_SHIFT": pead.get("use_trading_day_shift"),
         "PEAD_EVENT_MAX_AGE_DAYS": pead.get("event_max_age_days"),
         "PEAD_LAG_DAYS": pead.get("lag_days"),
 

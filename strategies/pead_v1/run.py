@@ -62,6 +62,7 @@ def _make_engine_config():
         'SUE_THRESHOLD': cfg.SUE_THRESHOLD,
         'LOOKBACK_QUARTERS': cfg.LOOKBACK_QUARTERS,
         'DATE_SHIFT_DAYS': cfg.DATE_SHIFT_DAYS,
+        'PEAD_USE_TRADING_DAY_SHIFT': getattr(cfg, 'PEAD_USE_TRADING_DAY_SHIFT', True),
         'PEAD_EVENT_MAX_AGE_DAYS': getattr(cfg, 'PEAD_EVENT_MAX_AGE_DAYS', 5),
 
         'TRANSACTION_COST': cfg.TRANSACTION_COST,
