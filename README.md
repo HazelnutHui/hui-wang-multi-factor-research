@@ -26,22 +26,23 @@ If a factor fails step 1, it does not move forward.
 
 ## Current Research Snapshot (Updated 2026-02-16 UTC)
 Current status under updated single-factor formula logic:
-- `v1` Stage 1 completed: `value`, `momentum` (6-1), `reversal`, `low_vol`, `quality`, `pead`
+- `v1` Stage 1 completed and kept as baseline reference
 - `v2` has been overwritten to `v2.1` (institutional baseline upgrade, nontrivial formula changes)
-- `v2.1` full 3-layer validation is pending (segmented / fixed train-test / walk-forward)
-- `v1` Stage 1 ranking by `ic_mean`: `value` > `momentum` > `reversal` > `low_vol` > `quality` > `pead`
+- `v2.1` Stage 1 segmented validation completed (6 factors x 9 segments)
+- `v2.1` Stage 1 ranking by `ic_mean`: `value_v2` > `momentum_v2` > `quality_v2` > `low_vol_v2` > `reversal_v2` > `pead_v2`
 
-Latest Stage 1 metrics:
-- `value`: `ic_mean=0.054227`, `ic_std=0.022106`, `pos_ratio=0.8889`, `valid_n=8/9`
-- `momentum` (6-1): `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`, `valid_n=8/9`
-- `reversal`: `ic_mean=0.005325`, `ic_std=0.006380`, `pos_ratio=1.0000`, `valid_n=9/9`
-- `low_vol`: `ic_mean=0.003209`, `ic_std=0.034677`, `pos_ratio=0.4444`, `valid_n=8/9`
-- `quality`: `ic_mean=0.002387`, `ic_std=0.008456`, `pos_ratio=0.5556`, `valid_n=8/9`
-- `pead`: `ic_mean=0.000766`, `ic_std=0.030426`, `pos_ratio=0.5556`, `valid_n=9/9`
+Latest `v2.1` Stage 1 metrics:
+- `value_v2`: `ic_mean=0.047520`, `ic_std=0.015569`, `pos_ratio=0.8889`, `valid_n=8/9`
+- `momentum_v2`: `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`, `valid_n=8/9`
+- `quality_v2`: `ic_mean=0.009247`, `ic_std=0.011422`, `pos_ratio=0.5556`, `valid_n=8/9`
+- `low_vol_v2`: `ic_mean=0.009101`, `ic_std=0.033835`, `pos_ratio=0.5556`, `valid_n=8/9`
+- `reversal_v2`: `ic_mean=0.005704`, `ic_std=0.004982`, `pos_ratio=0.8889`, `valid_n=9/9`
+- `pead_v2`: `ic_mean=0.000766`, `ic_std=0.030426`, `pos_ratio=0.5556`, `valid_n=9/9`
 
 Current cycle policy:
 - Keep `v1` results as baseline reference
-- Run `v2.1` full 3-layer validation with Stage 2 institutional constraints
+- Run Stage 2 segmented first on `value_v2,momentum_v2,quality_v2`
+- Then run full Layer2 (fixed train/test) and Layer3 (walk-forward)
 - Use `scripts/compare_v1_v2.py` to decide keep/promote by factor
 
 ## Core Architecture

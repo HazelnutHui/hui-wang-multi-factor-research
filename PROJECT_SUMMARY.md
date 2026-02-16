@@ -18,15 +18,15 @@ Built a reproducible, bias-aware daily-factor research platform that distinguish
 Factors that fail segmented stability are filtered out early.
 
 ## Current Findings (Updated 2026-02-16 UTC)
-- Stage 1 rerun is completed for six target factors under latest formula logic updates.
-- Stage 1 ranking (`ic_mean`):
-  1. `value` (`0.054227`)
-  2. `momentum` (`0.012868`, 6-1 specification)
-  3. `reversal` (`0.005325`)
-  4. `low_vol` (`0.003209`)
-  5. `quality` (`0.002387`)
-  6. `pead` (`0.000766`)
-- Stage 2 priority for this cycle: `value`, `momentum`, `reversal`.
+- `v2.1` Stage 1 rerun is completed for six target factors (54/54 segment tasks).
+- `v2.1` Stage 1 ranking (`ic_mean`):
+  1. `value_v2` (`0.047520`)
+  2. `momentum_v2` (`0.012868`)
+  3. `quality_v2` (`0.009247`)
+  4. `low_vol_v2` (`0.009101`)
+  5. `reversal_v2` (`0.005704`)
+  6. `pead_v2` (`0.000766`)
+- Stage 2 priority for this cycle: `value_v2`, `momentum_v2`, `quality_v2`.
 - `v2` has been overwritten to `v2.1` for institutional-style formula upgrades:
   - residual momentum branch
   - residual downside low-vol baseline

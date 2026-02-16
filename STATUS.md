@@ -9,8 +9,9 @@ Last updated: 2026-02-16
   - Stage 2 = institutional robustness (industry + size/beta neutralization + zscore)
 - Current runtime status:
   - `v1` Stage 1 rerun completed for six target factors
-  - `v2` upgraded in-place to `v2.1` and ready for rerun
-  - `v2.1` Stage 1/Stage 2/Walk-forward not started yet
+  - `v2` upgraded in-place to `v2.1`
+  - `v2.1` Stage 1 segmented completed (54/54 segment tasks)
+  - `v2.1` Stage 2 / Train-Test / Walk-forward pending
 
 ## 2) Factor Progress Snapshot (New Protocol Rerun)
 - Stage 1 completed (`v1` baseline):
@@ -20,8 +21,13 @@ Last updated: 2026-02-16
   - Low-vol
   - Quality
   - PEAD
-- Stage 1 running (`v2.1`):
-  - None
+- Stage 1 completed (`v2.1`):
+  - Value_v2
+  - Momentum_v2
+  - Reversal_v2
+  - Low-vol_v2
+  - Quality_v2
+  - PEAD_v2
 - Stage 2 status (`v2.1`):
   - Not started
 - Train/Test status (`v2.1`):
@@ -30,6 +36,15 @@ Last updated: 2026-02-16
   - Not started
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
+`v2.1` results:
+- Value_v2: `ic_mean=0.047520`, `ic_std=0.015569`, `% positive segments=88.89%`, `valid_n=8/9`
+- Momentum_v2: `ic_mean=0.012868`, `ic_std=0.022771`, `% positive segments=66.67%`, `valid_n=8/9`
+- Quality_v2: `ic_mean=0.009247`, `ic_std=0.011422`, `% positive segments=55.56%`, `valid_n=8/9`
+- Low-vol_v2: `ic_mean=0.009101`, `ic_std=0.033835`, `% positive segments=55.56%`, `valid_n=8/9`
+- Reversal_v2: `ic_mean=0.005704`, `ic_std=0.004982`, `% positive segments=88.89%`, `valid_n=9/9`
+- PEAD_v2: `ic_mean=0.000766`, `ic_std=0.030426`, `% positive segments=55.56%`, `valid_n=9/9`
+
+`v1` baseline results:
 - Value: `ic_mean=0.054227`, `ic_std=0.022106`, `% positive segments=88.89%`, `valid_n=8/9`
 - Momentum: `ic_mean=0.012868`, `ic_std=0.022771`, `% positive segments=66.67%`, `valid_n=8/9`
 - Reversal: `ic_mean=0.005325`, `ic_std=0.006380`, `% positive segments=100.00%`, `valid_n=9/9`
@@ -37,12 +52,12 @@ Last updated: 2026-02-16
 - Quality: `ic_mean=0.002387`, `ic_std=0.008456`, `% positive segments=55.56%`, `valid_n=8/9`
 - PEAD: `ic_mean=0.000766`, `ic_std=0.030426`, `% positive segments=55.56%`, `valid_n=9/9`
 
-Stage 1 ranking by `ic_mean`:
+Stage 1 ranking by `ic_mean` (`v2.1`):
 1. Value
 2. Momentum
-3. Reversal
+3. Quality
 4. Low-vol
-5. Quality
+5. Reversal
 6. PEAD
 
 ## 4) v2.1 Formula Upgrade (Completed, Pending Validation)
@@ -65,7 +80,7 @@ Stage 1 ranking by `ic_mean`:
 - Test coverage for lag/no-lookahead/factor transformation behaviors
 
 ## 6) Next Steps
-1. Run full `v2.1` Stage 1 segmented validation for six factors
+1. Run `v2.1` Stage 2 segmented for top3: `value_v2,momentum_v2,quality_v2`
 2. Run `v2.1` fixed train/test with institutional YAML configs (`*_v2_inst.yaml`)
 3. Run `v2.1` walk-forward with Stage 2 override set
-4. Run `scripts/compare_v1_v2.py` and decide per-factor keep/promote/rework
+4. Run `scripts/compare_v1_v2.py` and decide keep/promote/rework
