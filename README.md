@@ -24,18 +24,22 @@ Each factor follows the same research gate:
 
 If a factor fails step 1, it does not move forward.
 
-## Current Research Snapshot (Updated 2026-02-15 UTC)
+## Current Research Snapshot (Updated 2026-02-16 UTC)
 Current rerun status under updated single-factor formula logic:
-- Stage 1 completed (new run): `value`, `momentum` (6-1)
-- Stage 1 running (8-core parallel, 2-year segments): `reversal`, `low_vol`, `quality`, `pead`
+- Stage 1 completed (new run): `value`, `momentum` (6-1), `reversal`, `low_vol`, `quality`, `pead`
+- Stage 1 ranking by `ic_mean`: `value` > `momentum` > `reversal` > `low_vol` > `quality` > `pead`
 
-Latest completed metrics:
-- `value`: `ic_mean=0.054063`, `ic_std=0.021962`, `pos_ratio=0.8889`
-- `momentum` (6-1): `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`
+Latest Stage 1 metrics:
+- `value`: `ic_mean=0.054227`, `ic_std=0.022106`, `pos_ratio=0.8889`, `valid_n=8/9`
+- `momentum` (6-1): `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`, `valid_n=8/9`
+- `reversal`: `ic_mean=0.005325`, `ic_std=0.006380`, `pos_ratio=1.0000`, `valid_n=9/9`
+- `low_vol`: `ic_mean=0.003209`, `ic_std=0.034677`, `pos_ratio=0.4444`, `valid_n=8/9`
+- `quality`: `ic_mean=0.002387`, `ic_std=0.008456`, `pos_ratio=0.5556`, `valid_n=8/9`
+- `pead`: `ic_mean=0.000766`, `ic_std=0.030426`, `pos_ratio=0.5556`, `valid_n=9/9`
 
 Policy for this cycle:
-- Finish Stage 1 for the remaining four factors first
-- Then refresh Stage 1 ranking and enter Stage 2 prioritization
+- Prioritize Stage 2 rerun for `value`, `momentum`, `reversal`
+- Then refresh fixed train/test under updated protocol assumptions
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration
@@ -94,6 +98,8 @@ python -m pytest tests
 - `STATUS.md`: current progress and latest run status
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `FACTOR_NOTES.md`: implementation notes and caveats per factor
+- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)
+- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式、执行约束与 V4 缺陷审查（中文）
 - `SYSTEM_OVERVIEW_CN.md`: Chinese system overview
 
 ## Interview-Ready Summary
