@@ -1,13 +1,37 @@
+# Stage2 Strict Top3 Only (Workstation, 6-core, detached)
+
+# 1) Login and prepare
+ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
+git checkout main
+git pull
+source .venv/bin/activate
+export PYTHONPATH=$(pwd)
+
+# 2) Start detached run (safe if Mac shuts down)
+chmod +x scripts/run_stage2_strict_top3_parallel.sh
+tmux kill-session -t stage2_strict_b 2>/dev/null || true
+tmux new -d -s stage2_strict_b "cd ~/projects/hui-wang-multi-factor-research && bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 |& tee logs/stage2_v2026_02_16b_driver.log"
+
+# 3) Monitor
+# target = 27 segment_summary.csv
+tmux ls
+tail -f ~/projects/hui-wang-multi-factor-research/logs/stage2_v2026_02_16b_driver.log
+find ~/projects/hui-wang-multi-factor-research/segment_results/stage2_v2026_02_16b_top3 -path "*/segment_summary.csv" | wc -l
+
+# 4) Merge and print ranking (after count reaches 27)
 python3 - <<'PY'
 from pathlib import Path
 import pandas as pd
 
-root = Path("segment_results/stage2_v2_1_top3_parallel")
-factors = ["value_v2","momentum_v2","quality_v2"]
+root = Path("segment_results/stage2_v2026_02_16b_top3")
+factors = ["value_v2", "momentum_v2", "quality_v2"]
 rows = []
 for f in factors:
     files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
+    if not files:
+        rows.append([f, None, None, None, 0, 0, "NOT_FOUND"])
+        continue
     dfs = [pd.read_csv(p) for p in files]
     df = pd.concat(dfs, ignore_index=True)
     if {"segment_start", "segment_end"}.issubset(df.columns):
@@ -17,8 +41,16 @@ for f in factors:
     df.to_csv(out_dir / "segment_summary.csv", index=False)
 
     ic = pd.to_numeric(df.get("ic"), errors="coerce")
-    rows.append([f, ic.mean(), ic.std(), (ic > 0).mean(), ic.notna().sum(), len(df), f"{len(files)} files merged"])
+    rows.append([
+        f,
+        float(ic.mean()) if ic.notna().any() else None,
+        float(ic.std()) if ic.notna().sum() > 1 else None,
+        float((ic > 0).mean()) if ic.notna().any() else None,
+        int(ic.notna().sum()),
+        int(len(df)),
+        f"{len(files)} files merged",
+    ])
 
-out = pd.DataFrame(rows, columns=["factor","ic_mean","ic_std","pos_ratio","valid_n","rows","note"])
+out = pd.DataFrame(rows, columns=["factor", "ic_mean", "ic_std", "pos_ratio", "valid_n", "rows", "note"])
 print(out.sort_values("ic_mean", ascending=False).to_string(index=False))
 PY

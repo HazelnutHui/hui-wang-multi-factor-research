@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-13
+Last updated: 2026-02-16
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -55,6 +55,19 @@ python scripts/generate_factor_report.py --strategy configs/strategies/momentum_
 ### 2.8 Tests
 ```bash
 python -m pytest tests
+```
+
+### 2.9 Stage2 strict top3 (institutional segmented, 6-core)
+```bash
+chmod +x scripts/run_stage2_strict_top3_parallel.sh
+bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3
+```
+
+Resume-safe behavior:
+- Default mode skips already completed segments.
+- Force rerun all 27 tasks:
+```bash
+bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 1
 ```
 
 ## 3) Where Outputs Go
