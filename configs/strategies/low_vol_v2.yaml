@@ -1,0 +1,30 @@
+strategy:
+  id: "low_vol_v2"
+  name: "LOW_VOL_60D_MAINSTREAM"
+  version: "2.1"
+  output_dir: "strategies/low_vol_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 1
+  holding_period: 21
+
+calendar:
+  rebalance_mode: "month_end"
+
+factors:
+  weights:
+    low_vol: 1.0
+    momentum: 0.0
+    reversal: 0.0
+    pead: 0.0
+  low_vol:
+    lag_days: null
+    use_residual: true
+    bench_symbol: "SPY"
+    downside_only: true

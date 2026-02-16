@@ -7,22 +7,27 @@ Last updated: 2026-02-16
 - Stage policy:
   - Stage 1 = baseline screening (winsor + rank)
   - Stage 2 = institutional robustness (industry + size/beta neutralization + zscore)
-- Current runtime status: Stage 1 rerun completed for six target factors; Stage 2 not started yet.
+- Current runtime status:
+  - `v1` Stage 1 rerun completed for six target factors
+  - `v2` upgraded in-place to `v2.1` and ready for rerun
+  - `v2.1` Stage 1/Stage 2/Walk-forward not started yet
 
 ## 2) Factor Progress Snapshot (New Protocol Rerun)
-- Stage 1 completed:
+- Stage 1 completed (`v1` baseline):
   - Value
   - Momentum (6-1)
   - Reversal
   - Low-vol
   - Quality
   - PEAD
-- Stage 1 running:
+- Stage 1 running (`v2.1`):
   - None
-- Stage 2 status:
-  - Not started for this rerun cycle
-- Train/Test status:
-  - Not started for this rerun cycle
+- Stage 2 status (`v2.1`):
+  - Not started
+- Train/Test status (`v2.1`):
+  - Not started
+- Walk-forward status (`v2.1`):
+  - Not started
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 - Value: `ic_mean=0.054227`, `ic_std=0.022106`, `% positive segments=88.89%`, `valid_n=8/9`
@@ -40,7 +45,16 @@ Stage 1 ranking by `ic_mean`:
 5. Quality
 6. PEAD
 
-## 4) Engineering Progress Completed
+## 4) v2.1 Formula Upgrade (Completed, Pending Validation)
+- `momentum_v2`: added residual momentum option against benchmark (`MOMENTUM_USE_RESIDUAL=True`, `SPY`, 252-day beta estimation window)
+- `reversal_v2`: added gap-risk and liquidity filters (`REVERSAL_MAX_GAP_PCT`, `REVERSAL_MIN_DOLLAR_VOL`)
+- `low_vol_v2`: switched to residual + downside volatility baseline (`LOW_VOL_USE_RESIDUAL=True`, `LOW_VOL_DOWNSIDE_ONLY=True`)
+- `value_v2` / `quality_v2`: keep mainstream component-wise cross-sectional composite logic
+- `pead_v2`: keep strict event-day alignment baseline
+- Runner pass-through updated for all three layers (`run_segmented_factors.py`, `run_with_config.py`, `run_walk_forward.py`)
+- Local smoke run completed for `momentum_v2`, `reversal_v2`, `low_vol_v2` (single short segment)
+
+## 5) Engineering Progress Completed
 - Unified protocol + strategy override configuration system
 - Stage 1/Stage 2 factor processing pipeline
 - PIT fundamentals support (`available_date` as-of filtering)
@@ -50,8 +64,8 @@ Stage 1 ranking by `ic_mean`:
 - Report/diagnostics/checklist tooling for review workflow
 - Test coverage for lag/no-lookahead/factor transformation behaviors
 
-## 5) Next Steps
-1. Start Stage 2 rerun for prioritized factors: `value`, `momentum`, `reversal`
-2. Re-check cost sensitivity and robustness for `reversal` before promotion
-3. Run refreshed fixed train/test under updated protocol assumptions
-4. Proceed to combination candidate construction after Stage 2 results are finalized
+## 6) Next Steps
+1. Run full `v2.1` Stage 1 segmented validation for six factors
+2. Run `v2.1` fixed train/test with institutional YAML configs (`*_v2_inst.yaml`)
+3. Run `v2.1` walk-forward with Stage 2 override set
+4. Run `scripts/compare_v1_v2.py` and decide per-factor keep/promote/rework

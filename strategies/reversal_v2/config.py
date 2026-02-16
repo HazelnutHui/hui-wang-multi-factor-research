@@ -1,0 +1,40 @@
+"""
+Short-Term Reversal Strategy v2 - Mainstream Baseline Configuration
+"""
+
+STRATEGY_VERSION = "2.1"
+STRATEGY_NAME = "SHORT_TERM_REVERSAL_5D_MAINSTREAM"
+
+# Factor (LOCKED)
+REVERSAL_LOOKBACK = 5
+REVERSAL_MODE = "multi_day"  # mainstream close-to-close short-term reversal
+REVERSAL_VOL_LOOKBACK = None
+REVERSAL_EARNINGS_FILTER_DAYS = None
+REVERSAL_MAX_GAP_PCT = 0.10
+REVERSAL_MIN_DOLLAR_VOL = 2e6
+
+# Execution (LOCKED)
+HOLDING_PERIOD = 1
+REBALANCE_FREQ = 1
+EXECUTION_DELAY = 1
+TRANSACTION_COST = 0.0020
+EXECUTION_USE_TRADING_DAYS = True
+ENABLE_DYNAMIC_COST = True
+TRADE_SIZE_USD = 10000
+
+# Universe (LOCKED)
+MIN_MARKET_CAP = 500e6
+MIN_DOLLAR_VOLUME = 1e6
+MIN_PRICE = 5.0
+
+# Backtest periods (LOCKED)
+TRAIN_START = "2010-01-04"
+TRAIN_END   = "2017-12-31"
+TEST_START  = "2018-01-01"
+TEST_END    = "2026-01-28"
+
+# Price data selection
+USE_ADJ_PRICES = True
+
+# Calendar symbol for rebalance calendar (optional)
+CALENDAR_SYMBOL = "SPY"

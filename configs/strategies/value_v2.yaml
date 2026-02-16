@@ -1,0 +1,36 @@
+strategy:
+  id: "value_v2"
+  name: "VALUE_MAINSTREAM_EY_FCF_EVEBITDA"
+  version: "2.1"
+  output_dir: "strategies/value_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 21
+  holding_period: 20
+
+factors:
+  weights:
+    value: 1.0
+    momentum: 0.0
+    reversal: 0.0
+    low_vol: 0.0
+    pead: 0.0
+    quality: 0.0
+  value:
+    weights:
+      earnings_yield: 1.0
+      fcf_yield: 1.0
+      ev_ebitda_yield: 1.0
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 2
+    component_missing_policy: "drop"

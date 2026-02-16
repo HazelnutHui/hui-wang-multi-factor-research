@@ -1,0 +1,34 @@
+strategy:
+  id: "momentum_v2"
+  name: "MOMENTUM_6_1_MAINSTREAM"
+  version: "2.1"
+  output_dir: "strategies/momentum_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 1
+  holding_period: 21
+
+calendar:
+  rebalance_mode: "month_end"
+
+factors:
+  weights:
+    momentum: 1.0
+    pead: 0.0
+    reversal: 0.0
+    low_vol: 0.0
+  momentum:
+    lookback: 126
+    skip: 21
+    use_monthly: false
+    lookback_months: 6
+    skip_months: 1
+    use_residual: true
+    bench_symbol: "SPY"
+    resid_est_window: 252

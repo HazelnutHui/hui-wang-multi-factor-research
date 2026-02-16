@@ -7,7 +7,7 @@ Adds:
 
 import pandas as pd
 import numpy as np
-from typing import Dict, Optional
+from typing import Dict, Optional, Iterable
 
 from .data_engine import DataEngine
 from .universe_builder import UniverseBuilder
@@ -149,7 +149,42 @@ class FactorEngine:
                 return None
             return float(np.log(end_price / start_price))
 
+        def _residual_daily_signal() -> Optional[float]:
+            bench = self.config.get('MOMENTUM_BENCH_SYMBOL', 'SPY')
+            est_window = int(self.config.get('MOMENTUM_RESID_EST_WINDOW', max(252, lookback + skip + 21)))
+            start_days = max((lookback + skip + est_window) * 2, 252)
+            rs = (pd.Timestamp(date) - pd.Timedelta(days=start_days)).strftime('%Y-%m-%d')
+            mdf = self.data_engine.get_price(bench, start_date=rs, end_date=date)
+            if mdf is None or len(mdf) < lookback + skip + est_window:
+                return None
+            mdf = mdf.copy()
+            mdf['close'] = pd.to_numeric(mdf['close'], errors='coerce')
+            mdf.loc[mdf['close'] <= 0, 'close'] = np.nan
+            mdf['ret_m'] = np.log(mdf['close'] / mdf['close'].shift(1))
+
+            sdf = df.copy()
+            sdf['close'] = pd.to_numeric(sdf['close'], errors='coerce')
+            sdf.loc[sdf['close'] <= 0, 'close'] = np.nan
+            sdf['ret_s'] = np.log(sdf['close'] / sdf['close'].shift(1))
+
+            merged = sdf[['date', 'ret_s']].merge(mdf[['date', 'ret_m']], on='date', how='inner').dropna()
+            if len(merged) < lookback + skip + est_window:
+                return None
+            est = merged.tail(lookback + skip + est_window).head(est_window)
+            frm = merged.tail(lookback + skip).head(lookback)
+            if len(est) < 30 or len(frm) < max(lookback // 2, 20):
+                return None
+            var_m = est['ret_m'].var()
+            if var_m is None or np.isnan(var_m) or var_m <= 0:
+                return None
+            beta = est['ret_s'].cov(est['ret_m']) / var_m
+            if beta is None or np.isnan(beta):
+                return None
+            resid = frm['ret_s'] - float(beta) * frm['ret_m']
+            return float(resid.sum())
+
         signal = None
+        use_residual = bool(self.config.get('MOMENTUM_USE_RESIDUAL', False))
         if use_monthly:
             lookback_m = int(self.config.get('MOMENTUM_LOOKBACK_MONTHS', max(int(round(lookback / 21)), 1)))
             skip_m = int(self.config.get('MOMENTUM_SKIP_MONTHS', max(int(round(skip / 21)), 0)))
@@ -167,7 +202,10 @@ class FactorEngine:
         if signal is None:
             if use_monthly and not fallback_daily:
                 return None
-            signal = _daily_signal()
+            if use_residual:
+                signal = _residual_daily_signal()
+            if signal is None:
+                signal = _daily_signal()
             if signal is None:
                 return None
 
@@ -195,6 +233,9 @@ class FactorEngine:
         vol_lookback = self.config.get('REVERSAL_VOL_LOOKBACK')
         vol_lookback = int(vol_lookback) if vol_lookback else None
 
+        max_gap = self.config.get('REVERSAL_MAX_GAP_PCT')
+        min_dollar_vol = self.config.get('REVERSAL_MIN_DOLLAR_VOL')
+
         if mode == 'intraday':
             start_days = max(lookback * 3, (vol_lookback or 0) * 2, 30)
             start_date = (pd.Timestamp(date) - pd.Timedelta(days=start_days)).strftime('%Y-%m-%d')
@@ -214,6 +255,11 @@ class FactorEngine:
             intraday = intraday[intraday['open'] > 0]
             if len(intraday) < lookback:
                 return None
+            if max_gap is not None:
+                prev_close = intraday['close'].shift(1)
+                gap = (intraday['open'] / prev_close - 1.0).abs()
+                if gap.tail(lookback).max(skipna=True) > float(max_gap):
+                    return None
             intraday_ret = (intraday['close'] / intraday['open']) - 1.0
             signal = float(-intraday_ret.tail(lookback).mean())
         else:
@@ -223,8 +269,21 @@ class FactorEngine:
                 return None
             df = df.copy()
             df['return'] = df['close'].pct_change()
+            if max_gap is not None and 'open' in df.columns:
+                op = pd.to_numeric(df['open'], errors='coerce')
+                prev_close = pd.to_numeric(df['close'], errors='coerce').shift(1)
+                gap = (op / prev_close - 1.0).abs()
+                if gap.tail(lookback).max(skipna=True) > float(max_gap):
+                    return None
             recent_return = df.tail(lookback)['return'].sum()
             signal = float(-recent_return)
+
+        if min_dollar_vol is not None and df is not None and 'volume' in df.columns:
+            px = pd.to_numeric(df.get('close'), errors='coerce')
+            vol = pd.to_numeric(df.get('volume'), errors='coerce')
+            adv = (px * vol).tail(max(lookback, 20)).mean()
+            if adv is None or np.isnan(adv) or adv < float(min_dollar_vol):
+                return None
 
         if vol_lookback and df is not None and len(df) >= vol_lookback:
             if 'return' not in df.columns:
@@ -239,6 +298,135 @@ class FactorEngine:
     def _compress_component(self, value: float) -> float:
         # Signed log compression to reduce metric scale dominance.
         return float(np.sign(value) * np.log1p(abs(value)))
+
+    def _transform_component(self, value: float, mode: str) -> float:
+        m = str(mode or "signed_log").lower()
+        if m in ("signed_log", "log1p_signed"):
+            return self._compress_component(value)
+        if m in ("identity", "raw", "none"):
+            return float(value)
+        return self._compress_component(value)
+
+    def _zscore_series(self, s: pd.Series) -> pd.Series:
+        std = s.std(ddof=0)
+        if std is None or np.isnan(std) or std <= 0:
+            return pd.Series(np.nan, index=s.index, dtype=float)
+        return (s - s.mean()) / std
+
+    def _winsorize_series_pct(self, s: pd.Series, low: Optional[float], high: Optional[float]) -> pd.Series:
+        if low is None or high is None:
+            return s
+        try:
+            low_q = float(low)
+            high_q = float(high)
+        except Exception:
+            return s
+        if np.isnan(low_q) or np.isnan(high_q) or low_q <= 0 or high_q >= 1 or low_q >= high_q:
+            return s
+        lo = s.quantile(low_q)
+        hi = s.quantile(high_q)
+        return s.clip(lower=lo, upper=hi)
+
+    def _zscore_by_group(
+        self,
+        s: pd.Series,
+        symbols: pd.Series,
+        min_group: int,
+    ) -> pd.Series:
+        if not self.industry_map:
+            return self._zscore_series(s)
+        groups = symbols.map(self.industry_map)
+        z = pd.Series(np.nan, index=s.index, dtype=float)
+        grouped = pd.DataFrame({"v": s, "g": groups}).dropna(subset=["g"])
+        for g, grp in grouped.groupby("g"):
+            if len(grp) < int(min_group):
+                continue
+            z.loc[grp.index] = self._zscore_series(grp["v"])
+        miss = z.isna()
+        if miss.any():
+            z.loc[miss] = self._zscore_series(s.loc[miss])
+        return z
+
+    def _build_mainstream_composite_signal(
+        self,
+        universe: Iterable[str],
+        signal_date: str,
+        factor_date: str,
+        weights: Dict[str, float],
+        kind: str,
+    ) -> pd.DataFrame:
+        rows = []
+        if kind == "quality":
+            engine = self.fundamentals_engine
+        elif kind == "value":
+            engine = self.value_engine
+        else:
+            engine = None
+
+        if engine is None or not weights:
+            return pd.DataFrame(columns=["symbol", "date", "signal", kind])
+
+        prefix = "QUALITY" if kind == "quality" else "VALUE"
+        use_industry_z = bool(self.config.get(f"{prefix}_COMPONENT_INDUSTRY_ZSCORE", False))
+        winsor_low = self.config.get(f"{prefix}_COMPONENT_WINSOR_PCT_LOW")
+        winsor_high = self.config.get(f"{prefix}_COMPONENT_WINSOR_PCT_HIGH")
+        min_count = int(self.config.get(f"{prefix}_COMPONENT_MIN_COUNT", 1) or 1)
+        missing_policy = str(self.config.get(f"{prefix}_COMPONENT_MISSING_POLICY", "drop")).lower()
+        min_group = int(self.config.get("INDUSTRY_MIN_GROUP", 3))
+
+        keys = list(weights.keys())
+        for sym in universe:
+            metrics = engine.get_latest_metrics(sym, factor_date)
+            if not metrics:
+                continue
+            row = {"symbol": sym}
+            has_any = False
+            for k in keys:
+                v = metrics.get(k)
+                if v is None or (isinstance(v, float) and np.isnan(v)):
+                    row[k] = np.nan
+                    continue
+                row[k] = float(v)
+                has_any = True
+            if has_any:
+                rows.append(row)
+
+        if not rows:
+            return pd.DataFrame(columns=["symbol", "date", "signal", kind])
+
+        df = pd.DataFrame(rows)
+        score = pd.Series(0.0, index=df.index, dtype=float)
+        wsum = pd.Series(0.0, index=df.index, dtype=float)
+        comp_count = pd.Series(0, index=df.index, dtype=int)
+
+        for k, w in weights.items():
+            if k not in df.columns:
+                continue
+            x = pd.to_numeric(df[k], errors="coerce")
+            x = self._winsorize_series_pct(x, winsor_low, winsor_high)
+            if use_industry_z:
+                z = self._zscore_by_group(x, df["symbol"], min_group=min_group)
+            else:
+                z = self._zscore_series(x)
+            raw_valid = z.notna()
+            comp_count.loc[raw_valid] += 1
+            if missing_policy == "fill_zero":
+                z = z.fillna(0.0)
+            elif missing_policy == "fill_median":
+                med = z.median(skipna=True)
+                if med is not None and not np.isnan(med):
+                    z = z.fillna(float(med))
+            wf = float(w)
+            valid = z.notna()
+            score.loc[valid] += wf * z.loc[valid]
+            wsum.loc[valid] += abs(wf)
+
+        df["signal"] = np.where(wsum > 0, score / wsum, np.nan)
+        df.loc[comp_count < min_count, "signal"] = np.nan
+        df["date"] = signal_date
+        df[kind] = df["signal"]
+        out = df[["symbol", "date", "signal", kind]].dropna(subset=["signal"]).reset_index(drop=True)
+        return out
 
     def _has_earnings_near_date(self, symbol: str, date: str, days: int) -> bool:
         if symbol not in self._earnings_date_cache:
@@ -386,12 +574,13 @@ class FactorEngine:
         weights = self.config.get('QUALITY_WEIGHTS') or {}
         score = 0.0
         wsum = 0.0
+        transform_mode = self.config.get("QUALITY_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
             if v is None or (isinstance(v, float) and np.isnan(v)):
                 continue
             wf = float(w)
-            vf = self._compress_component(float(v))
+            vf = self._transform_component(float(v), transform_mode)
             score += wf * vf
             wsum += abs(wf)
         if wsum <= 0:
@@ -407,12 +596,13 @@ class FactorEngine:
         weights = self.config.get('VALUE_WEIGHTS') or {}
         score = 0.0
         wsum = 0.0
+        transform_mode = self.config.get("VALUE_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
             if v is None or (isinstance(v, float) and np.isnan(v)):
                 continue
             wf = float(w)
-            vf = self._compress_component(float(v))
+            vf = self._transform_component(float(v), transform_mode)
             score += wf * vf
             wsum += abs(wf)
         if wsum <= 0:
@@ -477,38 +667,70 @@ class FactorEngine:
         if neutralize_cols:
             for c in neutralize_cols:
                 needed.add(c)
-        rows = []
-        for sym in universe:
-            f = self.calculate_all_factors(sym, date, needed=needed)
 
-            sig = 0.0
-            used = False
-            for k, w in factor_weights.items():
-                if w is None or float(w) == 0.0:
+        # Optional mainstream cross-sectional composite for single-factor runs.
+        # This is mainly for v2 research baselines and is off by default.
+        if len(needed) == 1 and 'quality' in needed and bool(self.config.get('QUALITY_MAINSTREAM_COMPOSITE', False)):
+            qual_date = resolve_factor_date(date, self.config.get('FACTOR_LAG_DAYS', 0), self.config.get('QUALITY_LAG_DAYS'))
+            q_weights = self.config.get('QUALITY_WEIGHTS') or {}
+            df = self._build_mainstream_composite_signal(
+                universe=universe,
+                signal_date=date,
+                factor_date=qual_date,
+                weights=q_weights,
+                kind='quality',
+            )
+            if len(df) > 0:
+                rows = df.to_dict(orient='records')
+            else:
+                rows = []
+        elif len(needed) == 1 and 'value' in needed and bool(self.config.get('VALUE_MAINSTREAM_COMPOSITE', False)):
+            val_date = resolve_factor_date(date, self.config.get('FACTOR_LAG_DAYS', 0), self.config.get('VALUE_LAG_DAYS'))
+            v_weights = self.config.get('VALUE_WEIGHTS') or {}
+            df = self._build_mainstream_composite_signal(
+                universe=universe,
+                signal_date=date,
+                factor_date=val_date,
+                weights=v_weights,
+                kind='value',
+            )
+            if len(df) > 0:
+                rows = df.to_dict(orient='records')
+            else:
+                rows = []
+        else:
+            rows = []
+            for sym in universe:
+                f = self.calculate_all_factors(sym, date, needed=needed)
+
+                sig = 0.0
+                used = False
+                for k, w in factor_weights.items():
+                    if w is None or float(w) == 0.0:
+                        continue
+                    v = f.get(k, None)
+                    if v is None or (isinstance(v, float) and np.isnan(v)):
+                        continue
+                    sig += float(w) * float(v)
+                    used = True
+
+                if not used:
                     continue
-                v = f.get(k, None)
-                if v is None or (isinstance(v, float) and np.isnan(v)):
-                    continue
-                sig += float(w) * float(v)
-                used = True
 
-            if not used:
-                continue
-
-            row = {
-                "symbol": sym,
-                "date": date,
-                "signal": float(sig),
-                "pead": f.get("pead"),
-                "momentum": f.get("momentum"),
-                "reversal": f.get("reversal"),
-                "low_vol": f.get("low_vol"),
-                "size": f.get("size"),
-                "beta": f.get("beta"),
-                "quality": f.get("quality"),
-                "value": f.get("value"),
-            }
-            rows.append(row)
+                row = {
+                    "symbol": sym,
+                    "date": date,
+                    "signal": float(sig),
+                    "pead": f.get("pead"),
+                    "momentum": f.get("momentum"),
+                    "reversal": f.get("reversal"),
+                    "low_vol": f.get("low_vol"),
+                    "size": f.get("size"),
+                    "beta": f.get("beta"),
+                    "quality": f.get("quality"),
+                    "value": f.get("value"),
+                }
+                rows.append(row)
 
         if not rows:
             return pd.DataFrame(columns=['symbol', 'date', 'signal'])

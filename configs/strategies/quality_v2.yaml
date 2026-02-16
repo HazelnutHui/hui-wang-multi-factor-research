@@ -1,0 +1,37 @@
+strategy:
+  id: "quality_v2"
+  name: "QUALITY_MAINSTREAM_COMPOSITE"
+  version: "2.1"
+  output_dir: "strategies/quality_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 21
+  holding_period: 20
+
+factors:
+  weights:
+    quality: 1.0
+    momentum: 0.0
+    reversal: 0.0
+    low_vol: 0.0
+    pead: 0.0
+  quality:
+    weights:
+      roe: 1.0
+      roa: 0.5
+      gross_margin: 0.5
+      cfo_to_assets: 1.0
+      debt_to_equity: -0.5
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 3
+    component_missing_policy: "drop"

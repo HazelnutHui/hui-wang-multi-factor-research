@@ -1,119 +1,91 @@
-# V4 Commands - Rerun Remaining 4 Factors with 8-Core Parallelism
-# Keep existing value/momentum results, rerun: reversal/low_vol/quality/pead
-# Run on workstation: ~/projects/hui-wang-multi-factor-research
+# V4 Latest Runbook Commands (v2.1)
+# Updated: 2026-02-16
 
+###############################################################################
+# A) LOCAL: commit and push latest md+code
+###############################################################################
+cd /Users/hui/quant_score/v4
+
+git status --short
+
+git add README.md STATUS.md FACTOR_NOTES.md PROJECT_SUMMARY.md DOCS_INDEX.md \
+  backtest/factor_engine.py \
+  scripts/run_segmented_factors.py scripts/run_walk_forward.py scripts/run_with_config.py scripts/compare_v1_v2.py \
+  strategies/value_v2 strategies/momentum_v2 strategies/reversal_v2 strategies/low_vol_v2 strategies/quality_v2 strategies/pead_v2 \
+  configs/strategies/value_v2.yaml configs/strategies/momentum_v2.yaml configs/strategies/reversal_v2.yaml configs/strategies/low_vol_v2.yaml configs/strategies/quality_v2.yaml configs/strategies/pead_v2.yaml \
+  configs/strategies/value_v2_inst.yaml configs/strategies/momentum_v2_inst.yaml configs/strategies/reversal_v2_inst.yaml configs/strategies/low_vol_v2_inst.yaml configs/strategies/quality_v2_inst.yaml configs/strategies/pead_v2_inst.yaml \
+  iterm_commands.txt
+
+git commit -m "feat: overwrite v2 to 2.1 institutional formula baseline and rerun workflow"
+git push
+
+###############################################################################
+# B) WORKSTATION: pull latest code
+###############################################################################
+ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
+git pull
+
 source .venv/bin/activate
 export PYTHONPATH=$(pwd)
 
-# 1) Stop residual jobs and clean only remaining-factor artifacts
-pkill -f "scripts/run_segmented_factors.py" || true
-sleep 1
-pgrep -af "scripts/run_segmented_factors.py" || echo "no residual process"
+###############################################################################
+# C) WORKSTATION: v2.1 full 3-layer rerun
+###############################################################################
+# Layer 1: segmented (2-year)
+python scripts/run_segmented_factors.py \
+  --factors value_v2,momentum_v2,reversal_v2,low_vol_v2,quality_v2,pead_v2 \
+  --years 2
 
-find logs -type f \( -name "reversal_stage1_*.log" -o -name "low_vol_stage1_*.log" -o -name "quality_stage1_*.log" -o -name "pead_stage1_*.log" \) -delete
-find segment_results -type d \( -name reversal -o -name low_vol -o -name quality -o -name pead \) -prune -exec rm -rf {} +
-rm -rf segment_results/stage1_parallel_remaining
+# Layer 2: fixed train/test (institutional yaml)
+python scripts/run_with_config.py --strategy configs/strategies/value_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/momentum_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/reversal_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/low_vol_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/quality_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/pead_v2_inst.yaml
 
-# 2) Run remaining factors by 2-year segments in parallel (8 workers)
-# Total tasks: 4 factors * 9 segments = 36
-printf "%s\n" \
-  "reversal 2010-01-04 2012-01-03" \
-  "reversal 2012-01-04 2014-01-03" \
-  "reversal 2014-01-04 2016-01-03" \
-  "reversal 2016-01-04 2018-01-03" \
-  "reversal 2018-01-04 2020-01-03" \
-  "reversal 2020-01-04 2022-01-03" \
-  "reversal 2022-01-04 2024-01-03" \
-  "reversal 2024-01-04 2026-01-03" \
-  "reversal 2026-01-04 2026-01-28" \
-  "low_vol 2010-01-04 2012-01-03" \
-  "low_vol 2012-01-04 2014-01-03" \
-  "low_vol 2014-01-04 2016-01-03" \
-  "low_vol 2016-01-04 2018-01-03" \
-  "low_vol 2018-01-04 2020-01-03" \
-  "low_vol 2020-01-04 2022-01-03" \
-  "low_vol 2022-01-04 2024-01-03" \
-  "low_vol 2024-01-04 2026-01-03" \
-  "low_vol 2026-01-04 2026-01-28" \
-  "quality 2010-01-04 2012-01-03" \
-  "quality 2012-01-04 2014-01-03" \
-  "quality 2014-01-04 2016-01-03" \
-  "quality 2016-01-04 2018-01-03" \
-  "quality 2018-01-04 2020-01-03" \
-  "quality 2020-01-04 2022-01-03" \
-  "quality 2022-01-04 2024-01-03" \
-  "quality 2024-01-04 2026-01-03" \
-  "quality 2026-01-04 2026-01-28" \
-  "pead 2010-01-04 2012-01-03" \
-  "pead 2012-01-04 2014-01-03" \
-  "pead 2014-01-04 2016-01-03" \
-  "pead 2016-01-04 2018-01-03" \
-  "pead 2018-01-04 2020-01-03" \
-  "pead 2020-01-04 2022-01-03" \
-  "pead 2022-01-04 2024-01-03" \
-  "pead 2024-01-04 2026-01-03" \
-  "pead 2026-01-04 2026-01-28" \
-| xargs -n3 -P8 bash -lc '
-  f="$1"; s="$2"; e="$3"
-  cd ~/projects/hui-wang-multi-factor-research || exit 1
-  source .venv/bin/activate
-  export PYTHONPATH=$(pwd)
-  tag="${s//-/}_${e//-/}"
-  out="segment_results/stage1_parallel_remaining/${f}/${tag}"
-  mkdir -p "$(dirname "$out")" logs
-  echo "===== Stage1 ${f} ${s}->${e} $(date) ====="
-  python scripts/run_segmented_factors.py \
-    --factors "${f}" \
-    --start-date "${s}" \
-    --end-date "${e}" \
-    --years 2 \
-    --max-segments 1 \
-    --out-dir "${out}" \
-    |& tee "logs/${f}_stage1_${tag}.log"
-' _
+# Layer 3: walk-forward + stage2 overrides
+python scripts/run_walk_forward.py \
+  --factors value_v2,momentum_v2,reversal_v2,low_vol_v2,quality_v2,pead_v2 \
+  --train-years 3 --test-years 1 --start-year 2010 --end-year 2026 \
+  --set SIGNAL_ZSCORE=True SIGNAL_RANK=False INDUSTRY_NEUTRAL=True SIGNAL_NEUTRALIZE_SIZE=True SIGNAL_NEUTRALIZE_BETA=True
 
-# 3) Merge segment outputs for remaining factors
-python - <<'PY'
-from pathlib import Path
-import pandas as pd
+###############################################################################
+# D) LOCAL: sync results back from workstation
+###############################################################################
+# run on local machine
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ \
+  /Users/hui/quant_score/v4/segment_results/
 
-root = Path("segment_results/stage1_parallel_remaining")
-for f in ["reversal", "low_vol", "quality", "pead"]:
-    files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
-    if not files:
-        print(f"{f}: no files")
-        continue
-    dfs = [pd.read_csv(p) for p in files]
-    out_df = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["segment_start", "segment_end"])
-    out_df = out_df.sort_values(["segment_start", "segment_end"]).reset_index(drop=True)
-    out_dir = root / "merged" / f
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "segment_summary.csv"
-    out_df.to_csv(out_path, index=False)
-    print(f"{f}: {len(out_df)} rows -> {out_path}")
-PY
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/walk_forward_results/ \
+  /Users/hui/quant_score/v4/walk_forward_results/
 
-# 4) Final 6-factor Stage1 ranking (value/momentum old run + remaining merged rerun)
-python - <<'PY'
-import pandas as pd
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/strategies/*_v2*/runs/ \
+  /Users/hui/quant_score/v4/strategies/
 
-targets = {
-    "value": "segment_results/2026-02-15_155516/value/segment_summary.csv",
-    "momentum": "segment_results/2026-02-15_165743/momentum/segment_summary.csv",
-    "reversal": "segment_results/stage1_parallel_remaining/merged/reversal/segment_summary.csv",
-    "low_vol": "segment_results/stage1_parallel_remaining/merged/low_vol/segment_summary.csv",
-    "quality": "segment_results/stage1_parallel_remaining/merged/quality/segment_summary.csv",
-    "pead": "segment_results/stage1_parallel_remaining/merged/pead/segment_summary.csv",
-}
+# optional logs
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ \
+  /Users/hui/quant_score/v4/logs/
 
-rows = []
-for f, p in targets.items():
-    df = pd.read_csv(p)
-    ic = pd.to_numeric(df["ic"], errors="coerce")
-    rows.append([f, ic.mean(), ic.std(), (ic > 0).mean(), ic.notna().sum(), len(ic), p])
+###############################################################################
+# E) LOCAL: compare v1 vs v2.1
+###############################################################################
+cd /Users/hui/quant_score/v4
+/Users/hui/miniconda3/envs/qscore/bin/python3.11 scripts/compare_v1_v2.py \
+  --root /Users/hui/quant_score/v4 \
+  --out-csv /Users/hui/quant_score/v4/analysis/v1_v2_compare_latest.csv
 
-out = pd.DataFrame(rows, columns=["factor", "ic_mean", "ic_std", "pos_ratio", "valid", "rows", "file"])
-out = out.sort_values("ic_mean", ascending=False).reset_index(drop=True)
-print(out.to_string(index=False))
-PY
+###############################################################################
+# F) LOCAL: update docs with rerun results, then push
+###############################################################################
+# edit STATUS.md / FACTOR_NOTES.md / README.md / PROJECT_SUMMARY.md
+
+git add STATUS.md FACTOR_NOTES.md README.md PROJECT_SUMMARY.md analysis/v1_v2_compare_latest.csv
+
+git commit -m "docs: update v2.1 three-layer results and v1-v2 comparison"
+git push

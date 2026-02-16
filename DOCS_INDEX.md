@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-15
+Last updated: 2026-02-16
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
@@ -11,6 +11,9 @@ Last updated: 2026-02-15
 - `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template
 
 ## Additional References
+- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
+- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
+- `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `strategies/`: strategy-level docs and configs
 - `configs/`: protocol and strategy configuration files

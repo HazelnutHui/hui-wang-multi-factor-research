@@ -27,6 +27,11 @@ Factors that fail segmented stability are filtered out early.
   5. `quality` (`0.002387`)
   6. `pead` (`0.000766`)
 - Stage 2 priority for this cycle: `value`, `momentum`, `reversal`.
+- `v2` has been overwritten to `v2.1` for institutional-style formula upgrades:
+  - residual momentum branch
+  - residual downside low-vol baseline
+  - reversal gap/liquidity filters
+- `v2.1` full 3-layer rerun is the current active task.
 
 ## Engineering Strengths Demonstrated
 - Research infra design instead of one-off scripts

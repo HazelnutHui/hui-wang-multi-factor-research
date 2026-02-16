@@ -155,6 +155,9 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "MOMENTUM_SKIP_MONTHS": momentum.get("skip_months"),
         "MOMENTUM_ZSCORE": momentum.get("zscore"),
         "MOMENTUM_WINSOR_Z": momentum.get("winsor_z"),
+        "MOMENTUM_USE_RESIDUAL": momentum.get("use_residual"),
+        "MOMENTUM_BENCH_SYMBOL": momentum.get("bench_symbol"),
+        "MOMENTUM_RESID_EST_WINDOW": momentum.get("resid_est_window"),
         "MOMENTUM_LAG_DAYS": momentum.get("lag_days"),
 
         "SUE_THRESHOLD": pead.get("sue_threshold"),
@@ -168,15 +171,36 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "REVERSAL_MODE": reversal.get("mode"),
         "REVERSAL_VOL_LOOKBACK": reversal.get("vol_lookback"),
         "REVERSAL_EARNINGS_FILTER_DAYS": reversal.get("earnings_filter_days"),
+        "REVERSAL_MAX_GAP_PCT": reversal.get("max_gap_pct"),
+        "REVERSAL_MIN_DOLLAR_VOL": reversal.get("min_dollar_vol"),
         "REVERSAL_LAG_DAYS": reversal.get("lag_days"),
 
         "QUALITY_WEIGHTS": quality.get("weights"),
+        "QUALITY_MAINSTREAM_COMPOSITE": quality.get("mainstream_composite"),
+        "QUALITY_COMPONENT_TRANSFORM": quality.get("component_transform"),
+        "QUALITY_COMPONENT_INDUSTRY_ZSCORE": quality.get("component_industry_zscore"),
+        "QUALITY_COMPONENT_WINSOR_PCT_LOW": quality.get("component_winsor_pct_low"),
+        "QUALITY_COMPONENT_WINSOR_PCT_HIGH": quality.get("component_winsor_pct_high"),
+        "QUALITY_COMPONENT_MIN_COUNT": quality.get("component_min_count"),
+        "QUALITY_COMPONENT_MISSING_POLICY": quality.get("component_missing_policy"),
         "QUALITY_MAX_STALENESS_DAYS": quality.get("max_staleness_days"),
         "QUALITY_LAG_DAYS": quality.get("lag_days"),
         "VALUE_WEIGHTS": value.get("weights"),
+        "VALUE_MAINSTREAM_COMPOSITE": value.get("mainstream_composite"),
+        "VALUE_COMPONENT_TRANSFORM": value.get("component_transform"),
+        "VALUE_COMPONENT_INDUSTRY_ZSCORE": value.get("component_industry_zscore"),
+        "VALUE_COMPONENT_WINSOR_PCT_LOW": value.get("component_winsor_pct_low"),
+        "VALUE_COMPONENT_WINSOR_PCT_HIGH": value.get("component_winsor_pct_high"),
+        "VALUE_COMPONENT_MIN_COUNT": value.get("component_min_count"),
+        "VALUE_COMPONENT_MISSING_POLICY": value.get("component_missing_policy"),
         "VALUE_MAX_STALENESS_DAYS": value.get("max_staleness_days"),
         "VALUE_LAG_DAYS": value.get("lag_days"),
         "LOW_VOL_LAG_DAYS": low_vol.get("lag_days"),
+        "LOW_VOL_WINDOW": low_vol.get("window"),
+        "LOW_VOL_LOG_RETURN": low_vol.get("log_return"),
+        "LOW_VOL_USE_RESIDUAL": low_vol.get("use_residual"),
+        "LOW_VOL_BENCH_SYMBOL": low_vol.get("bench_symbol"),
+        "LOW_VOL_DOWNSIDE_ONLY": low_vol.get("downside_only"),
         "BETA_LOOKBACK": factors.get("beta", {}).get("lookback"),
         "BETA_BENCH_SYMBOL": factors.get("beta", {}).get("bench_symbol"),
         "BETA_USE_LOG_RETURN": factors.get("beta", {}).get("use_log_return"),
@@ -208,7 +232,10 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
     # Optional PEAD factor class
     if pead.get("use_shifted_factor"):
         try:
-            from strategies.pead_v1.factor import ShiftedPEADFactor
+            try:
+                from strategies.pead_v2.factor import ShiftedPEADFactor
+            except Exception:
+                from strategies.pead_v1.factor import ShiftedPEADFactor
             config["PEAD_FACTOR_CLASS"] = ShiftedPEADFactor
         except Exception:
             pass

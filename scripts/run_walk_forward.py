@@ -38,6 +38,38 @@ FACTOR_SPECS = {
         "config_path": PROJECT_ROOT / "strategies" / "value_v1" / "config.py",
         "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 0.0, "quality": 0.0, "value": 1.0},
     },
+    "low_vol": {
+        "config_path": PROJECT_ROOT / "strategies" / "low_vol_v1" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 1.0, "pead": 0.0},
+    },
+    "pead": {
+        "config_path": PROJECT_ROOT / "strategies" / "pead_v1" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 1.0},
+    },
+    "momentum_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "momentum_v2" / "config.py",
+        "weights": {"momentum": 1.0, "reversal": 0.0, "low_vol": 0.0, "pead": 0.0},
+    },
+    "reversal_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "reversal_v2" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 1.0, "low_vol": 0.0, "pead": 0.0},
+    },
+    "quality_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "quality_v2" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 0.0, "quality": 1.0},
+    },
+    "value_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "value_v2" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 0.0, "quality": 0.0, "value": 1.0},
+    },
+    "low_vol_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "low_vol_v2" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 1.0, "pead": 0.0},
+    },
+    "pead_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "pead_v2" / "config.py",
+        "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 1.0},
+    },
 }
 
 
@@ -46,6 +78,40 @@ def _load_cfg(path: Path):
     module = _ilu.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _parse_override(s: str):
+    if s is None:
+        return None, None
+    if "=" not in s:
+        return s.strip(), None
+    key, val = s.split("=", 1)
+    key = key.strip()
+    val = val.strip()
+    if val.lower() in ("true", "false"):
+        return key, val.lower() == "true"
+    if val.lower() in ("none", "null"):
+        return key, None
+    try:
+        if "." in val:
+            return key, float(val)
+        return key, int(val)
+    except Exception:
+        return key, val
+
+
+def _apply_overrides(cfg, overrides):
+    if not overrides:
+        return
+    applied = {}
+    for item in overrides:
+        key, val = _parse_override(item)
+        if not key:
+            continue
+        setattr(cfg, key, val)
+        applied[key] = val
+    if applied:
+        print(f"[config] overrides: {applied}", flush=True)
 
 
 def _resolve_path(p: str) -> str:
@@ -76,6 +142,9 @@ def _make_engine_config(cfg):
         "MIN_PRICE": getattr(cfg, "MIN_PRICE", core.MIN_PRICE),
         "TRANSACTION_COST": getattr(cfg, "TRANSACTION_COST", core.TRANSACTION_COST),
         "EXECUTION_DELAY": getattr(cfg, "EXECUTION_DELAY", core.EXECUTION_DELAY),
+        "EXECUTION_USE_TRADING_DAYS": getattr(cfg, "EXECUTION_USE_TRADING_DAYS", False),
+        "ENABLE_DYNAMIC_COST": getattr(cfg, "ENABLE_DYNAMIC_COST", False),
+        "TRADE_SIZE_USD": getattr(cfg, "TRADE_SIZE_USD", 10000),
         "CALENDAR_SYMBOL": getattr(cfg, "CALENDAR_SYMBOL", getattr(core, "CALENDAR_SYMBOL", "SPY")),
     }
 
@@ -88,6 +157,9 @@ def _make_engine_config(cfg):
         "MOMENTUM_SKIP_MONTHS",
         "MOMENTUM_ZSCORE",
         "MOMENTUM_WINSOR_Z",
+        "MOMENTUM_USE_RESIDUAL",
+        "MOMENTUM_BENCH_SYMBOL",
+        "MOMENTUM_RESID_EST_WINDOW",
         "REBALANCE_MODE",
         "INDUSTRY_NEUTRAL",
         "INDUSTRY_MIN_GROUP",
@@ -111,10 +183,36 @@ def _make_engine_config(cfg):
         "REVERSAL_MODE",
         "REVERSAL_VOL_LOOKBACK",
         "REVERSAL_EARNINGS_FILTER_DAYS",
+        "REVERSAL_MAX_GAP_PCT",
+        "REVERSAL_MIN_DOLLAR_VOL",
         "QUALITY_WEIGHTS",
+        "QUALITY_MAINSTREAM_COMPOSITE",
+        "QUALITY_COMPONENT_TRANSFORM",
+        "QUALITY_COMPONENT_INDUSTRY_ZSCORE",
+        "QUALITY_COMPONENT_WINSOR_PCT_LOW",
+        "QUALITY_COMPONENT_WINSOR_PCT_HIGH",
+        "QUALITY_COMPONENT_MIN_COUNT",
+        "QUALITY_COMPONENT_MISSING_POLICY",
         "VALUE_WEIGHTS",
+        "VALUE_MAINSTREAM_COMPOSITE",
+        "VALUE_COMPONENT_TRANSFORM",
+        "VALUE_COMPONENT_INDUSTRY_ZSCORE",
+        "VALUE_COMPONENT_WINSOR_PCT_LOW",
+        "VALUE_COMPONENT_WINSOR_PCT_HIGH",
+        "VALUE_COMPONENT_MIN_COUNT",
+        "VALUE_COMPONENT_MISSING_POLICY",
         "FUNDAMENTALS_DIR",
         "VALUE_DIR",
+        "LOW_VOL_WINDOW",
+        "LOW_VOL_LOG_RETURN",
+        "LOW_VOL_USE_RESIDUAL",
+        "LOW_VOL_BENCH_SYMBOL",
+        "LOW_VOL_DOWNSIDE_ONLY",
+        "SUE_THRESHOLD",
+        "LOOKBACK_QUARTERS",
+        "DATE_SHIFT_DAYS",
+        "PEAD_USE_TRADING_DAY_SHIFT",
+        "PEAD_EVENT_MAX_AGE_DAYS",
     ]
     for key in optional_keys:
         if hasattr(cfg, key):
@@ -259,6 +357,7 @@ def main():
     parser.add_argument("--max-windows", type=int, default=0)
     parser.add_argument("--only-years", type=str, default="")
     parser.add_argument("--out-dir", type=str, default="")
+    parser.add_argument("--set", nargs="*", default=[])
     args = parser.parse_args()
 
     factor_list = [f.strip().lower() for f in args.factors.split(",") if f.strip()]
@@ -292,6 +391,7 @@ def main():
     for factor in factor_list:
         spec = FACTOR_SPECS[factor]
         cfg = _load_cfg(spec["config_path"])
+        _apply_overrides(cfg, args.set)
         df = run_factor(factor, cfg, spec["weights"], windows, args, out_dir)
         all_rows.append(df)
 

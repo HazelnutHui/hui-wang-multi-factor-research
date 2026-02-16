@@ -1,0 +1,29 @@
+strategy:
+  id: "reversal_v2"
+  name: "SHORT_TERM_REVERSAL_5D_MAINSTREAM"
+  version: "2.1"
+  output_dir: "strategies/reversal_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 1
+  holding_period: 1
+
+factors:
+  weights:
+    reversal: 1.0
+    momentum: 0.0
+    low_vol: 0.0
+    pead: 0.0
+  reversal:
+    lookback: 5
+    mode: "multi_day"
+    vol_lookback: null
+    earnings_filter_days: null
+    max_gap_pct: 0.10
+    min_dollar_vol: 2000000
