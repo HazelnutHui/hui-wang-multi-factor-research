@@ -1,97 +1,24 @@
-# Post-Stage1 Runbook (v2.1)
-# Updated: 2026-02-16
-# Current status: Stage1 segmented tasks completed (54/54).
-
-###############################################################################
-# A) WORKSTATION: merge Stage1 and print ranking
-###############################################################################
 cd ~/projects/hui-wang-multi-factor-research
-source .venv/bin/activate
-export PYTHONPATH=$(pwd)
-
 python3 - <<'PY'
 from pathlib import Path
 import pandas as pd
 
-root = Path("segment_results/stage1_v2_1_parallel")
-factors = ["value_v2","momentum_v2","reversal_v2","low_vol_v2","quality_v2","pead_v2"]
+root = Path("segment_results/stage2_v2_1_top3_parallel")
+factors = ["value_v2","momentum_v2","quality_v2"]
 rows = []
 for f in factors:
     files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
-    if not files:
-        rows.append([f, None, None, None, 0, 0, "NOT_FOUND"])
-        continue
     dfs = [pd.read_csv(p) for p in files]
     df = pd.concat(dfs, ignore_index=True)
-    if {"segment_start","segment_end"}.issubset(df.columns):
-        df = df.drop_duplicates(subset=["segment_start","segment_end"])
+    if {"segment_start", "segment_end"}.issubset(df.columns):
+        df = df.drop_duplicates(subset=["segment_start", "segment_end"])
     out_dir = root / "merged" / f
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "segment_summary.csv"
-    df.to_csv(out_path, index=False)
+    df.to_csv(out_dir / "segment_summary.csv", index=False)
 
     ic = pd.to_numeric(df.get("ic"), errors="coerce")
-    rows.append([
-        f,
-        float(ic.mean()) if ic.notna().any() else None,
-        float(ic.std()) if ic.notna().sum() > 1 else None,
-        float((ic > 0).mean()) if ic.notna().any() else None,
-        int(ic.notna().sum()),
-        int(len(df)),
-        f"{len(files)} files merged",
-    ])
+    rows.append([f, ic.mean(), ic.std(), (ic > 0).mean(), ic.notna().sum(), len(df), f"{len(files)} files merged"])
 
 out = pd.DataFrame(rows, columns=["factor","ic_mean","ic_std","pos_ratio","valid_n","rows","note"])
 print(out.sort_values("ic_mean", ascending=False).to_string(index=False))
 PY
-
-###############################################################################
-# B) WORKSTATION: Stage2 segmented (recommended top3 first)
-###############################################################################
-# Replace factors by your top3 from section A if different
-python3 scripts/run_segmented_factors.py \
-  --factors value_v2,momentum_v2,reversal_v2 \
-  --years 2 \
-  --set SIGNAL_ZSCORE=True SIGNAL_RANK=False INDUSTRY_NEUTRAL=True SIGNAL_NEUTRALIZE_SIZE=True SIGNAL_NEUTRALIZE_BETA=True
-
-###############################################################################
-# C) WORKSTATION: Layer2 fixed train/test (institutional YAML)
-###############################################################################
-python3 scripts/run_with_config.py --strategy configs/strategies/value_v2_inst.yaml
-python3 scripts/run_with_config.py --strategy configs/strategies/momentum_v2_inst.yaml
-python3 scripts/run_with_config.py --strategy configs/strategies/reversal_v2_inst.yaml
-python3 scripts/run_with_config.py --strategy configs/strategies/low_vol_v2_inst.yaml
-python3 scripts/run_with_config.py --strategy configs/strategies/quality_v2_inst.yaml
-python3 scripts/run_with_config.py --strategy configs/strategies/pead_v2_inst.yaml
-
-###############################################################################
-# D) WORKSTATION: Layer3 walk-forward (Stage2 override set)
-###############################################################################
-python3 scripts/run_walk_forward.py \
-  --factors value_v2,momentum_v2,reversal_v2,low_vol_v2,quality_v2,pead_v2 \
-  --train-years 3 --test-years 1 --start-year 2010 --end-year 2026 \
-  --set SIGNAL_ZSCORE=True SIGNAL_RANK=False INDUSTRY_NEUTRAL=True SIGNAL_NEUTRALIZE_SIZE=True SIGNAL_NEUTRALIZE_BETA=True
-
-###############################################################################
-# E) LOCAL: sync results back
-###############################################################################
-# Run on local machine
-rsync -avh --progress \
-  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ \
-  /Users/hui/quant_score/v4/segment_results/
-
-rsync -avh --progress \
-  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/walk_forward_results/ \
-  /Users/hui/quant_score/v4/walk_forward_results/
-
-rsync -avh --progress \
-  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ \
-  /Users/hui/quant_score/v4/logs/
-
-###############################################################################
-# F) LOCAL: compare v1 vs v2.1
-###############################################################################
-cd /Users/hui/quant_score/v4
-/Users/hui/miniconda3/envs/qscore/bin/python3.11 scripts/compare_v1_v2.py \
-  --root /Users/hui/quant_score/v4 \
-  --out-csv /Users/hui/quant_score/v4/analysis/v1_v2_compare_latest.csv

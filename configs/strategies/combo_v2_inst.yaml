@@ -1,0 +1,72 @@
+strategy:
+  id: "combo_v2_inst"
+  name: "COMBO_TOP3_V2_1_INST"
+  version: "2.1"
+  output_dir: "strategies/combo_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 21
+  holding_period: 20
+
+calendar:
+  rebalance_mode: "month_end"
+
+neutralization:
+  industry_neutral: true
+  industry_min_group: 5
+  signal_zscore: true
+  signal_rank: false
+  signal_winsor_pct_low: 0.01
+  signal_winsor_pct_high: 0.99
+  signal_neutralize_size: true
+  signal_neutralize_beta: true
+
+factors:
+  weights:
+    value: 0.70
+    momentum: 0.30
+    quality: 0.00
+    reversal: 0.0
+    low_vol: 0.0
+    pead: 0.0
+  momentum:
+    lookback: 126
+    skip: 21
+    use_monthly: false
+    lookback_months: 6
+    skip_months: 1
+    use_residual: true
+    bench_symbol: "SPY"
+    resid_est_window: 252
+  value:
+    weights:
+      earnings_yield: 1.0
+      fcf_yield: 1.0
+      ev_ebitda_yield: 1.0
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 2
+    component_missing_policy: "drop"
+  quality:
+    weights:
+      roe: 1.0
+      roa: 0.5
+      gross_margin: 0.5
+      cfo_to_assets: 1.0
+      debt_to_equity: -0.5
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 3
+    component_missing_policy: "drop"

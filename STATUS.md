@@ -11,7 +11,9 @@ Last updated: 2026-02-16
   - `v1` Stage 1 rerun completed for six target factors
   - `v2` upgraded in-place to `v2.1`
   - `v2.1` Stage 1 segmented completed (54/54 segment tasks)
-  - `v2.1` Stage 2 / Train-Test / Walk-forward pending
+  - `v2.1` Stage 2 top3 completed (`value_v2,momentum_v2,quality_v2`)
+  - `v2.1` full Train-Test / Walk-forward pending
+  - `combo_v2` code implemented; core candidate currently `value+momentum`
 
 ## 2) Factor Progress Snapshot (New Protocol Rerun)
 - Stage 1 completed (`v1` baseline):
@@ -29,11 +31,16 @@ Last updated: 2026-02-16
   - Quality_v2
   - PEAD_v2
 - Stage 2 status (`v2.1`):
-  - Not started
+  - Top3 completed: `value_v2,momentum_v2,quality_v2`
 - Train/Test status (`v2.1`):
   - Not started
 - Walk-forward status (`v2.1`):
   - Not started
+
+- Combo status:
+  - `combo_v2` strategy/config/tooling implemented
+  - Local smoke checks passed (`segmented`, `walk-forward`, `run_with_config`)
+  - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -60,7 +67,17 @@ Stage 1 ranking by `ic_mean` (`v2.1`):
 5. Reversal
 6. PEAD
 
-## 4) v2.1 Formula Upgrade (Completed, Pending Validation)
+## 4) Stage 2 Top3 Metrics (Completed, 2-Year Segments)
+- Value_v2: `ic_mean=0.055206`, `ic_std=0.021952`, `% positive segments=88.89%`, `valid_n=8/9`
+- Momentum_v2: `ic_mean=0.016483`, `ic_std=0.034164`, `% positive segments=66.67%`, `valid_n=8/9`
+- Quality_v2: `ic_mean=-0.003500`, `ic_std=0.007554`, `% positive segments=44.44%`, `valid_n=8/9`
+
+Stage 2 decision:
+1. Keep: `value_v2`
+2. Keep: `momentum_v2`
+3. Rework/hold: `quality_v2`
+
+## 5) v2.1 Formula Upgrade (Completed, Pending Validation)
 - `momentum_v2`: added residual momentum option against benchmark (`MOMENTUM_USE_RESIDUAL=True`, `SPY`, 252-day beta estimation window)
 - `reversal_v2`: added gap-risk and liquidity filters (`REVERSAL_MAX_GAP_PCT`, `REVERSAL_MIN_DOLLAR_VOL`)
 - `low_vol_v2`: switched to residual + downside volatility baseline (`LOW_VOL_USE_RESIDUAL=True`, `LOW_VOL_DOWNSIDE_ONLY=True`)
@@ -69,7 +86,7 @@ Stage 1 ranking by `ic_mean` (`v2.1`):
 - Runner pass-through updated for all three layers (`run_segmented_factors.py`, `run_with_config.py`, `run_walk_forward.py`)
 - Local smoke run completed for `momentum_v2`, `reversal_v2`, `low_vol_v2` (single short segment)
 
-## 5) Engineering Progress Completed
+## 6) Engineering Progress Completed
 - Unified protocol + strategy override configuration system
 - Stage 1/Stage 2 factor processing pipeline
 - PIT fundamentals support (`available_date` as-of filtering)
@@ -79,8 +96,8 @@ Stage 1 ranking by `ic_mean` (`v2.1`):
 - Report/diagnostics/checklist tooling for review workflow
 - Test coverage for lag/no-lookahead/factor transformation behaviors
 
-## 6) Next Steps
-1. Run `v2.1` Stage 2 segmented for top3: `value_v2,momentum_v2,quality_v2`
-2. Run `v2.1` fixed train/test with institutional YAML configs (`*_v2_inst.yaml`)
-3. Run `v2.1` walk-forward with Stage 2 override set
-4. Run `scripts/compare_v1_v2.py` and decide keep/promote/rework
+## 7) Next Steps
+1. Update combo baseline to core pair `value+momentum`
+2. Run `combo_v2` segmented / fixed train-test / walk-forward
+3. Keep `quality_v2` in candidate pool and retest after targeted rework
+4. Run `scripts/compare_v1_v2.py` and finalize keep/promote/rework decisions

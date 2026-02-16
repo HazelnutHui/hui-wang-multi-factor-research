@@ -32,6 +32,12 @@ Factors that fail segmented stability are filtered out early.
   - residual downside low-vol baseline
   - reversal gap/liquidity filters
 - `v2.1` full 3-layer rerun is the current active task.
+- Combination layer (`combo_v2`) is implemented and smoke-tested locally; formal run starts after Stage2 top3 finishes.
+- Stage2 top3 results:
+  - `value_v2`: `0.055206`
+  - `momentum_v2`: `0.016483`
+  - `quality_v2`: `-0.003500`
+- Current combo decision: use core pair `value + momentum`; keep `quality` as rework candidate.
 
 ## Engineering Strengths Demonstrated
 - Research infra design instead of one-off scripts

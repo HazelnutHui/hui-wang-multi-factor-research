@@ -35,12 +35,24 @@ python scripts/run_with_config.py --strategy configs/strategies/momentum_v1.yaml
 python scripts/run_walk_forward.py --factors momentum --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
 ```
 
-### 2.5 Factor report generation
+### 2.5 Combo baseline (institutional top3)
+```bash
+python scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml
+python scripts/run_segmented_factors.py --factors combo_v2 --years 2
+python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
+```
+
+### 2.6 Derive combo weights from segmented outputs
+```bash
+python scripts/derive_combo_weights.py --root . --out analysis/combo_v2_weights_suggested.csv
+```
+
+### 2.7 Factor report generation
 ```bash
 python scripts/generate_factor_report.py --strategy configs/strategies/momentum_v1.yaml --quantiles 5 --rolling-window 60 --cost-multipliers 2,3
 ```
 
-### 2.6 Tests
+### 2.8 Tests
 ```bash
 python -m pytest tests
 ```

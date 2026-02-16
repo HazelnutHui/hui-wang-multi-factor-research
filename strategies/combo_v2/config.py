@@ -1,0 +1,102 @@
+"""
+Combo Strategy v2.1 - Institutional Research Baseline
+Top3 combination: value_v2 + momentum_v2 + quality_v2
+"""
+
+STRATEGY_VERSION = "2.1"
+STRATEGY_NAME = "COMBO_TOP3_V2_1_INST"
+
+# Combination weights (can be updated by research script)
+COMBO_WEIGHTS = {
+    "value": 0.70,
+    "momentum": 0.30,
+    "quality": 0.00,
+    "reversal": 0.0,
+    "low_vol": 0.0,
+    "pead": 0.0,
+}
+
+# Momentum settings
+MOMENTUM_LOOKBACK = 126
+MOMENTUM_SKIP = 21
+MOMENTUM_USE_MONTHLY = False
+MOMENTUM_LOOKBACK_MONTHS = 6
+MOMENTUM_SKIP_MONTHS = 1
+MOMENTUM_USE_RESIDUAL = True
+MOMENTUM_BENCH_SYMBOL = "SPY"
+MOMENTUM_RESID_EST_WINDOW = 252
+MOMENTUM_ZSCORE = False
+MOMENTUM_WINSOR_Z = None
+
+# Value settings
+VALUE_WEIGHTS = {
+    "earnings_yield": 1.0,
+    "fcf_yield": 1.0,
+    "ev_ebitda_yield": 1.0,
+}
+VALUE_MAINSTREAM_COMPOSITE = True
+VALUE_COMPONENT_TRANSFORM = "identity"
+VALUE_COMPONENT_INDUSTRY_ZSCORE = True
+VALUE_COMPONENT_WINSOR_PCT_LOW = 0.01
+VALUE_COMPONENT_WINSOR_PCT_HIGH = 0.99
+VALUE_COMPONENT_MIN_COUNT = 2
+VALUE_COMPONENT_MISSING_POLICY = "drop"
+VALUE_DIR = "../data/fmp/ratios/value"
+
+# Quality settings
+QUALITY_WEIGHTS = {
+    "roe": 1.0,
+    "roa": 0.5,
+    "gross_margin": 0.5,
+    "cfo_to_assets": 1.0,
+    "debt_to_equity": -0.5,
+}
+QUALITY_MAINSTREAM_COMPOSITE = True
+QUALITY_COMPONENT_TRANSFORM = "identity"
+QUALITY_COMPONENT_INDUSTRY_ZSCORE = True
+QUALITY_COMPONENT_WINSOR_PCT_LOW = 0.01
+QUALITY_COMPONENT_WINSOR_PCT_HIGH = 0.99
+QUALITY_COMPONENT_MIN_COUNT = 3
+QUALITY_COMPONENT_MISSING_POLICY = "drop"
+FUNDAMENTALS_DIR = "../data/fmp/ratios/quality"
+
+# Stage2 institutional defaults
+SIGNAL_ZSCORE = True
+SIGNAL_RANK = False
+SIGNAL_WINSOR_PCT_LOW = 0.01
+SIGNAL_WINSOR_PCT_HIGH = 0.99
+INDUSTRY_NEUTRAL = True
+INDUSTRY_MIN_GROUP = 5
+INDUSTRY_COL = "industry"
+INDUSTRY_MAP_PATH = "../data/company_profiles.csv"
+SIGNAL_NEUTRALIZE_SIZE = True
+SIGNAL_NEUTRALIZE_BETA = True
+SIGNAL_NEUTRALIZE_COLS = None
+BETA_LOOKBACK = 252
+BETA_BENCH_SYMBOL = "SPY"
+BETA_USE_LOG_RETURN = True
+
+# Execution
+HOLDING_PERIOD = 20
+REBALANCE_FREQ = 21
+REBALANCE_MODE = "month_end"
+EXECUTION_DELAY = 1
+TRANSACTION_COST = 0.0020
+EXECUTION_USE_TRADING_DAYS = True
+ENABLE_DYNAMIC_COST = True
+TRADE_SIZE_USD = 10000
+
+# Universe
+MIN_MARKET_CAP = 500e6
+MIN_DOLLAR_VOLUME = 1e6
+MIN_PRICE = 5.0
+
+# Backtest periods
+TRAIN_START = "2010-01-04"
+TRAIN_END = "2017-12-31"
+TEST_START = "2018-01-01"
+TEST_END = "2026-01-28"
+
+# Data selection
+USE_ADJ_PRICES = True
+CALENDAR_SYMBOL = "SPY"
