@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-16
+Last updated: 2026-02-17
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
@@ -16,5 +16,6 @@ Last updated: 2026-02-16
 - `iterm_commands.txt`: convenience command snippets
 - `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
+- `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
 - `strategies/`: strategy-level docs and configs
 - `configs/`: protocol and strategy configuration files

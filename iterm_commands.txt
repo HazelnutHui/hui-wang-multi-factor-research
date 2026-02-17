@@ -1,106 +1,12 @@
-# Stage2 Strict + Cache (Value + Momentum only, 6-core)
+# Check completed count + merge ranking + verify cache (WORKSTATION)
 
-###############################################################################
-# A) LOCAL MAC: push latest cache code first
-###############################################################################
-cd /Users/hui/quant_score/v4
-git checkout main
-git status --short
-git add backtest/backtest_engine.py scripts/run_segmented_factors.py scripts/run_stage2_strict_top3_parallel.sh iterm_commands.txt
-git commit -m "feat: stage2 cache pipeline and value+momentum runbook" || true
-git push
-
-###############################################################################
-# B) WORKSTATION: pull code + env
-###############################################################################
 ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
-git checkout main
-git pull
-source .venv/bin/activate
-export PYTHONPATH=$(pwd)
 
-###############################################################################
-# C) WORKSTATION: clean only target outputs/logs/cache for this run
-###############################################################################
-pkill -f "scripts/run_segmented_factors.py" || true
-sleep 1
+# 1) Progress/complete count (target=18)
+find segment_results/stage2_v2026_02_16c_vm_parallel -path "*/segment_summary.csv" | wc -l
 
-rm -rf segment_results/stage2_v2026_02_16c_vm_parallel
-rm -rf cache/stage2_signals_v2026_02_16c_vm
-rm -f logs/stage2_v2026_02_16c_vm_driver.log
-rm -f logs/value_v2_stage2_v2026_02_16c_*.log
-rm -f logs/momentum_v2_stage2_v2026_02_16c_*.log
-
-###############################################################################
-# D) WORKSTATION: run Value+Momentum (18 tasks) in tmux, 6-core parallel
-###############################################################################
-tmux kill-session -t stage2_vm_cache 2>/dev/null || true
-tmux new -d -s stage2_vm_cache "cd ~/projects/hui-wang-multi-factor-research && source .venv/bin/activate && export PYTHONPATH=\$(pwd) && export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 && printf '%s\n' \
-'value_v2 2010-01-04 2012-01-03' \
-'value_v2 2012-01-04 2014-01-03' \
-'value_v2 2014-01-04 2016-01-03' \
-'value_v2 2016-01-04 2018-01-03' \
-'value_v2 2018-01-04 2020-01-03' \
-'value_v2 2020-01-04 2022-01-03' \
-'value_v2 2022-01-04 2024-01-03' \
-'value_v2 2024-01-04 2026-01-03' \
-'value_v2 2026-01-04 2026-01-28' \
-'momentum_v2 2010-01-04 2012-01-03' \
-'momentum_v2 2012-01-04 2014-01-03' \
-'momentum_v2 2014-01-04 2016-01-03' \
-'momentum_v2 2016-01-04 2018-01-03' \
-'momentum_v2 2018-01-04 2020-01-03' \
-'momentum_v2 2020-01-04 2022-01-03' \
-'momentum_v2 2022-01-04 2024-01-03' \
-'momentum_v2 2024-01-04 2026-01-03' \
-'momentum_v2 2026-01-04 2026-01-28' \
-| xargs -n3 -P6 bash -lc '
-  f=\"\$1\"; s=\"\$2\"; e=\"\$3\"
-  cd ~/projects/hui-wang-multi-factor-research || exit 1
-  source .venv/bin/activate
-  export PYTHONPATH=\$(pwd)
-  export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
-  tag=\"\${s//-/}_\${e//-/}\"
-  out=\"segment_results/stage2_v2026_02_16c_vm_parallel/\${f}/\${tag}\"
-  mkdir -p \"\$(dirname \"\$out\")\" logs
-  python3 scripts/run_segmented_factors.py \
-    --factors \"\$f\" \
-    --start-date \"\$s\" \
-    --end-date \"\$e\" \
-    --years 2 \
-    --max-segments 1 \
-    --out-dir \"\$out\" \
-    --set SIGNAL_ZSCORE=True \
-    --set SIGNAL_RANK=False \
-    --set SIGNAL_WINSOR_PCT_LOW=0.01 \
-    --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
-    --set SIGNAL_MISSING_POLICY=drop \
-    --set INDUSTRY_NEUTRAL=True \
-    --set INDUSTRY_MIN_GROUP=5 \
-    --set SIGNAL_NEUTRALIZE_SIZE=True \
-    --set SIGNAL_NEUTRALIZE_BETA=True \
-    --set MIN_MARKET_CAP=1000000000 \
-    --set MIN_DOLLAR_VOLUME=2000000 \
-    --set MIN_PRICE=5 \
-    --use-cache \
-    --cache-dir cache/stage2_signals_v2026_02_16c_vm \
-    --refresh-cache \
-    |& tee \"logs/\${f}_stage2_v2026_02_16c_\${tag}.log\"
-' _ |& tee logs/stage2_v2026_02_16c_vm_driver.log"
-
-###############################################################################
-# E) WORKSTATION: monitor
-###############################################################################
-tmux ls
-# target = 18
-a=~/projects/hui-wang-multi-factor-research
-find "$a/segment_results/stage2_v2026_02_16c_vm_parallel" -path "*/segment_summary.csv" | wc -l
-tail -f "$a/logs/stage2_v2026_02_16c_vm_driver.log"
-
-###############################################################################
-# F) WORKSTATION: merge + ranking (value/momentum only)
-###############################################################################
+# 2) Merge + ranking (value_v2, momentum_v2)
 python3 - <<'PY'
 from pathlib import Path
 import csv, math, statistics
@@ -127,6 +33,7 @@ for f in factors:
     merged = []
     seen = set()
     fieldnames = set()
+
     for p in files:
         with p.open("r", newline="", encoding="utf-8") as fh:
             r = csv.DictReader(fh)
@@ -156,9 +63,11 @@ for f in factors:
     ic_mean = statistics.mean(ic_vals) if ic_vals else None
     ic_std = statistics.stdev(ic_vals) if len(ic_vals) > 1 else None
     pos_ratio = (sum(1 for v in ic_vals if v > 0) / len(ic_vals)) if ic_vals else None
+
     rows_out.append([f, ic_mean, ic_std, pos_ratio, len(ic_vals), len(merged), f"{len(files)} files merged"])
 
 rows_out.sort(key=lambda x: (x[1] is None, -(x[1] or -1e99)))
+
 print(f"{'factor':>12} {'ic_mean':>10} {'ic_std':>10} {'pos_ratio':>10} {'valid_n':>8} {'rows':>6}  note")
 for r in rows_out:
     fm = f"{r[1]:.6f}" if r[1] is not None else "None"
@@ -167,14 +76,5 @@ for r in rows_out:
     print(f"{r[0]:>12} {fm:>10} {fs:>10} {fp:>10} {r[4]:>8} {r[5]:>6}  {r[6]}")
 PY
 
-###############################################################################
-# G) WORKSTATION: confirm cache files exist
-###############################################################################
+# 3) Verify cache files generated (>0 means cache is working)
 find cache/stage2_signals_v2026_02_16c_vm -type f | wc -l
-
-###############################################################################
-# H) LOCAL MAC: sync results/logs/cache back
-###############################################################################
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ /Users/hui/quant_score/v4/segment_results/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ /Users/hui/quant_score/v4/logs/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/cache/ /Users/hui/quant_score/v4/cache/

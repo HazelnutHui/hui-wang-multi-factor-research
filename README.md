@@ -24,13 +24,15 @@ Each factor follows the same research gate:
 
 If a factor fails step 1, it does not move forward.
 
-## Current Research Snapshot (Updated 2026-02-16 UTC)
+## Current Research Snapshot (Updated 2026-02-17 UTC)
 Current status under updated single-factor formula logic:
 - `v1` Stage 1 completed and kept as baseline reference
 - `v2` has been overwritten to `v2.1` (institutional baseline upgrade, nontrivial formula changes)
 - `v2.1` Stage 1 segmented validation completed (6 factors x 9 segments)
 - `v2.1` Stage 1 ranking by `ic_mean`: `value_v2` > `momentum_v2` > `quality_v2` > `low_vol_v2` > `reversal_v2` > `pead_v2`
 - Stage2 strict institutional rerun profile added: `v2026_02_16b` (`value_v2,momentum_v2,quality_v2`, 6-core parallel)
+- Stage2 strict + cache core-pair run completed: `v2026_02_16c_vm` (`value_v2,momentum_v2`, 18/18)
+- Stage2 signal cache layer is now implemented and verified (`395` cache files on workstation run)
 
 Latest `v2.1` Stage 1 metrics:
 - `value_v2`: `ic_mean=0.047520`, `ic_std=0.015569`, `pos_ratio=0.8889`, `valid_n=8/9`
@@ -53,12 +55,17 @@ Latest Stage2 top3 metrics:
 - `momentum_v2`: `ic_mean=0.016483`, `ic_std=0.034164`, `pos_ratio=0.6667`, `valid_n=8/9`
 - `quality_v2`: `ic_mean=-0.003500`, `ic_std=0.007554`, `pos_ratio=0.4444`, `valid_n=8/9`
 
+Latest Stage2 strict + cache core-pair metrics:
+- `value_v2`: `ic_mean=0.053457`, `ic_std=0.021938`, `pos_ratio=1.0000`, `valid_n=8/9`
+- `momentum_v2`: `ic_mean=0.014055`, `ic_std=0.026392`, `pos_ratio=0.7500`, `valid_n=8/9`
+
 Strict Stage2 runner:
 - `scripts/run_stage2_strict_top3_parallel.sh`
 - Default command (resume-safe): `bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3`
 
 ## Combination Layer
-- `combo_v2` is implemented as institutional research baseline (`value + momentum + quality`).
+- `combo_v2` is implemented as institutional research baseline.
+- Current core decision: `value + momentum` as main production-candidate pair, `quality` held out for rework.
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`

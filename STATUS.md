@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-16
+Last updated: 2026-02-17
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -12,6 +12,8 @@ Last updated: 2026-02-16
   - `v2` upgraded in-place to `v2.1`
   - `v2.1` Stage 1 segmented completed (54/54 segment tasks)
   - `v2.1` Stage 2 top3 completed (`value_v2,momentum_v2,quality_v2`)
+  - `v2.1` Stage 2 strict core-pair rerun completed (`value_v2,momentum_v2`, 18/18)
+  - Stage2 signal cache pipeline implemented and verified on workstation (`395` cache files generated)
   - `v2.1` full Train-Test / Walk-forward pending
   - `combo_v2` code implemented; core candidate currently `value+momentum`
 
@@ -32,6 +34,7 @@ Last updated: 2026-02-16
   - PEAD_v2
 - Stage 2 status (`v2.1`):
   - Top3 completed: `value_v2,momentum_v2,quality_v2`
+  - Core pair strict+cache run completed: `value_v2,momentum_v2`
 - Train/Test status (`v2.1`):
   - Not started
 - Walk-forward status (`v2.1`):
@@ -41,6 +44,7 @@ Last updated: 2026-02-16
   - `combo_v2` strategy/config/tooling implemented
   - Local smoke checks passed (`segmented`, `walk-forward`, `run_with_config`)
   - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
+  - Stage2 strict rerun profile added: `v2026_02_16b` (institutional stricter universe + neutralization config)
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -67,7 +71,7 @@ Stage 1 ranking by `ic_mean` (`v2.1`):
 5. Reversal
 6. PEAD
 
-## 4) Stage 2 Top3 Metrics (Completed, 2-Year Segments)
+## 4) Stage 2 Metrics (Completed, 2-Year Segments)
 - Value_v2: `ic_mean=0.055206`, `ic_std=0.021952`, `% positive segments=88.89%`, `valid_n=8/9`
 - Momentum_v2: `ic_mean=0.016483`, `ic_std=0.034164`, `% positive segments=66.67%`, `valid_n=8/9`
 - Quality_v2: `ic_mean=-0.003500`, `ic_std=0.007554`, `% positive segments=44.44%`, `valid_n=8/9`
@@ -76,6 +80,12 @@ Stage 2 decision:
 1. Keep: `value_v2`
 2. Keep: `momentum_v2`
 3. Rework/hold: `quality_v2`
+
+Core-pair strict+cache rerun (`v2026_02_16c_vm`):
+- Value_v2: `ic_mean=0.053457`, `ic_std=0.021938`, `% positive segments=100.00%`, `valid_n=8/9`
+- Momentum_v2: `ic_mean=0.014055`, `ic_std=0.026392`, `% positive segments=75.00%`, `valid_n=8/9`
+- Output segments completed: `18/18`
+- Stage2 cache files generated: `395`
 
 ## 5) v2.1 Formula Upgrade (Completed, Pending Validation)
 - `momentum_v2`: added residual momentum option against benchmark (`MOMENTUM_USE_RESIDUAL=True`, `SPY`, 252-day beta estimation window)
@@ -95,9 +105,13 @@ Stage 2 decision:
 - Forward-return IC as default research metric
 - Report/diagnostics/checklist tooling for review workflow
 - Test coverage for lag/no-lookahead/factor transformation behaviors
+- Stage2 signal cache layer:
+  - BacktestEngine cache read/write via config flags
+  - CLI support: `--use-cache --cache-dir --refresh-cache`
+  - Verified on workstation in strict segmented rerun
 
 ## 7) Next Steps
-1. Update combo baseline to core pair `value+momentum`
-2. Run `combo_v2` segmented / fixed train-test / walk-forward
-3. Keep `quality_v2` in candidate pool and retest after targeted rework
-4. Run `scripts/compare_v1_v2.py` and finalize keep/promote/rework decisions
+1. Lock `combo_v2_core` to `value+momentum`
+2. Run combo segmented validation under Stage2 strict settings
+3. Run combo fixed train/test
+4. Run combo walk-forward and compare with single-factor baselines
