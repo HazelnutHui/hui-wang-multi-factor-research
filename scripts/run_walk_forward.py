@@ -290,8 +290,15 @@ def run_factor(factor: str, cfg, weights: dict, windows, args, out_dir: Path):
             short_pct=args.short_pct,
         )
 
-        train_ic, train_sum = _analyze(train["signals"], train["returns"])
-        test_ic, test_sum = _analyze(test["signals"], test["returns"])
+        train_ret_for_ic = train.get("forward_returns")
+        if train_ret_for_ic is None or len(train_ret_for_ic) == 0:
+            train_ret_for_ic = train["returns"]
+        test_ret_for_ic = test.get("forward_returns")
+        if test_ret_for_ic is None or len(test_ret_for_ic) == 0:
+            test_ret_for_ic = test["returns"]
+
+        train_ic, train_sum = _analyze(train["signals"], train_ret_for_ic)
+        test_ic, test_sum = _analyze(test["signals"], test_ret_for_ic)
 
         row = {
             "factor": factor,
@@ -373,7 +380,7 @@ def main():
     parser.add_argument("--max-windows", type=int, default=0)
     parser.add_argument("--only-years", type=str, default="")
     parser.add_argument("--out-dir", type=str, default="")
-    parser.add_argument("--set", nargs="*", default=[])
+    parser.add_argument("--set", action="append", default=[], help="Override config: KEY=VALUE (repeatable)")
     args = parser.parse_args()
 
     factor_list = [f.strip().lower() for f in args.factors.split(",") if f.strip()]
