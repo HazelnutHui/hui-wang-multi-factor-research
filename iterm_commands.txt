@@ -1,80 +1,73 @@
-# Check completed count + merge ranking + verify cache (WORKSTATION)
+# Combo_v2_core (value+momentum) - 3-layer runbook (WORKSTATION)
+# Policy: Stage2 strict settings for combo validation
 
+###############################################################################
+# 0) LOCAL MAC: push latest combo config/code
+###############################################################################
+cd /Users/hui/quant_score/v4
+git checkout main
+git status --short
+git add strategies/combo_v2/config.py strategies/combo_v2/run.py configs/strategies/combo_v2_inst.yaml iterm_commands.txt
+git commit -m "feat: lock combo_v2 core strict settings and 3-layer runbook" || true
+git push
+
+###############################################################################
+# 1) WORKSTATION: pull + env
+###############################################################################
 ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
+git checkout main
+git pull
+source .venv/bin/activate
+export PYTHONPATH=$(pwd)
 
-# 1) Progress/complete count (target=18)
-find segment_results/stage2_v2026_02_16c_vm_parallel -path "*/segment_summary.csv" | wc -l
+###############################################################################
+# 2) WORKSTATION: clean combo outputs for fresh run
+###############################################################################
+pkill -f "scripts/run_segmented_factors.py" || true
+pkill -f "scripts/run_walk_forward.py" || true
+pkill -f "scripts/run_with_config.py" || true
+sleep 1
 
-# 2) Merge + ranking (value_v2, momentum_v2)
-python3 - <<'PY'
-from pathlib import Path
-import csv, math, statistics
+rm -rf segment_results/combo_v2_core_2026_02_17
+rm -rf walk_forward_results/combo_v2_core_2026_02_17
+rm -rf cache/combo_v2_core_signals_2026_02_17
+rm -f logs/combo_v2_core_2026_02_17_*.log
 
-root = Path("segment_results/stage2_v2026_02_16c_vm_parallel")
-factors = ["value_v2", "momentum_v2"]
-rows_out = []
+###############################################################################
+# 3) Layer1: segmented (2-year), Stage2 strict + cache
+###############################################################################
+# run in tmux so Mac shutdown does not affect
 
-def to_float(x):
-    try:
-        v = float(x)
-        if math.isnan(v):
-            return None
-        return v
-    except Exception:
-        return None
+tmux kill-session -t combo_l1 2>/dev/null || true
+tmux new -d -s combo_l1 "cd ~/projects/hui-wang-multi-factor-research && source .venv/bin/activate && export PYTHONPATH=\$(pwd) && python3 scripts/run_segmented_factors.py --factors combo_v2 --years 2 --out-dir segment_results/combo_v2_core_2026_02_17 --use-cache --cache-dir cache/combo_v2_core_signals_2026_02_17 --refresh-cache --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set SIGNAL_WINSOR_PCT_LOW=0.01 --set SIGNAL_WINSOR_PCT_HIGH=0.99 --set SIGNAL_MISSING_POLICY=drop --set INDUSTRY_NEUTRAL=True --set INDUSTRY_MIN_GROUP=5 --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True --set MIN_MARKET_CAP=1000000000 --set MIN_DOLLAR_VOLUME=2000000 --set MIN_PRICE=5 |& tee logs/combo_v2_core_2026_02_17_l1.log"
 
-for f in factors:
-    files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
-    if not files:
-        rows_out.append([f, None, None, None, 0, 0, "NOT_FOUND"])
-        continue
+# monitor (target=9)
+tmux ls
+find segment_results/combo_v2_core_2026_02_17 -path "*/segment_summary.csv" | wc -l
+tail -f logs/combo_v2_core_2026_02_17_l1.log
 
-    merged = []
-    seen = set()
-    fieldnames = set()
+###############################################################################
+# 4) Layer2: fixed train/test (institutional yaml)
+###############################################################################
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml |& tee logs/combo_v2_core_2026_02_17_l2.log
 
-    for p in files:
-        with p.open("r", newline="", encoding="utf-8") as fh:
-            r = csv.DictReader(fh)
-            if r.fieldnames:
-                fieldnames.update(r.fieldnames)
-            for row in r:
-                key = (row.get("segment_start"), row.get("segment_end"))
-                if key in seen:
-                    continue
-                seen.add(key)
-                merged.append(row)
+###############################################################################
+# 5) Layer3: walk-forward (Stage2 strict overrides)
+###############################################################################
+python3 scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026 --out-dir walk_forward_results/combo_v2_core_2026_02_17 --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set SIGNAL_WINSOR_PCT_LOW=0.01 --set SIGNAL_WINSOR_PCT_HIGH=0.99 --set SIGNAL_MISSING_POLICY=drop --set INDUSTRY_NEUTRAL=True --set INDUSTRY_MIN_GROUP=5 --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True --set MIN_MARKET_CAP=1000000000 --set MIN_DOLLAR_VOLUME=2000000 --set MIN_PRICE=5 |& tee logs/combo_v2_core_2026_02_17_l3.log
 
-    out_dir = root / "merged" / f
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "segment_summary.csv"
+###############################################################################
+# 6) Quick checks
+###############################################################################
+find segment_results/combo_v2_core_2026_02_17 -path "*/segment_summary.csv" | wc -l
+find walk_forward_results/combo_v2_core_2026_02_17 -name "walk_forward_summary.csv" | wc -l
+find cache/combo_v2_core_signals_2026_02_17 -type f | wc -l
 
-    fn = list(fieldnames) if fieldnames else []
-    with out_path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=fn)
-        if fn:
-            w.writeheader()
-            for row in merged:
-                w.writerow({k: row.get(k, "") for k in fn})
-
-    ic_vals = [to_float(r.get("ic")) for r in merged]
-    ic_vals = [v for v in ic_vals if v is not None]
-    ic_mean = statistics.mean(ic_vals) if ic_vals else None
-    ic_std = statistics.stdev(ic_vals) if len(ic_vals) > 1 else None
-    pos_ratio = (sum(1 for v in ic_vals if v > 0) / len(ic_vals)) if ic_vals else None
-
-    rows_out.append([f, ic_mean, ic_std, pos_ratio, len(ic_vals), len(merged), f"{len(files)} files merged"])
-
-rows_out.sort(key=lambda x: (x[1] is None, -(x[1] or -1e99)))
-
-print(f"{'factor':>12} {'ic_mean':>10} {'ic_std':>10} {'pos_ratio':>10} {'valid_n':>8} {'rows':>6}  note")
-for r in rows_out:
-    fm = f"{r[1]:.6f}" if r[1] is not None else "None"
-    fs = f"{r[2]:.6f}" if r[2] is not None else "None"
-    fp = f"{r[3]:.6f}" if r[3] is not None else "None"
-    print(f"{r[0]:>12} {fm:>10} {fs:>10} {fp:>10} {r[4]:>8} {r[5]:>6}  {r[6]}")
-PY
-
-# 3) Verify cache files generated (>0 means cache is working)
-find cache/stage2_signals_v2026_02_16c_vm -type f | wc -l
+###############################################################################
+# 7) Sync back to LOCAL MAC
+###############################################################################
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ /Users/hui/quant_score/v4/segment_results/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/walk_forward_results/ /Users/hui/quant_score/v4/walk_forward_results/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ /Users/hui/quant_score/v4/logs/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/cache/ /Users/hui/quant_score/v4/cache/
