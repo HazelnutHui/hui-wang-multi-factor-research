@@ -54,6 +54,11 @@ Important:
 - Do not use:
   - `segment_results/combo_weight_grid_2026_02_17_p6` (invalid for final selection due to old hardcoded combo defaults in segmented runner)
 
+Current combo lock after formula comparison:
+- Formula: `linear`
+- Weights: `value=0.90`, `momentum=0.10`
+- Nonlinear candidates (`gated`, `two_stage`) were tested and did not beat linear under Stage2 strict constraints.
+
 ### 2.7 Factor report generation
 ```bash
 python scripts/generate_factor_report.py --strategy configs/strategies/momentum_v1.yaml --quantiles 5 --rolling-window 60 --cost-multipliers 2,3

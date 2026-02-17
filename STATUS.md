@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17 (combo linear grid finalized; nonlinear formula run pending)
+Last updated: 2026-02-17 (combo formula comparison completed; final combo locked)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -53,7 +53,10 @@ Last updated: 2026-02-17 (combo linear grid finalized; nonlinear formula run pen
     - Provisional linear winner: `value=0.90, momentum=0.10`.
   - Formula research status:
     - Added formula-level combo options in engine/config (`COMBO_FORMULA`): `value_momentum_gated`, `value_momentum_two_stage`.
-    - Next run: segmented Stage2 strict comparison for the two nonlinear formulas.
+    - Segmented Stage2 strict comparison completed:
+      - `two_stage`: `ic_mean=0.048188`, `ic_std=0.081973`, `pos_ratio=0.714286`, `valid_n=7/9`
+      - `gated`: `ic_mean=0.038463`, `ic_std=0.070371`, `pos_ratio=0.571429`, `valid_n=7/9`
+    - Final combo lock: linear formula with `value=0.90`, `momentum=0.10`.
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -121,7 +124,6 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 
 ## 7) Next Steps
 1. Lock `combo_v2_core` to `value+momentum`
-2. Run nonlinear combo formulas (`value_momentum_gated`, `value_momentum_two_stage`) under segmented Stage2 strict
-3. Compare nonlinear vs best linear (`0.90/0.10`) and lock final combo formula
-4. Run combo fixed train/test
-5. Run combo walk-forward and compare with single-factor baselines
+2. Run combo fixed train/test (locked combo settings)
+3. Run combo walk-forward and compare with single-factor baselines
+4. Decide promotion to production-candidate runbook

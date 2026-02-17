@@ -1,6 +1,6 @@
 # Factor Notes (Public English Edition)
 
-Last updated: 2026-02-17 (combo_v2 segmented weight-source fix applied)
+Last updated: 2026-02-17 (combo_v2 final linear selection locked)
 
 Purpose: summarize current implementation logic and practical caveats for major factors.
 
@@ -53,10 +53,15 @@ Purpose: summarize current implementation logic and practical caveats for major 
 
 ## Combo_v2 (new)
 - Implementation: institutional baseline combination now using core pair `value + momentum` (quality held out after Stage2).
-- Default static baseline weights (current): `value=0.70`, `momentum=0.30`, `quality=0.00`.
+- Default static baseline weights (current): `value=0.90`, `momentum=0.10`, `quality=0.00`.
+- Formula comparison result (segmented Stage2 strict):
+  - Linear `0.90/0.10`: `ic_mean=0.066149`, `ic_std=0.047273`, `pos_ratio=0.857143`, `valid_n=7/9`.
+  - `value_momentum_gated`: `ic_mean=0.038463`, `ic_std=0.070371`, `pos_ratio=0.571429`, `valid_n=7/9`.
+  - `value_momentum_two_stage`: `ic_mean=0.048188`, `ic_std=0.081973`, `pos_ratio=0.714286`, `valid_n=7/9`.
+  - Decision: keep linear formula.
 - Supports adaptive suggestion via `scripts/derive_combo_weights.py` from merged segmented outputs.
-- Status: code implemented; local smoke checks passed; Stage2 cache pipeline verified; ready for formal combo three-layer validation.
+- Status: code implemented; segmented formula comparison completed; ready for combo Layer2/Layer3 validation.
 - Integrity update (2026-02-17):
   - Segmented runner previously used hardcoded combo defaults, which invalidated an early weight-grid batch for final selection.
   - Runner has been fixed: `combo_v2` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
-  - Corrected weight-grid rerun is in progress; only corrected batch results should be used for final weight lock.
+  - Corrected weight-grid and formula comparison are complete; final lock is linear `0.90/0.10`.

@@ -1,6 +1,6 @@
 # Combo Weight Experiments (value_v2 + momentum_v2)
 
-Last updated: 2026-02-17 (linear grid fixed; nonlinear formulas queued)
+Last updated: 2026-02-17 (linear+nonlinear comparison completed)
 
 ## 1) Objective
 - Find a robust `value_v2 / momentum_v2` weight split for `combo_v2` under the same Stage2 strict constraints.
@@ -19,11 +19,6 @@ Last updated: 2026-02-17 (linear grid fixed; nonlinear formulas queued)
 - `0.60 / 0.40`
 - `0.50 / 0.50`
 
-Current running batch (fast pass, corrected):
-- `0.90 / 0.10`
-- `0.80 / 0.20`
-- `0.70 / 0.30`
-
 Important correction:
 - A previous grid batch under `segment_results/combo_weight_grid_2026_02_17_p6` is invalid for weight selection.
 - Root cause: `scripts/run_segmented_factors.py` had `combo_v2` hardcoded weights (`value=0.50,momentum=0.30,quality=0.20`), so edits in `strategies/combo_v2/config.py` were not applied.
@@ -36,6 +31,8 @@ Important correction:
 | grid_fix_2026_02_17_w090_m010 | 0.90 | 0.10 | 0.066149 | 0.047273 | 0.857143 | 7 | best linear candidate |
 | grid_fix_2026_02_17_w080_m020 | 0.80 | 0.20 | 0.055354 | 0.045034 | 0.857143 | 7 | second |
 | grid_fix_2026_02_17_w070_m030 | 0.70 | 0.30 | 0.045395 | 0.045466 | 0.857143 | 7 | third |
+| formula_gated_2026_02_17 | 0.90 | 0.10 | 0.038463 | 0.070371 | 0.571429 | 7 | worse than best linear |
+| formula_two_stage_2026_02_17 | 0.90 | 0.10 | 0.048188 | 0.081973 | 0.714286 | 7 | worse than best linear |
 
 ## 5) Selection Rule
 1. Keep only candidates with acceptable `pos_ratio` (recommended >= 0.60).
@@ -49,18 +46,18 @@ Important correction:
 - 2026-02-17: Identified weight-source bug in segmented runner; previous grid marked invalid.
 - 2026-02-17: Patched segmented runner to read `COMBO_WEIGHTS` from config; corrected grid rerun completed.
 - 2026-02-17: Linear-grid provisional winner = `0.90 / 0.10`.
+- 2026-02-17: Baseline combo config updated to `value=0.90, momentum=0.10` for formula-comparison runs.
 - 2026-02-17: Enabled formula-level testing in engine (`COMBO_FORMULA`): `value_momentum_gated`, `value_momentum_two_stage`.
+- 2026-02-17: Nonlinear formula comparison completed; both formulas underperform best linear candidate.
+- 2026-02-17: Final combo decision locked: `linear + weights(value=0.90, momentum=0.10)`.
 
 ## 7) Next Actions
-1. Run 5-weight segmented grid.
-2. Fill table above.
-3. Lock one weight and update:
-   - `strategies/combo_v2/config.py`
-   - `configs/strategies/combo_v2_inst.yaml`
-4. Start Layer2 fixed train/test and Layer3 walk-forward.
+1. Keep combo formula as `linear`.
+2. Keep combo weights as `value=0.90`, `momentum=0.10`.
+3. Start Layer2 fixed train/test and Layer3 walk-forward using locked combo settings.
 
 ## 8) Formula Candidates (After Current Weight Grid)
-If linear weight grid still looks unstable, move to formula-level candidates:
+Formula-level candidates were tested in the same Stage2 strict framework:
 
 1. Core-linear (value-dominant):
 - `score = 0.85 * z(value) + 0.15 * z(momentum)`
@@ -77,6 +74,7 @@ If linear weight grid still looks unstable, move to formula-level candidates:
 - Step B: use momentum as filter to remove weakest momentum names
 - Final scoring remains value-dominant
 
-Execution policy:
-- Do not change Stage2 constraints while testing formula candidates.
-- Change one dimension at a time (weights OR formula), never both in same batch.
+Formula comparison outcome:
+- `gated`: lower mean IC and lower positive-ratio than linear winner.
+- `two_stage`: lower mean IC and materially higher IC std than linear winner.
+- Decision: keep linear formula.

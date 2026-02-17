@@ -38,9 +38,10 @@ Factors that fail segmented stability are filtered out early.
   - An early segmented grid batch was invalidated due to a weight-source bug in `run_segmented_factors.py` (hardcoded combo defaults).
   - The runner was fixed to read `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
   - Corrected 3-weight grid rerun completed: `0.90/0.10` ranked first.
-  - Next step is formula-level comparison vs linear winner using two nonlinear candidates:
-    - `value_momentum_gated`
-    - `value_momentum_two_stage`
+  - Formula comparison completed under same strict settings:
+    - `value_momentum_gated`: `ic_mean=0.038463`, `ic_std=0.070371`
+    - `value_momentum_two_stage`: `ic_mean=0.048188`, `ic_std=0.081973`
+  - Final combo lock: linear `value=0.90`, `momentum=0.10`.
 - Stage2 top3 results:
   - `value_v2`: `0.055206`
   - `momentum_v2`: `0.016483`

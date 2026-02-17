@@ -71,6 +71,9 @@ Strict Stage2 runner:
   - Cause: segmented runner previously used hardcoded combo defaults.
   - Fix applied: `scripts/run_segmented_factors.py` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py` for `combo_v2`.
   - Corrected rerun batch: `segment_results/combo_weight_grid_2026_02_17_fix`.
+- Final combo selection (after nonlinear comparison):
+  - Linear winner: `value=0.90`, `momentum=0.10`
+  - `value_momentum_gated` and `value_momentum_two_stage` both underperformed the linear winner under identical Stage2 strict constraints.
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`
