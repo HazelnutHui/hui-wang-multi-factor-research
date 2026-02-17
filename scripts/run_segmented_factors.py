@@ -450,7 +450,11 @@ def main():
             spec["weights"]["momentum"] = -1.0
         cfg = _load_cfg(spec["config_path"])
         _apply_overrides(cfg, args.set)
-        df = run_factor(factor, cfg, spec["weights"], segments, args, out_dir)
+        # combo_v2 weights must come from its config (COMBO_WEIGHTS), not hardcoded defaults.
+        weights = dict(spec["weights"])
+        if factor == "combo_v2" and hasattr(cfg, "COMBO_WEIGHTS"):
+            weights = dict(getattr(cfg, "COMBO_WEIGHTS"))
+        df = run_factor(factor, cfg, weights, segments, args, out_dir)
         all_rows.append(df)
 
     if all_rows:

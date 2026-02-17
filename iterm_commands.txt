@@ -1,19 +1,11 @@
-# Combo_v2_core (value+momentum) - 3-layer runbook (WORKSTATION)
-# Policy: Stage2 strict settings for combo validation
-
-###############################################################################
-# 0) LOCAL MAC: push latest combo config/code
-###############################################################################
+# A) LOCAL MAC: push fix (combo_v2 reads COMBO_WEIGHTS from config)
 cd /Users/hui/quant_score/v4
 git checkout main
-git status --short
-git add strategies/combo_v2/config.py strategies/combo_v2/run.py configs/strategies/combo_v2_inst.yaml iterm_commands.txt
-git commit -m "feat: lock combo_v2 core strict settings and 3-layer runbook" || true
+git add scripts/run_segmented_factors.py iterm_commands.txt
+git commit -m "fix: combo_v2 segmented runner uses COMBO_WEIGHTS from config" || true
 git push
 
-###############################################################################
-# 1) WORKSTATION: pull + env
-###############################################################################
+# B) WORKSTATION: pull latest
 ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
 git checkout main
@@ -21,53 +13,145 @@ git pull
 source .venv/bin/activate
 export PYTHONPATH=$(pwd)
 
-###############################################################################
-# 2) WORKSTATION: clean combo outputs for fresh run
-###############################################################################
-pkill -f "scripts/run_segmented_factors.py" || true
-pkill -f "scripts/run_walk_forward.py" || true
-pkill -f "scripts/run_with_config.py" || true
-sleep 1
+# C) WORKSTATION: clean old outputs
+tmux kill-session -t combo_grid_fix 2>/dev/null || true
+rm -rf segment_results/combo_weight_grid_2026_02_17_fix
+rm -f logs/combo_weight_grid_fix_*.log logs/combo_weight_grid_fix_driver.log
 
-rm -rf segment_results/combo_v2_core_2026_02_17
-rm -rf walk_forward_results/combo_v2_core_2026_02_17
-rm -rf cache/combo_v2_core_signals_2026_02_17
-rm -f logs/combo_v2_core_2026_02_17_*.log
+# D) WORKSTATION: run 3 weights (6-core parallel, detached tmux)
+cat > /tmp/combo_grid_fix.sh <<'BASH'
+#!/usr/bin/env bash
+set -euo pipefail
+cd ~/projects/hui-wang-multi-factor-research
+source .venv/bin/activate
+export PYTHONPATH=$(pwd)
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 
-###############################################################################
-# 3) Layer1: segmented (2-year), Stage2 strict + cache
-###############################################################################
-# run in tmux so Mac shutdown does not affect
+cat > /tmp/combo_segments.txt <<'SEG'
+2010-01-04 2012-01-03
+2012-01-04 2014-01-03
+2014-01-04 2016-01-03
+2016-01-04 2018-01-03
+2018-01-04 2020-01-03
+2020-01-04 2022-01-03
+2022-01-04 2024-01-03
+2024-01-04 2026-01-03
+2026-01-04 2026-01-28
+SEG
 
-tmux kill-session -t combo_l1 2>/dev/null || true
-tmux new -d -s combo_l1 "cd ~/projects/hui-wang-multi-factor-research && source .venv/bin/activate && export PYTHONPATH=\$(pwd) && python3 scripts/run_segmented_factors.py --factors combo_v2 --years 2 --out-dir segment_results/combo_v2_core_2026_02_17 --use-cache --cache-dir cache/combo_v2_core_signals_2026_02_17 --refresh-cache --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set SIGNAL_WINSOR_PCT_LOW=0.01 --set SIGNAL_WINSOR_PCT_HIGH=0.99 --set SIGNAL_MISSING_POLICY=drop --set INDUSTRY_NEUTRAL=True --set INDUSTRY_MIN_GROUP=5 --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True --set MIN_MARKET_CAP=1000000000 --set MIN_DOLLAR_VOLUME=2000000 --set MIN_PRICE=5 |& tee logs/combo_v2_core_2026_02_17_l1.log"
+set_weights () {
+  export W="$1" M="$2"
+  python3 - <<'PY'
+from pathlib import Path
+import os, re
+p = Path('strategies/combo_v2/config.py')
+s = p.read_text(encoding='utf-8')
+w = float(os.environ['W'])
+m = float(os.environ['M'])
+s = re.sub(r'(["\']value["\']\s*:\s*)[0-9.]+,', r'\g<1>' + f'{w:.2f}' + ',', s)
+s = re.sub(r'(["\']momentum["\']\s*:\s*)[0-9.]+,', r'\g<1>' + f'{m:.2f}' + ',', s)
+p.write_text(s, encoding='utf-8')
+print('weights ->', w, m)
+PY
+}
 
-# monitor (target=9)
+run_weight () {
+  local w="$1" m="$2"
+  local tag="w${w}_m${m}"
+  tag="${tag//./}"
+  set_weights "$w" "$m"
+  export TAG="$tag"
+
+  cat /tmp/combo_segments.txt | xargs -n2 -P6 bash -lc '
+    s="$1"; e="$2"; t="${s//-/}_${e//-/}"
+    out="segment_results/combo_weight_grid_2026_02_17_fix/${TAG}/${t}"
+    mkdir -p "$out" logs
+    python3 scripts/run_segmented_factors.py \
+      --factors combo_v2 \
+      --start-date "$s" \
+      --end-date "$e" \
+      --years 2 \
+      --max-segments 1 \
+      --out-dir "$out" \
+      --set SIGNAL_ZSCORE=True \
+      --set SIGNAL_RANK=False \
+      --set SIGNAL_WINSOR_PCT_LOW=0.01 \
+      --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
+      --set SIGNAL_MISSING_POLICY=drop \
+      --set INDUSTRY_NEUTRAL=True \
+      --set INDUSTRY_MIN_GROUP=5 \
+      --set SIGNAL_NEUTRALIZE_SIZE=True \
+      --set SIGNAL_NEUTRALIZE_BETA=True \
+      --set MIN_MARKET_CAP=1000000000 \
+      --set MIN_DOLLAR_VOLUME=2000000 \
+      --set MIN_PRICE=5 \
+      |& tee "logs/combo_weight_grid_fix_${TAG}_${t}.log"
+  ' _
+}
+
+run_weight 0.90 0.10
+run_weight 0.80 0.20
+run_weight 0.70 0.30
+
+# restore baseline
+export W=0.70 M=0.30
+python3 - <<'PY'
+from pathlib import Path
+import os, re
+p = Path('strategies/combo_v2/config.py')
+s = p.read_text(encoding='utf-8')
+w = float(os.environ['W'])
+m = float(os.environ['M'])
+s = re.sub(r'(["\']value["\']\s*:\s*)[0-9.]+,', r'\g<1>' + f'{w:.2f}' + ',', s)
+s = re.sub(r'(["\']momentum["\']\s*:\s*)[0-9.]+,', r'\g<1>' + f'{m:.2f}' + ',', s)
+p.write_text(s, encoding='utf-8')
+print('restored baseline 0.70/0.30')
+PY
+BASH
+
+chmod +x /tmp/combo_grid_fix.sh
+tmux new -d -s combo_grid_fix "/tmp/combo_grid_fix.sh |& tee ~/projects/hui-wang-multi-factor-research/logs/combo_weight_grid_fix_driver.log"
+
+# E) monitor
 tmux ls
-find segment_results/combo_v2_core_2026_02_17 -path "*/segment_summary.csv" | wc -l
-tail -f logs/combo_v2_core_2026_02_17_l1.log
+find segment_results/combo_weight_grid_2026_02_17_fix -type f -path "*/combo_v2/segment_summary.csv" | wc -l
 
-###############################################################################
-# 4) Layer2: fixed train/test (institutional yaml)
-###############################################################################
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml |& tee logs/combo_v2_core_2026_02_17_l2.log
+# F) summarize (expect different metrics now)
+python3 - <<'PY'
+from pathlib import Path
+import csv, math, statistics
 
-###############################################################################
-# 5) Layer3: walk-forward (Stage2 strict overrides)
-###############################################################################
-python3 scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026 --out-dir walk_forward_results/combo_v2_core_2026_02_17 --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set SIGNAL_WINSOR_PCT_LOW=0.01 --set SIGNAL_WINSOR_PCT_HIGH=0.99 --set SIGNAL_MISSING_POLICY=drop --set INDUSTRY_NEUTRAL=True --set INDUSTRY_MIN_GROUP=5 --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True --set MIN_MARKET_CAP=1000000000 --set MIN_DOLLAR_VOLUME=2000000 --set MIN_PRICE=5 |& tee logs/combo_v2_core_2026_02_17_l3.log
+root = Path('segment_results/combo_weight_grid_2026_02_17_fix')
+rows = []
+for run_dir in sorted(root.glob('w*m*')):
+    files = sorted(run_dir.glob('*/combo_v2/segment_summary.csv'))
+    merged, seen = [], set()
+    for p in files:
+        with p.open('r', newline='', encoding='utf-8') as fh:
+            r = csv.DictReader(fh)
+            for row in r:
+                key = (row.get('segment_start'), row.get('segment_end'))
+                if key in seen:
+                    continue
+                seen.add(key)
+                merged.append(row)
 
-###############################################################################
-# 6) Quick checks
-###############################################################################
-find segment_results/combo_v2_core_2026_02_17 -path "*/segment_summary.csv" | wc -l
-find walk_forward_results/combo_v2_core_2026_02_17 -name "walk_forward_summary.csv" | wc -l
-find cache/combo_v2_core_signals_2026_02_17 -type f | wc -l
+    ic = []
+    for row in merged:
+        try:
+            v = float(row.get('ic', ''))
+            if not math.isnan(v):
+                ic.append(v)
+        except Exception:
+            pass
 
-###############################################################################
-# 7) Sync back to LOCAL MAC
-###############################################################################
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ /Users/hui/quant_score/v4/segment_results/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/walk_forward_results/ /Users/hui/quant_score/v4/walk_forward_results/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ /Users/hui/quant_score/v4/logs/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/cache/ /Users/hui/quant_score/v4/cache/
+    rows.append([run_dir.name, statistics.mean(ic) if ic else None, statistics.stdev(ic) if len(ic) > 1 else None, (sum(1 for v in ic if v > 0) / len(ic)) if ic else None, len(ic), len(merged)])
+
+rows.sort(key=lambda x: (x[1] is None, -(x[1] or -1e99)))
+print(f"{'run_id':>12} {'ic_mean':>10} {'ic_std':>10} {'pos_ratio':>10} {'valid_n':>8} {'rows':>6}")
+for r in rows:
+    fm = f"{r[1]:.6f}" if r[1] is not None else 'None'
+    fs = f"{r[2]:.6f}" if r[2] is not None else 'None'
+    fp = f"{r[3]:.6f}" if r[3] is not None else 'None'
+    print(f"{r[0]:>12} {fm:>10} {fs:>10} {fp:>10} {r[4]:>8} {r[5]:>6}")
+PY
