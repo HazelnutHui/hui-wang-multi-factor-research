@@ -136,6 +136,6 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 
 ## 7) Next Steps
 1. Keep locked combo (`linear`, `value=0.90`, `momentum=0.10`) as current primary candidate
-2. Run transaction-cost and turnover stress around the same locked settings
+2. Run `POST_WF_INSTITUTIONAL_CHECKLIST.md` (cost stress + walk-forward stress + diagnostics)
 3. Compare combo walk-forward against single-factor baselines under identical constraints
 4. Decide promotion to paper-trading candidate

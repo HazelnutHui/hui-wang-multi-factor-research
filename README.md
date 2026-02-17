@@ -147,6 +147,7 @@ python -m pytest tests
 - `STATUS.md`: current progress and latest run status
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
 - `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight experiments and final selection log
+- `POST_WF_INSTITUTIONAL_CHECKLIST.md`: post walk-forward institutional validation gates before paper/live
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `FACTOR_NOTES.md`: implementation notes and caveats per factor
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)

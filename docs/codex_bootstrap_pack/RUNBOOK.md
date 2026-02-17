@@ -111,6 +111,16 @@ Resume-safe behavior:
 bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 1
 ```
 
+### 2.10 Post-WF institutional gates (must-pass before paper/live)
+Use:
+- `POST_WF_INSTITUTIONAL_CHECKLIST.md`
+
+Includes:
+- cost stress (`--cost-multiplier`)
+- walk-forward stress (cost + stricter universe)
+- post-hoc risk diagnostics (`scripts/posthoc_factor_diagnostics.py`)
+- pass/fail criteria for promotion
+
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
 - Walk-forward runs: `walk_forward_results/<timestamp>/`
