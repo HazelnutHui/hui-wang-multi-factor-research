@@ -74,6 +74,13 @@ Strict Stage2 runner:
 - Final combo selection (after nonlinear comparison):
   - Linear winner: `value=0.90`, `momentum=0.10`
   - `value_momentum_gated` and `value_momentum_two_stage` both underperformed the linear winner under identical Stage2 strict constraints.
+- Final locked combo validation:
+  - Layer2 fixed train/test (`configs/strategies/combo_v2_inst.yaml`):
+    - Train IC (overall): `0.080637`
+    - Test IC (overall): `0.053038`
+  - Layer3 walk-forward (`REBALANCE_MODE=None`, test years 2013-2025):
+    - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+    - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`

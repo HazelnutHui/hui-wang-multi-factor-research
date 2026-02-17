@@ -33,7 +33,7 @@ Factors that fail segmented stability are filtered out early.
   - reversal gap/liquidity filters
 - `v2.1` Stage2 strict + cache core-pair rerun (`value_v2,momentum_v2`) completed (18/18 segments).
 - Stage2 cache pipeline is now implemented and verified in real run (`395` cache artifacts generated).
-- Combination layer (`combo_v2`) is implemented and smoke-tested locally; next step is formal combo three-layer validation under strict settings.
+- Combination layer (`combo_v2`) is fully validated under locked strict settings (Layer1/Layer2/Layer3 completed).
 - Combo weight-grid status:
   - An early segmented grid batch was invalidated due to a weight-source bug in `run_segmented_factors.py` (hardcoded combo defaults).
   - The runner was fixed to read `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
@@ -50,6 +50,11 @@ Factors that fail segmented stability are filtered out early.
 - Latest strict+cache core-pair metrics:
   - `value_v2`: `0.053457`
   - `momentum_v2`: `0.014055`
+- Final combo validation (locked `linear`, `value=0.90`, `momentum=0.10`):
+  - Layer2 fixed train/test: `train_ic=0.080637`, `test_ic=0.053038`
+  - Layer3 walk-forward (2013-2025, `REBALANCE_MODE=None`):
+    - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+    - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
 
 ## Engineering Strengths Demonstrated
 - Research infra design instead of one-off scripts

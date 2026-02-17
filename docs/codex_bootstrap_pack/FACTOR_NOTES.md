@@ -1,6 +1,6 @@
 # Factor Notes (Public English Edition)
 
-Last updated: 2026-02-17 (combo_v2 final linear selection locked)
+Last updated: 2026-02-17 (combo_v2 Layer2/Layer3 completed under locked linear settings)
 
 Purpose: summarize current implementation logic and practical caveats for major factors.
 
@@ -59,9 +59,16 @@ Purpose: summarize current implementation logic and practical caveats for major 
   - `value_momentum_gated`: `ic_mean=0.038463`, `ic_std=0.070371`, `pos_ratio=0.571429`, `valid_n=7/9`.
   - `value_momentum_two_stage`: `ic_mean=0.048188`, `ic_std=0.081973`, `pos_ratio=0.714286`, `valid_n=7/9`.
   - Decision: keep linear formula.
+- Layer2 fixed train/test (locked combo):
+  - Train IC (overall): `0.080637`
+  - Test IC (overall): `0.053038`
+- Layer3 walk-forward (locked combo, test years 2013-2025, `REBALANCE_MODE=None`):
+  - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
 - Supports adaptive suggestion via `scripts/derive_combo_weights.py` from merged segmented outputs.
-- Status: code implemented; segmented formula comparison completed; ready for combo Layer2/Layer3 validation.
+- Status: locked combo passed Layer2 and Layer3 under current protocol and is now the primary combo candidate.
 - Integrity update (2026-02-17):
   - Segmented runner previously used hardcoded combo defaults, which invalidated an early weight-grid batch for final selection.
   - Runner has been fixed: `combo_v2` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
   - Corrected weight-grid and formula comparison are complete; final lock is linear `0.90/0.10`.
+  - Walk-forward setting note: use `REBALANCE_MODE=None` for combo Layer3, otherwise yearly windows can collapse to one rebalance date and yield `test_ic=N/A`.

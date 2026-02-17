@@ -42,6 +42,31 @@ python scripts/run_segmented_factors.py --factors combo_v2 --years 2
 python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
 ```
 
+### 2.5b Combo final locked run (recommended)
+```bash
+# Layer2 fixed train/test
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml
+
+# Layer3 walk-forward (important: REBALANCE_MODE=None)
+python3 scripts/run_walk_forward.py \
+  --factors combo_v2 \
+  --train-years 3 --test-years 1 --start-year 2010 --end-year 2025 \
+  --set REBALANCE_MODE=None \
+  --set COMBO_FORMULA=linear \
+  --set SIGNAL_ZSCORE=True \
+  --set SIGNAL_RANK=False \
+  --set SIGNAL_WINSOR_PCT_LOW=0.01 \
+  --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
+  --set SIGNAL_MISSING_POLICY=drop \
+  --set INDUSTRY_NEUTRAL=True \
+  --set INDUSTRY_MIN_GROUP=5 \
+  --set SIGNAL_NEUTRALIZE_SIZE=True \
+  --set SIGNAL_NEUTRALIZE_BETA=True \
+  --set MIN_MARKET_CAP=1000000000 \
+  --set MIN_DOLLAR_VOLUME=2000000 \
+  --set MIN_PRICE=5
+```
+
 ### 2.6 Derive combo weights from segmented outputs
 ```bash
 python scripts/derive_combo_weights.py --root . --out analysis/combo_v2_weights_suggested.csv
@@ -58,6 +83,10 @@ Current combo lock after formula comparison:
 - Formula: `linear`
 - Weights: `value=0.90`, `momentum=0.10`
 - Nonlinear candidates (`gated`, `two_stage`) were tested and did not beat linear under Stage2 strict constraints.
+- Layer2 fixed train/test (locked): `train_ic=0.080637`, `test_ic=0.053038`
+- Layer3 walk-forward (2013-2025, `REBALANCE_MODE=None`):
+  - `test_ic mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
 
 ### 2.7 Factor report generation
 ```bash

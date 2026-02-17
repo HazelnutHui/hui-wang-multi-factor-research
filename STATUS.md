@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17 (combo formula comparison completed; final combo locked)
+Last updated: 2026-02-17 (combo Layer2/Layer3 completed with locked linear settings)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -15,8 +15,10 @@ Last updated: 2026-02-17 (combo formula comparison completed; final combo locked
   - `v2.1` Stage 2 strict core-pair rerun completed (`value_v2,momentum_v2`, 18/18)
   - Stage2 signal cache pipeline implemented and verified on workstation (`395` cache files generated)
   - Combo segmented runner bug fixed: `combo_v2` now reads `COMBO_WEIGHTS` from strategy config (previous hardcoded weights removed from effective path)
-  - `v2.1` full Train-Test / Walk-forward pending
-  - `combo_v2` code implemented; core candidate currently `value+momentum`
+  - `combo_v2` Layer1 segmented completed with locked linear settings
+  - `combo_v2` Layer2 fixed train/test completed (`train_ic=0.080637`, `test_ic=0.053038`)
+  - `combo_v2` Layer3 walk-forward completed (2013-2025 windows, `REBALANCE_MODE=None`)
+  - `combo_v2` now locked as core candidate (`value+momentum`, linear)
 
 ## 2) Factor Progress Snapshot (New Protocol Rerun)
 - Stage 1 completed (`v1` baseline):
@@ -43,7 +45,7 @@ Last updated: 2026-02-17 (combo formula comparison completed; final combo locked
 
   - Combo status:
   - `combo_v2` strategy/config/tooling implemented
-  - Local smoke checks passed (`segmented`, `walk-forward`, `run_with_config`)
+  - Full three-layer validation completed (`segmented`, `run_with_config`, `walk-forward`)
   - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
   - Stage2 strict rerun profile added: `v2026_02_16b` (institutional stricter universe + neutralization config)
   - Weight-grid note:
@@ -57,6 +59,16 @@ Last updated: 2026-02-17 (combo formula comparison completed; final combo locked
       - `two_stage`: `ic_mean=0.048188`, `ic_std=0.081973`, `pos_ratio=0.714286`, `valid_n=7/9`
       - `gated`: `ic_mean=0.038463`, `ic_std=0.070371`, `pos_ratio=0.571429`, `valid_n=7/9`
     - Final combo lock: linear formula with `value=0.90`, `momentum=0.10`.
+  - Layer2/Layer3 final metrics (locked combo):
+    - Layer2 fixed train/test:
+      - Train IC (overall): `0.080637`
+      - Test IC (overall): `0.053038`
+    - Layer3 walk-forward (`start-year=2010`, `end-year=2025`, `REBALANCE_MODE=None`):
+      - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+      - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
+    - Important implementation note:
+      - Without `REBALANCE_MODE=None`, walk-forward degenerated to one rebalance date per year and produced `test_ic=N/A`.
+      - Correct production research setting for this combo walk-forward run is `REBALANCE_MODE=None`.
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -123,7 +135,7 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
   - Verified on workstation in strict segmented rerun
 
 ## 7) Next Steps
-1. Lock `combo_v2_core` to `value+momentum`
-2. Run combo fixed train/test (locked combo settings)
-3. Run combo walk-forward and compare with single-factor baselines
-4. Decide promotion to production-candidate runbook
+1. Keep locked combo (`linear`, `value=0.90`, `momentum=0.10`) as current primary candidate
+2. Run transaction-cost and turnover stress around the same locked settings
+3. Compare combo walk-forward against single-factor baselines under identical constraints
+4. Decide promotion to paper-trading candidate

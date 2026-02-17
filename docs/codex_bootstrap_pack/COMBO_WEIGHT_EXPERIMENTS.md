@@ -1,6 +1,6 @@
 # Combo Weight Experiments (value_v2 + momentum_v2)
 
-Last updated: 2026-02-17 (linear+nonlinear comparison completed)
+Last updated: 2026-02-17 (linear selection + Layer2/Layer3 confirmation completed)
 
 ## 1) Objective
 - Find a robust `value_v2 / momentum_v2` weight split for `combo_v2` under the same Stage2 strict constraints.
@@ -54,7 +54,7 @@ Important correction:
 ## 7) Next Actions
 1. Keep combo formula as `linear`.
 2. Keep combo weights as `value=0.90`, `momentum=0.10`.
-3. Start Layer2 fixed train/test and Layer3 walk-forward using locked combo settings.
+3. Move to cost/turnover stress and baseline-vs-combo comparison without changing locked formula/weights.
 
 ## 8) Formula Candidates (After Current Weight Grid)
 Formula-level candidates were tested in the same Stage2 strict framework:
@@ -78,3 +78,13 @@ Formula comparison outcome:
 - `gated`: lower mean IC and lower positive-ratio than linear winner.
 - `two_stage`: lower mean IC and materially higher IC std than linear winner.
 - Decision: keep linear formula.
+
+## 9) Layer2/Layer3 Confirmation (Locked Combo)
+- Layer2 fixed train/test (`configs/strategies/combo_v2_inst.yaml`):
+  - Train IC (overall): `0.080637`
+  - Test IC (overall): `0.053038`
+- Layer3 walk-forward (test years 2013-2025, `REBALANCE_MODE=None`):
+  - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
+- Operational note:
+  - For combo Layer3, `REBALANCE_MODE=None` is required in current setup to avoid one-date-per-year degeneration (`test_ic=N/A`).
