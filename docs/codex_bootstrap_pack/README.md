@@ -126,8 +126,6 @@ python -m pytest tests
 - Do not commit secrets (API tokens, credentials, private keys).
 
 ## Key Documents
-- `docs/codex_bootstrap_pack/START_HERE.md`: recommended first file for new Codex session handoff
-- `docs/codex_bootstrap_pack/`: curated minimal context pack for fast session synchronization
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
