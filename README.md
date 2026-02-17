@@ -130,6 +130,7 @@ python -m pytest tests
 - `docs/codex_bootstrap_pack/`: curated minimal context pack for fast session synchronization
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
+- `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `FACTOR_NOTES.md`: implementation notes and caveats per factor
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)
