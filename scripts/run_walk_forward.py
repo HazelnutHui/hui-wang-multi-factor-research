@@ -70,6 +70,17 @@ FACTOR_SPECS = {
         "config_path": PROJECT_ROOT / "strategies" / "pead_v2" / "config.py",
         "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 1.0},
     },
+    "combo_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {
+            "value": 0.50,
+            "momentum": 0.30,
+            "quality": 0.20,
+            "reversal": 0.0,
+            "low_vol": 0.0,
+            "pead": 0.0,
+        },
+    },
 }
 
 
@@ -213,6 +224,11 @@ def _make_engine_config(cfg):
         "DATE_SHIFT_DAYS",
         "PEAD_USE_TRADING_DAY_SHIFT",
         "PEAD_EVENT_MAX_AGE_DAYS",
+        "COMBO_FORMULA",
+        "COMBO_GATE_K",
+        "COMBO_GATE_CLIP",
+        "COMBO_VALUE_KEEP_Q",
+        "COMBO_MOM_DROP_Q",
     ]
     for key in optional_keys:
         if hasattr(cfg, key):
@@ -392,7 +408,10 @@ def main():
         spec = FACTOR_SPECS[factor]
         cfg = _load_cfg(spec["config_path"])
         _apply_overrides(cfg, args.set)
-        df = run_factor(factor, cfg, spec["weights"], windows, args, out_dir)
+        weights = dict(spec["weights"])
+        if factor == "combo_v2" and hasattr(cfg, "COMBO_WEIGHTS"):
+            weights = dict(getattr(cfg, "COMBO_WEIGHTS"))
+        df = run_factor(factor, cfg, weights, windows, args, out_dir)
         all_rows.append(df)
 
     if all_rows:

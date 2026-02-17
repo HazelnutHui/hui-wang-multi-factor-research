@@ -238,6 +238,11 @@ def _make_engine_config(cfg):
         "BETA_LOOKBACK",
         "BETA_BENCH_SYMBOL",
         "BETA_USE_LOG_RETURN",
+        "COMBO_FORMULA",
+        "COMBO_GATE_K",
+        "COMBO_GATE_CLIP",
+        "COMBO_VALUE_KEEP_Q",
+        "COMBO_MOM_DROP_Q",
     ]
     for key in optional_keys:
         if hasattr(cfg, key):

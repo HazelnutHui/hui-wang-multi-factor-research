@@ -1,6 +1,6 @@
 # Combo Weight Experiments (value_v2 + momentum_v2)
 
-Last updated: 2026-02-17 (combo weight-source bug fixed; rerun in progress)
+Last updated: 2026-02-17 (linear grid fixed; nonlinear formulas queued)
 
 ## 1) Objective
 - Find a robust `value_v2 / momentum_v2` weight split for `combo_v2` under the same Stage2 strict constraints.
@@ -33,9 +33,9 @@ Important correction:
 ## 4) Results Table
 | run_id | w_value | w_momentum | ic_mean | ic_std | pos_ratio | valid_n | note |
 |---|---:|---:|---:|---:|---:|---:|---|
-| grid_fix_2026_02_17_w090_m010 | 0.90 | 0.10 |  |  |  |  | rerun in progress |
-| grid_fix_2026_02_17_w080_m020 | 0.80 | 0.20 |  |  |  |  | rerun in progress |
-| grid_fix_2026_02_17_w070_m030 | 0.70 | 0.30 |  |  |  |  | rerun in progress |
+| grid_fix_2026_02_17_w090_m010 | 0.90 | 0.10 | 0.066149 | 0.047273 | 0.857143 | 7 | best linear candidate |
+| grid_fix_2026_02_17_w080_m020 | 0.80 | 0.20 | 0.055354 | 0.045034 | 0.857143 | 7 | second |
+| grid_fix_2026_02_17_w070_m030 | 0.70 | 0.30 | 0.045395 | 0.045466 | 0.857143 | 7 | third |
 
 ## 5) Selection Rule
 1. Keep only candidates with acceptable `pos_ratio` (recommended >= 0.60).
@@ -47,7 +47,10 @@ Important correction:
 - 2026-02-17: Created template. Baseline combo segmented run exists; detailed weight grid pending.
 - 2026-02-17: Filled baseline (`0.70/0.30`) from `combo_v2` segmented output.
 - 2026-02-17: Identified weight-source bug in segmented runner; previous grid marked invalid.
-- 2026-02-17: Patched segmented runner to read `COMBO_WEIGHTS` from config; corrected grid rerun started.
+- 2026-02-17: Patched segmented runner to read `COMBO_WEIGHTS` from config; corrected grid rerun completed.
+- 2026-02-17: Linear-grid provisional winner = `0.90 / 0.10`.
+- 2026-02-17: Baseline combo config updated to `value=0.90, momentum=0.10` for formula-comparison runs.
+- 2026-02-17: Enabled formula-level testing in engine (`COMBO_FORMULA`): `value_momentum_gated`, `value_momentum_two_stage`.
 
 ## 7) Next Actions
 1. Run 5-weight segmented grid.

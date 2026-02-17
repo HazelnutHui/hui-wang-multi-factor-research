@@ -737,6 +737,32 @@ class FactorEngine:
 
         df = pd.DataFrame(rows)
 
+        # Optional combo-level formula overrides (mainly for value+momentum research).
+        combo_formula = str(self.config.get("COMBO_FORMULA", "linear")).lower()
+        if combo_formula != "linear":
+            v = pd.to_numeric(df.get("value"), errors="coerce")
+            m = pd.to_numeric(df.get("momentum"), errors="coerce")
+            v_z = self._zscore_series(v)
+            m_z = self._zscore_series(m)
+
+            if combo_formula in ("value_momentum_gated", "gated_value_momentum", "gated"):
+                gate_k = float(self.config.get("COMBO_GATE_K", 0.25))
+                gate_clip = float(self.config.get("COMBO_GATE_CLIP", 1.0))
+                gate = 1.0 + gate_k * m_z.clip(lower=-gate_clip, upper=gate_clip)
+                df["signal"] = v_z * gate
+            elif combo_formula in ("value_momentum_two_stage", "two_stage"):
+                value_keep_q = float(self.config.get("COMBO_VALUE_KEEP_Q", 0.50))
+                mom_drop_q = float(self.config.get("COMBO_MOM_DROP_Q", 0.30))
+                value_keep_q = min(max(value_keep_q, 0.01), 0.99)
+                mom_drop_q = min(max(mom_drop_q, 0.00), 0.95)
+
+                keep_threshold = v_z.quantile(1.0 - value_keep_q)
+                keep_mask = v_z >= keep_threshold
+                if keep_mask.any():
+                    mom_cut = m_z[keep_mask].quantile(mom_drop_q)
+                    keep_mask = keep_mask & (m_z >= mom_cut)
+                df["signal"] = v_z.where(keep_mask)
+
         # Drop NaN signals
         df = df.dropna(subset=["signal"])
         if len(df) == 0:

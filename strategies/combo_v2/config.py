@@ -1,6 +1,6 @@
 """
 Combo Strategy v2.1 - Institutional Research Baseline
-Top3 combination: value_v2 + momentum_v2 + quality_v2
+Core combination: value_v2 + momentum_v2
 """
 
 STRATEGY_VERSION = "2.1"
@@ -8,13 +8,23 @@ STRATEGY_NAME = "COMBO_TOP3_V2_1_INST"
 
 # Combination weights (can be updated by research script)
 COMBO_WEIGHTS = {
-    "value": 0.70,
-    "momentum": 0.30,
+    "value": 0.90,
+    "momentum": 0.10,
     "quality": 0.00,
     "reversal": 0.0,
     "low_vol": 0.0,
     "pead": 0.0,
 }
+
+# Combo formula options:
+# - "linear" (default): weighted sum using COMBO_WEIGHTS
+# - "value_momentum_gated": z(value) * (1 + k * clip(z(momentum), -clip, clip))
+# - "value_momentum_two_stage": keep top value slice then drop weak momentum names
+COMBO_FORMULA = "linear"
+COMBO_GATE_K = 0.25
+COMBO_GATE_CLIP = 1.0
+COMBO_VALUE_KEEP_Q = 0.50
+COMBO_MOM_DROP_Q = 0.30
 
 # Momentum settings
 MOMENTUM_LOOKBACK = 126

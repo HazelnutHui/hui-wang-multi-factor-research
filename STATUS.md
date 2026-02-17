@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17 (combo weight grid corrected rerun in progress)
+Last updated: 2026-02-17 (combo linear grid finalized; nonlinear formula run pending)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -41,14 +41,19 @@ Last updated: 2026-02-17 (combo weight grid corrected rerun in progress)
 - Walk-forward status (`v2.1`):
   - Not started
 
-- Combo status:
+  - Combo status:
   - `combo_v2` strategy/config/tooling implemented
   - Local smoke checks passed (`segmented`, `walk-forward`, `run_with_config`)
   - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
   - Stage2 strict rerun profile added: `v2026_02_16b` (institutional stricter universe + neutralization config)
   - Weight-grid note:
     - Previous `combo_weight_grid_2026_02_17_p6` batch is invalid for final selection due to segmented-runner hardcoded combo weights.
-    - Corrected batch `combo_weight_grid_2026_02_17_fix` is running and will be used for final weight lock.
+    - Corrected batch `combo_weight_grid_2026_02_17_fix` completed.
+    - Linear weight ranking: `w090_m010` > `w080_m020` > `w070_m030`.
+    - Provisional linear winner: `value=0.90, momentum=0.10`.
+  - Formula research status:
+    - Added formula-level combo options in engine/config (`COMBO_FORMULA`): `value_momentum_gated`, `value_momentum_two_stage`.
+    - Next run: segmented Stage2 strict comparison for the two nonlinear formulas.
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -116,7 +121,7 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 
 ## 7) Next Steps
 1. Lock `combo_v2_core` to `value+momentum`
-2. Finish corrected combo weight grid (`w090_m010`, `w080_m020`, `w070_m030`) and select final weight
-3. Run combo segmented validation under Stage2 strict settings (locked weight)
+2. Run nonlinear combo formulas (`value_momentum_gated`, `value_momentum_two_stage`) under segmented Stage2 strict
+3. Compare nonlinear vs best linear (`0.90/0.10`) and lock final combo formula
 4. Run combo fixed train/test
 5. Run combo walk-forward and compare with single-factor baselines
