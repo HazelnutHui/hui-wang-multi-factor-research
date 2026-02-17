@@ -1,6 +1,18 @@
-# Stage2 Strict Top3 Only (Workstation, 6-core, detached)
+# Stage2 Strict + Cache (Value + Momentum only, 6-core)
 
-# 1) Login and prepare
+###############################################################################
+# A) LOCAL MAC: push latest cache code first
+###############################################################################
+cd /Users/hui/quant_score/v4
+git checkout main
+git status --short
+git add backtest/backtest_engine.py scripts/run_segmented_factors.py scripts/run_stage2_strict_top3_parallel.sh iterm_commands.txt
+git commit -m "feat: stage2 cache pipeline and value+momentum runbook" || true
+git push
+
+###############################################################################
+# B) WORKSTATION: pull code + env
+###############################################################################
 ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
 git checkout main
@@ -8,49 +20,161 @@ git pull
 source .venv/bin/activate
 export PYTHONPATH=$(pwd)
 
-# 2) Start detached run (safe if Mac shuts down)
-chmod +x scripts/run_stage2_strict_top3_parallel.sh
-tmux kill-session -t stage2_strict_b 2>/dev/null || true
-tmux new -d -s stage2_strict_b "cd ~/projects/hui-wang-multi-factor-research && bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 |& tee logs/stage2_v2026_02_16b_driver.log"
+###############################################################################
+# C) WORKSTATION: clean only target outputs/logs/cache for this run
+###############################################################################
+pkill -f "scripts/run_segmented_factors.py" || true
+sleep 1
 
-# 3) Monitor
-# target = 27 segment_summary.csv
+rm -rf segment_results/stage2_v2026_02_16c_vm_parallel
+rm -rf cache/stage2_signals_v2026_02_16c_vm
+rm -f logs/stage2_v2026_02_16c_vm_driver.log
+rm -f logs/value_v2_stage2_v2026_02_16c_*.log
+rm -f logs/momentum_v2_stage2_v2026_02_16c_*.log
+
+###############################################################################
+# D) WORKSTATION: run Value+Momentum (18 tasks) in tmux, 6-core parallel
+###############################################################################
+tmux kill-session -t stage2_vm_cache 2>/dev/null || true
+tmux new -d -s stage2_vm_cache "cd ~/projects/hui-wang-multi-factor-research && source .venv/bin/activate && export PYTHONPATH=\$(pwd) && export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 && printf '%s\n' \
+'value_v2 2010-01-04 2012-01-03' \
+'value_v2 2012-01-04 2014-01-03' \
+'value_v2 2014-01-04 2016-01-03' \
+'value_v2 2016-01-04 2018-01-03' \
+'value_v2 2018-01-04 2020-01-03' \
+'value_v2 2020-01-04 2022-01-03' \
+'value_v2 2022-01-04 2024-01-03' \
+'value_v2 2024-01-04 2026-01-03' \
+'value_v2 2026-01-04 2026-01-28' \
+'momentum_v2 2010-01-04 2012-01-03' \
+'momentum_v2 2012-01-04 2014-01-03' \
+'momentum_v2 2014-01-04 2016-01-03' \
+'momentum_v2 2016-01-04 2018-01-03' \
+'momentum_v2 2018-01-04 2020-01-03' \
+'momentum_v2 2020-01-04 2022-01-03' \
+'momentum_v2 2022-01-04 2024-01-03' \
+'momentum_v2 2024-01-04 2026-01-03' \
+'momentum_v2 2026-01-04 2026-01-28' \
+| xargs -n3 -P6 bash -lc '
+  f=\"\$1\"; s=\"\$2\"; e=\"\$3\"
+  cd ~/projects/hui-wang-multi-factor-research || exit 1
+  source .venv/bin/activate
+  export PYTHONPATH=\$(pwd)
+  export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+  tag=\"\${s//-/}_\${e//-/}\"
+  out=\"segment_results/stage2_v2026_02_16c_vm_parallel/\${f}/\${tag}\"
+  mkdir -p \"\$(dirname \"\$out\")\" logs
+  python3 scripts/run_segmented_factors.py \
+    --factors \"\$f\" \
+    --start-date \"\$s\" \
+    --end-date \"\$e\" \
+    --years 2 \
+    --max-segments 1 \
+    --out-dir \"\$out\" \
+    --set SIGNAL_ZSCORE=True \
+    --set SIGNAL_RANK=False \
+    --set SIGNAL_WINSOR_PCT_LOW=0.01 \
+    --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
+    --set SIGNAL_MISSING_POLICY=drop \
+    --set INDUSTRY_NEUTRAL=True \
+    --set INDUSTRY_MIN_GROUP=5 \
+    --set SIGNAL_NEUTRALIZE_SIZE=True \
+    --set SIGNAL_NEUTRALIZE_BETA=True \
+    --set MIN_MARKET_CAP=1000000000 \
+    --set MIN_DOLLAR_VOLUME=2000000 \
+    --set MIN_PRICE=5 \
+    --use-cache \
+    --cache-dir cache/stage2_signals_v2026_02_16c_vm \
+    --refresh-cache \
+    |& tee \"logs/\${f}_stage2_v2026_02_16c_\${tag}.log\"
+' _ |& tee logs/stage2_v2026_02_16c_vm_driver.log"
+
+###############################################################################
+# E) WORKSTATION: monitor
+###############################################################################
 tmux ls
-tail -f ~/projects/hui-wang-multi-factor-research/logs/stage2_v2026_02_16b_driver.log
-find ~/projects/hui-wang-multi-factor-research/segment_results/stage2_v2026_02_16b_top3 -path "*/segment_summary.csv" | wc -l
+# target = 18
+a=~/projects/hui-wang-multi-factor-research
+find "$a/segment_results/stage2_v2026_02_16c_vm_parallel" -path "*/segment_summary.csv" | wc -l
+tail -f "$a/logs/stage2_v2026_02_16c_vm_driver.log"
 
-# 4) Merge and print ranking (after count reaches 27)
+###############################################################################
+# F) WORKSTATION: merge + ranking (value/momentum only)
+###############################################################################
 python3 - <<'PY'
 from pathlib import Path
-import pandas as pd
+import csv, math, statistics
 
-root = Path("segment_results/stage2_v2026_02_16b_top3")
-factors = ["value_v2", "momentum_v2", "quality_v2"]
-rows = []
+root = Path("segment_results/stage2_v2026_02_16c_vm_parallel")
+factors = ["value_v2", "momentum_v2"]
+rows_out = []
+
+def to_float(x):
+    try:
+        v = float(x)
+        if math.isnan(v):
+            return None
+        return v
+    except Exception:
+        return None
+
 for f in factors:
     files = sorted(root.glob(f"{f}/*/{f}/segment_summary.csv"))
     if not files:
-        rows.append([f, None, None, None, 0, 0, "NOT_FOUND"])
+        rows_out.append([f, None, None, None, 0, 0, "NOT_FOUND"])
         continue
-    dfs = [pd.read_csv(p) for p in files]
-    df = pd.concat(dfs, ignore_index=True)
-    if {"segment_start", "segment_end"}.issubset(df.columns):
-        df = df.drop_duplicates(subset=["segment_start", "segment_end"])
+
+    merged = []
+    seen = set()
+    fieldnames = set()
+    for p in files:
+        with p.open("r", newline="", encoding="utf-8") as fh:
+            r = csv.DictReader(fh)
+            if r.fieldnames:
+                fieldnames.update(r.fieldnames)
+            for row in r:
+                key = (row.get("segment_start"), row.get("segment_end"))
+                if key in seen:
+                    continue
+                seen.add(key)
+                merged.append(row)
+
     out_dir = root / "merged" / f
     out_dir.mkdir(parents=True, exist_ok=True)
-    df.to_csv(out_dir / "segment_summary.csv", index=False)
+    out_path = out_dir / "segment_summary.csv"
 
-    ic = pd.to_numeric(df.get("ic"), errors="coerce")
-    rows.append([
-        f,
-        float(ic.mean()) if ic.notna().any() else None,
-        float(ic.std()) if ic.notna().sum() > 1 else None,
-        float((ic > 0).mean()) if ic.notna().any() else None,
-        int(ic.notna().sum()),
-        int(len(df)),
-        f"{len(files)} files merged",
-    ])
+    fn = list(fieldnames) if fieldnames else []
+    with out_path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=fn)
+        if fn:
+            w.writeheader()
+            for row in merged:
+                w.writerow({k: row.get(k, "") for k in fn})
 
-out = pd.DataFrame(rows, columns=["factor", "ic_mean", "ic_std", "pos_ratio", "valid_n", "rows", "note"])
-print(out.sort_values("ic_mean", ascending=False).to_string(index=False))
+    ic_vals = [to_float(r.get("ic")) for r in merged]
+    ic_vals = [v for v in ic_vals if v is not None]
+    ic_mean = statistics.mean(ic_vals) if ic_vals else None
+    ic_std = statistics.stdev(ic_vals) if len(ic_vals) > 1 else None
+    pos_ratio = (sum(1 for v in ic_vals if v > 0) / len(ic_vals)) if ic_vals else None
+    rows_out.append([f, ic_mean, ic_std, pos_ratio, len(ic_vals), len(merged), f"{len(files)} files merged"])
+
+rows_out.sort(key=lambda x: (x[1] is None, -(x[1] or -1e99)))
+print(f"{'factor':>12} {'ic_mean':>10} {'ic_std':>10} {'pos_ratio':>10} {'valid_n':>8} {'rows':>6}  note")
+for r in rows_out:
+    fm = f"{r[1]:.6f}" if r[1] is not None else "None"
+    fs = f"{r[2]:.6f}" if r[2] is not None else "None"
+    fp = f"{r[3]:.6f}" if r[3] is not None else "None"
+    print(f"{r[0]:>12} {fm:>10} {fs:>10} {fp:>10} {r[4]:>8} {r[5]:>6}  {r[6]}")
 PY
+
+###############################################################################
+# G) WORKSTATION: confirm cache files exist
+###############################################################################
+find cache/stage2_signals_v2026_02_16c_vm -type f | wc -l
+
+###############################################################################
+# H) LOCAL MAC: sync results/logs/cache back
+###############################################################################
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/segment_results/ /Users/hui/quant_score/v4/segment_results/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ /Users/hui/quant_score/v4/logs/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/cache/ /Users/hui/quant_score/v4/cache/

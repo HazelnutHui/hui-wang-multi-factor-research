@@ -3,13 +3,15 @@ set -euo pipefail
 
 # Institutional-style Stage2 strict runner (top3 factors).
 # Usage:
-#   bash scripts/run_stage2_strict_top3_parallel.sh [JOBS] [OUT_ROOT] [FORCE]
+#   bash scripts/run_stage2_strict_top3_parallel.sh [JOBS] [OUT_ROOT] [FORCE] [CACHE_ROOT] [REFRESH_CACHE]
 # Example:
 #   bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3
 
 JOBS="${1:-6}"
 OUT_ROOT="${2:-segment_results/stage2_v2026_02_16b_top3}"
 FORCE="${3:-0}"   # 1 = rerun even if segment_summary.csv exists
+CACHE_ROOT="${4:-cache/stage2_signals_v2026_02_16b_top3}"
+REFRESH_CACHE="${5:-0}"  # 1 = recompute and overwrite existing cache
 
 cd "$(dirname "$0")/.."
 if [[ ! -f ".venv/bin/activate" ]]; then
@@ -26,6 +28,10 @@ export NUMEXPR_NUM_THREADS=1
 if ! [[ "${JOBS}" =~ ^[0-9]+$ ]] || [[ "${JOBS}" -le 0 ]]; then
   echo "[error] JOBS must be a positive integer, got: ${JOBS}"
   exit 1
+fi
+REFRESH_FLAG=""
+if [[ "${REFRESH_CACHE}" == "1" ]]; then
+  REFRESH_FLAG="--refresh-cache"
 fi
 
 printf "%s\n" \
@@ -70,7 +76,7 @@ printf "%s\n" \
     echo "[skip] ${f} ${tag} already exists -> ${summary_path}"
     exit 0
   fi
-  echo "[run] ${f} ${s} -> ${e}"
+  echo "[run] ${f} ${s} -> ${e} | cache='"${CACHE_ROOT}"' refresh='"${REFRESH_CACHE}"'"
   python3 scripts/run_segmented_factors.py \
     --factors "$f" \
     --start-date "$s" \
@@ -90,7 +96,10 @@ printf "%s\n" \
     --set MIN_MARKET_CAP=1000000000 \
     --set MIN_DOLLAR_VOLUME=2000000 \
     --set MIN_PRICE=5 \
+    --use-cache \
+    --cache-dir "'"${CACHE_ROOT}"'" \
+    '"${REFRESH_FLAG}"' \
     |& tee "logs/${f}_stage2_v2026_02_16b_${tag}.log"
 ' _
 
-echo "Done. Results root: ${OUT_ROOT} (force=${FORCE})"
+echo "Done. Results root: ${OUT_ROOT} (force=${FORCE}, cache_root=${CACHE_ROOT}, refresh_cache=${REFRESH_CACHE})"

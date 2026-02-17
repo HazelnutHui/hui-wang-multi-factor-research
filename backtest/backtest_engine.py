@@ -1,4 +1,7 @@
+import hashlib
+import json
 import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -51,6 +54,10 @@ class BacktestEngine:
             stamp_tax_rate=config_dict.get('STAMP_TAX_RATE', 0.001),
         )
         self.last_rebalance_dates = []
+        self._signal_cache_dir = self.config.get('SIGNAL_CACHE_DIR')
+        self._signal_cache_use = bool(self.config.get('SIGNAL_CACHE_USE', False))
+        self._signal_cache_refresh = bool(self.config.get('SIGNAL_CACHE_REFRESH', False))
+        self._signal_cache_sig = None
 
     def _smooth_signals(self, signals_df: pd.DataFrame, history: dict) -> pd.DataFrame:
         window = int(self.config.get('SIGNAL_SMOOTH_WINDOW', 0) or 0)
@@ -156,6 +163,62 @@ class BacktestEngine:
         reb = cal[idx]
         return [d.strftime('%Y-%m-%d') for d in reb]
 
+    def _stable_hash(self, obj) -> str:
+        payload = json.dumps(obj, sort_keys=True, ensure_ascii=True, default=str)
+        return hashlib.md5(payload.encode("utf-8")).hexdigest()
+
+    def _cache_signature(self) -> str:
+        if self._signal_cache_sig:
+            return self._signal_cache_sig
+        # Include full config so cache invalidates automatically if Stage2 rules change.
+        self._signal_cache_sig = self._stable_hash(self.config)
+        return self._signal_cache_sig
+
+    def _signal_cache_path(self, date: str, factor_weights: dict) -> Path:
+        cache_root = Path(self._signal_cache_dir).expanduser().resolve()
+        sig = self._cache_signature()
+        w_sig = self._stable_hash(factor_weights)
+        safe_date = str(date).replace("-", "")
+        return cache_root / sig / f"{safe_date}_{w_sig}.pkl"
+
+    def _read_signal_cache(self, date: str, factor_weights: dict):
+        if not self._signal_cache_use or not self._signal_cache_dir:
+            return None
+        path = self._signal_cache_path(date, factor_weights)
+        if not path.exists():
+            return None
+        try:
+            df = pd.read_pickle(path)
+        except Exception:
+            return None
+        if df is None or len(df) == 0:
+            return pd.DataFrame(columns=['symbol', 'date', 'signal'])
+        need = {'symbol', 'date', 'signal'}
+        if not need.issubset(df.columns):
+            return None
+        return df
+
+    def _write_signal_cache(self, date: str, factor_weights: dict, signals_df: pd.DataFrame) -> None:
+        if not self._signal_cache_use or not self._signal_cache_dir:
+            return
+        path = self._signal_cache_path(date, factor_weights)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            signals_df.to_pickle(path)
+        except Exception:
+            pass
+
+    def _compute_signals_cached(self, date: str, factor_weights: dict) -> pd.DataFrame:
+        if self._signal_cache_use and not self._signal_cache_refresh:
+            cached = self._read_signal_cache(date, factor_weights)
+            if cached is not None:
+                return cached
+        signals_df = self.factor_engine.compute_signals(date, factor_weights)
+        if signals_df is None:
+            signals_df = pd.DataFrame(columns=['symbol', 'date', 'signal'])
+        self._write_signal_cache(date, factor_weights, signals_df)
+        return signals_df
+
     def run_backtest(self,
                     start_date: str,
                     end_date: str,
@@ -180,7 +243,7 @@ class BacktestEngine:
         signal_history = {}
 
         for d in rebalance_dates:
-            signals_df = self.factor_engine.compute_signals(d, factor_weights)
+            signals_df = self._compute_signals_cached(d, factor_weights)
             if signals_df is None or len(signals_df) == 0:
                 continue
             signals_df = self._smooth_signals(signals_df, signal_history)

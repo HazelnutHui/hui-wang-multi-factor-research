@@ -78,6 +78,17 @@ FACTOR_SPECS = {
         "config_path": PROJECT_ROOT / "strategies" / "pead_v2" / "config.py",
         "weights": {"momentum": 0.0, "reversal": 0.0, "low_vol": 0.0, "pead": 1.0},
     },
+    "combo_v2": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {
+            "value": 0.50,
+            "momentum": 0.30,
+            "quality": 0.20,
+            "reversal": 0.0,
+            "low_vol": 0.0,
+            "pead": 0.0,
+        },
+    },
 }
 
 
@@ -284,6 +295,11 @@ def run_factor(factor: str, cfg, weights: dict, segments, args, out_dir: Path):
             continue
         print(f"[{factor}] segment start {seg_start} -> {seg_end}", flush=True)
         cfg_dict = _make_engine_config(cfg)
+        if args.use_cache:
+            cache_root = Path(args.cache_dir).expanduser().resolve() if args.cache_dir else (PROJECT_ROOT / "cache" / "signals")
+            cfg_dict["SIGNAL_CACHE_DIR"] = str(cache_root)
+        cfg_dict["SIGNAL_CACHE_USE"] = bool(args.use_cache)
+        cfg_dict["SIGNAL_CACHE_REFRESH"] = bool(args.refresh_cache)
         # Optional market cap history for PIT filtering
         mc_dir = getattr(cfg, "MARKET_CAP_DIR", None)
         if mc_dir:
@@ -372,6 +388,9 @@ def run_factor(factor: str, cfg, weights: dict, segments, args, out_dir: Path):
         "long_pct": args.long_pct,
         "short_pct": args.short_pct,
         "save_raw": bool(args.save_raw),
+        "use_cache": bool(args.use_cache),
+        "cache_dir": str(Path(args.cache_dir).expanduser().resolve()) if args.cache_dir else None,
+        "refresh_cache": bool(args.refresh_cache),
     }
     with open(factor_dir / "run_meta.json", "w") as f:
         json.dump(meta, f, indent=2)
@@ -393,6 +412,9 @@ def main():
     parser.add_argument("--out-dir", type=str, default="")
     parser.add_argument("--invert-momentum", action="store_true")
     parser.add_argument("--set", action="append", default=[], help="Override config: KEY=VALUE (repeatable)")
+    parser.add_argument("--use-cache", action="store_true", help="Enable Stage2 signal cache")
+    parser.add_argument("--cache-dir", type=str, default="", help="Signal cache root directory")
+    parser.add_argument("--refresh-cache", action="store_true", help="Recompute and overwrite existing cache")
     args = parser.parse_args()
 
     factor_list = [f.strip().lower() for f in args.factors.split(",") if f.strip()]
@@ -415,6 +437,9 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     faulthandler.enable()
     print(f"[run] factors={factor_list} segments={len(segments)} out={out_dir}", flush=True)
+    if args.use_cache:
+        cache_root = Path(args.cache_dir).expanduser().resolve() if args.cache_dir else (PROJECT_ROOT / "cache" / "signals")
+        print(f"[cache] enabled dir={cache_root} refresh={bool(args.refresh_cache)}", flush=True)
 
     all_rows = []
     for factor in factor_list:
