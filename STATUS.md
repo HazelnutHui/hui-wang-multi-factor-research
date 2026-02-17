@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-17 (combo weight grid corrected rerun in progress)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -14,6 +14,7 @@ Last updated: 2026-02-17
   - `v2.1` Stage 2 top3 completed (`value_v2,momentum_v2,quality_v2`)
   - `v2.1` Stage 2 strict core-pair rerun completed (`value_v2,momentum_v2`, 18/18)
   - Stage2 signal cache pipeline implemented and verified on workstation (`395` cache files generated)
+  - Combo segmented runner bug fixed: `combo_v2` now reads `COMBO_WEIGHTS` from strategy config (previous hardcoded weights removed from effective path)
   - `v2.1` full Train-Test / Walk-forward pending
   - `combo_v2` code implemented; core candidate currently `value+momentum`
 
@@ -45,6 +46,9 @@ Last updated: 2026-02-17
   - Local smoke checks passed (`segmented`, `walk-forward`, `run_with_config`)
   - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
   - Stage2 strict rerun profile added: `v2026_02_16b` (institutional stricter universe + neutralization config)
+  - Weight-grid note:
+    - Previous `combo_weight_grid_2026_02_17_p6` batch is invalid for final selection due to segmented-runner hardcoded combo weights.
+    - Corrected batch `combo_weight_grid_2026_02_17_fix` is running and will be used for final weight lock.
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -112,6 +116,7 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 
 ## 7) Next Steps
 1. Lock `combo_v2_core` to `value+momentum`
-2. Run combo segmented validation under Stage2 strict settings
-3. Run combo fixed train/test
-4. Run combo walk-forward and compare with single-factor baselines
+2. Finish corrected combo weight grid (`w090_m010`, `w080_m020`, `w070_m030`) and select final weight
+3. Run combo segmented validation under Stage2 strict settings (locked weight)
+4. Run combo fixed train/test
+5. Run combo walk-forward and compare with single-factor baselines

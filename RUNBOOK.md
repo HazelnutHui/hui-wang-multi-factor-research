@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-16
+Last updated: 2026-02-17
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -46,6 +46,13 @@ python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-yea
 ```bash
 python scripts/derive_combo_weights.py --root . --out analysis/combo_v2_weights_suggested.csv
 ```
+
+### 2.6b Combo segmented weight-grid (corrected path)
+Important:
+- Use only corrected output path for weight selection:
+  - `segment_results/combo_weight_grid_2026_02_17_fix`
+- Do not use:
+  - `segment_results/combo_weight_grid_2026_02_17_p6` (invalid for final selection due to old hardcoded combo defaults in segmented runner)
 
 ### 2.7 Factor report generation
 ```bash

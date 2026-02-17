@@ -66,6 +66,11 @@ Strict Stage2 runner:
 ## Combination Layer
 - `combo_v2` is implemented as institutional research baseline.
 - Current core decision: `value + momentum` as main production-candidate pair, `quality` held out for rework.
+- Weight-grid integrity note:
+  - Early batch `combo_weight_grid_2026_02_17_p6` is not valid for final weight decision.
+  - Cause: segmented runner previously used hardcoded combo defaults.
+  - Fix applied: `scripts/run_segmented_factors.py` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py` for `combo_v2`.
+  - Corrected rerun batch: `segment_results/combo_weight_grid_2026_02_17_fix`.
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`
@@ -126,8 +131,12 @@ python -m pytest tests
 - Do not commit secrets (API tokens, credentials, private keys).
 
 ## Key Documents
+- `docs/codex_bootstrap_pack/START_HERE.md`: recommended first file for new Codex session handoff
+- `docs/codex_bootstrap_pack/`: curated minimal context pack for fast session synchronization
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
+- `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
+- `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight experiments and final selection log
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `FACTOR_NOTES.md`: implementation notes and caveats per factor
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)

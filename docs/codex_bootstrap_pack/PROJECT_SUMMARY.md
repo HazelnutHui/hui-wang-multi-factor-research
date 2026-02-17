@@ -34,6 +34,10 @@ Factors that fail segmented stability are filtered out early.
 - `v2.1` Stage2 strict + cache core-pair rerun (`value_v2,momentum_v2`) completed (18/18 segments).
 - Stage2 cache pipeline is now implemented and verified in real run (`395` cache artifacts generated).
 - Combination layer (`combo_v2`) is implemented and smoke-tested locally; next step is formal combo three-layer validation under strict settings.
+- Combo weight-grid status:
+  - An early segmented grid batch was invalidated due to a weight-source bug in `run_segmented_factors.py` (hardcoded combo defaults).
+  - The runner was fixed to read `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
+  - Corrected 3-weight grid rerun is in progress; final combo weight will be locked from this corrected batch only.
 - Stage2 top3 results:
   - `value_v2`: `0.055206`
   - `momentum_v2`: `0.016483`

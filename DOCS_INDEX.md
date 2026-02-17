@@ -7,6 +7,7 @@ Last updated: 2026-02-17
 - `RUNBOOK.md`: practical command guide
 - `STATUS.md`: current progress and roadmap snapshot
 - `WEBSITE_HANDOFF.md`: website migration handoff (current state, fixes, next tasks, run/deploy notes)
+- `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight research log and selection record
 - `SINGLE_FACTOR_BASELINE.md`: single-factor validation checklist
 - `FACTOR_NOTES.md`: factor implementation notes
 - `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template

@@ -1,6 +1,6 @@
 # Factor Notes (Public English Edition)
 
-Last updated: 2026-02-17 (v2.1 Stage2 strict+cache core-pair completed)
+Last updated: 2026-02-17 (combo_v2 segmented weight-source fix applied)
 
 Purpose: summarize current implementation logic and practical caveats for major factors.
 
@@ -56,3 +56,7 @@ Purpose: summarize current implementation logic and practical caveats for major 
 - Default static baseline weights (current): `value=0.70`, `momentum=0.30`, `quality=0.00`.
 - Supports adaptive suggestion via `scripts/derive_combo_weights.py` from merged segmented outputs.
 - Status: code implemented; local smoke checks passed; Stage2 cache pipeline verified; ready for formal combo three-layer validation.
+- Integrity update (2026-02-17):
+  - Segmented runner previously used hardcoded combo defaults, which invalidated an early weight-grid batch for final selection.
+  - Runner has been fixed: `combo_v2` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py`.
+  - Corrected weight-grid rerun is in progress; only corrected batch results should be used for final weight lock.
