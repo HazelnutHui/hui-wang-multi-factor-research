@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-18 (daily pipeline hardened for incremental live publish)
+Last updated: 2026-02-18 (post-close data refresh + first live trading snapshot archived)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -155,3 +155,21 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 - Recent ops issue observed:
   - Some local environments fail DNS resolution to FMP host.
   - Mitigation added: `FMP_RESOLVE_IPS` for direct resolve fallback in incremental dividend-adjusted pull.
+- 2026-02-18 close refresh execution note:
+  - Local host pull failed due DNS/network path to FMP.
+  - Workstation pull succeeded (`updated=1588`, `errors=14`) with same incremental pipeline.
+  - Active div-adjusted price cache is updated to `2026-02-18` on workstation.
+  - Local cache was synchronized from workstation for post-close analysis.
+- First live trading-day score snapshot (must-keep archive):
+  - Trade day: `2026-02-18`
+  - Source signal date: `2026-02-17` (T->T+1 convention)
+  - Local archive:
+    - `live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+  - Web-side archive:
+    - `/home/ubuntu/Hui/data/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+  - Snapshot files:
+    - `scores_full_ranked.csv`
+    - `scores_top_100.csv`
+    - `scores_bottom_100.csv`
+    - `score_deciles_summary.csv`
+    - `snapshot_meta.json` (includes source checksum)

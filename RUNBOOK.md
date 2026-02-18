@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-18
+Last updated: 2026-02-18 (workstation fallback + first live-day snapshot archive)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -169,6 +169,25 @@ export FMP_RESOLVE_IPS='34.194.189.88,52.202.201.64,107.21.126.193'
 ```
 - Signal semantics for web publish:
   - `test_signals_latest.csv` with `date=T` means signal computed with data up to `T` and used for next trading day `T+1`.
+
+Workstation fallback (when local DNS/network to FMP fails):
+```bash
+ssh hui@100.66.103.44
+cd ~/projects/hui-wang-multi-factor-research
+export FMP_API_KEY=...
+bash scripts/daily_pull_incremental.sh
+```
+Then sync refreshed cache back to local if needed:
+```bash
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/prices_divadj/ /Users/hui/quant_score/v4/data/prices_divadj/
+rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/fmp/earnings/ /Users/hui/quant_score/v4/data/fmp/earnings/
+```
+
+First live-day snapshot archive (2026-02-18 trading):
+- Local:
+  - `live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+- Web-side:
+  - `/home/ubuntu/Hui/data/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
 
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
