@@ -1,150 +1,36 @@
-# Combo walk-forward rerun (P=6, background, clean restart)
+# 1) 进入项目目录
+cd /Users/hui/quant_score/v4
 
-###############################################################################
-# 1) WORKSTATION: login + env
-###############################################################################
-ssh hui@100.66.103.44
-cd ~/projects/hui-wang-multi-factor-research
-source .venv/bin/activate
-export PYTHONPATH=$(pwd)
+# 2) 配置 FMP 解析兜底 IP（仅当前终端会话生效）
+export FMP_RESOLVE_IPS='34.194.189.88,52.202.201.64,107.21.126.193'
 
-###############################################################################
-# 2) Stop current walk-forward jobs + clean old outputs/logs
-###############################################################################
-pkill -f "scripts/run_walk_forward.py" || true
-tmux kill-session -t combo_l3_p6 2>/dev/null || true
-sleep 1
+# 3) 配置服务器 SSH key（仅当前终端会话生效）
+export SSH_KEY='/Users/hui/Downloads/ssh-key-2026-02-03 (3).key'
 
-rm -rf walk_forward_results/combo_v2_final_2026_02_17_p6
-rm -f logs/combo_v2_final_2026_02_17_p6_*.log
-rm -f logs/combo_v2_final_2026_02_17_p6_driver.log
+# 4) 跑全流程：增量拉取 -> 当日打分 -> 同步到网页端服务器
+DO_PULL=1 DO_RUN=1 DO_SYNC=1 bash scripts/daily_update_pipeline.sh
 
-###############################################################################
-# 3) Start 6-core background run (split by test_year)
-###############################################################################
-cat > /tmp/combo_l3_p6.sh <<'BASH'
-#!/usr/bin/env bash
-set -euo pipefail
-
-cd ~/projects/hui-wang-multi-factor-research
-source .venv/bin/activate
-export PYTHONPATH=$(pwd)
-export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
-
-mkdir -p logs walk_forward_results/combo_v2_final_2026_02_17_p6/shards
-
-printf "%s\n" 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 \
-| xargs -n1 -P6 -I{} bash -lc '
-  y="{}"
-  out="walk_forward_results/combo_v2_final_2026_02_17_p6/shards/y${y}"
-  mkdir -p "$out"
-  python3 scripts/run_walk_forward.py \
-    --factors combo_v2 \
-    --train-years 3 --test-years 1 --start-year 2010 --end-year 2025 \
-    --only-years "$y" \
-    --out-dir "$out" \
-    --set REBALANCE_MODE=None \
-    --set COMBO_FORMULA=linear \
-    --set SIGNAL_ZSCORE=True \
-    --set SIGNAL_RANK=False \
-    --set SIGNAL_WINSOR_PCT_LOW=0.01 \
-    --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
-    --set SIGNAL_MISSING_POLICY=drop \
-    --set INDUSTRY_NEUTRAL=True \
-    --set INDUSTRY_MIN_GROUP=5 \
-    --set SIGNAL_NEUTRALIZE_SIZE=True \
-    --set SIGNAL_NEUTRALIZE_BETA=True \
-    --set MIN_MARKET_CAP=1000000000 \
-    --set MIN_DOLLAR_VOLUME=2000000 \
-    --set MIN_PRICE=5 \
-    |& tee "logs/combo_v2_final_2026_02_17_p6_y${y}.log"
-'
-
-# merge shard summaries
-python3 - <<'PY'
-from pathlib import Path
+# 5) 检查本地最新信号日期（应为最新交易日）
+/Users/hui/miniconda3/bin/python3 - <<'PY'
 import pandas as pd
-
-root = Path('walk_forward_results/combo_v2_final_2026_02_17_p6')
-files = sorted(root.glob('shards/y*/combo_v2/walk_forward_summary.csv'))
-if not files:
-    raise SystemExit('No shard summary files found')
-
-df = pd.concat([pd.read_csv(p) for p in files], ignore_index=True)
-if {'test_year','test_start','test_end'}.issubset(df.columns):
-    df = df.sort_values(['test_year','test_start','test_end'])
-
-out_dir = root / 'combo_v2'
-out_dir.mkdir(parents=True, exist_ok=True)
-out = out_dir / 'walk_forward_summary.csv'
-df.to_csv(out, index=False)
-print('merged_rows=', len(df))
-print('merged_path=', out)
-PY
-BASH
-
-chmod +x /tmp/combo_l3_p6.sh
-tmux new -d -s combo_l3_p6 "/tmp/combo_l3_p6.sh |& tee ~/projects/hui-wang-multi-factor-research/logs/combo_v2_final_2026_02_17_p6_driver.log"
-
-###############################################################################
-# 4) Monitor progress (target shard summaries = 13)
-###############################################################################
-tmux ls
-pgrep -af "scripts/run_walk_forward.py"
-find walk_forward_results/combo_v2_final_2026_02_17_p6/shards -name "walk_forward_summary.csv" | wc -l
-tail -n 60 logs/combo_v2_final_2026_02_17_p6_driver.log
-
-###############################################################################
-# 5) After completion: inspect merged summary + stats
-###############################################################################
-python3 - <<'PY'
-import pandas as pd
-p='walk_forward_results/combo_v2_final_2026_02_17_p6/combo_v2/walk_forward_summary.csv'
+p='strategies/combo_v2/results/test_signals_latest.csv'
 df=pd.read_csv(p)
 print('rows=', len(df))
-print(df[['test_year','test_start','test_end','test_ic','test_ic_overall','test_n_dates','test_n_signals']].to_string(index=False))
-
-x = pd.to_numeric(df['test_ic'], errors='coerce').dropna()
-y = pd.to_numeric(df['test_ic_overall'], errors='coerce').dropna()
-print('\n[test_ic] mean=', x.mean() if len(x)>0 else None, 'std=', x.std(ddof=1) if len(x)>1 else None, 'pos_ratio=', (x>0).mean() if len(x)>0 else None, 'n=', len(x))
-print('[test_ic_overall] mean=', y.mean() if len(y)>0 else None, 'std=', y.std(ddof=1) if len(y)>1 else None, 'pos_ratio=', (y>0).mean() if len(y)>0 else None, 'n=', len(y))
+print('latest_date=', df['date'].max())
 PY
 
-###############################################################################
-# 6) Optional sync back to LOCAL Mac
-###############################################################################
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/walk_forward_results/ /Users/hui/quant_score/v4/walk_forward_results/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/logs/ /Users/hui/quant_score/v4/logs/
+# 6)（可选）检查线上服务状态
+ssh -i "$SSH_KEY" ubuntu@132.226.88.196 "sudo systemctl status hui-uvicorn --no-pager -n 20"
 
-###############################################################################
-# 7) Post-WF institutional gates (must pass before paper/live)
-###############################################################################
-# 7.1 Cost stress (fixed train/test)
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 1.0 |& tee logs/combo_postwf_cost_x1.0.log
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 1.5 |& tee logs/combo_postwf_cost_x1.5.log
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 2.0 |& tee logs/combo_postwf_cost_x2.0.log
-
-# 7.2 Walk-forward stress (cost+liquidity)
-python3 scripts/run_walk_forward.py \
-  --factors combo_v2 \
-  --train-years 3 --test-years 1 --start-year 2010 --end-year 2025 \
-  --out-dir walk_forward_results/combo_v2_postwf_stress_x1_5 \
-  --set REBALANCE_MODE=None \
-  --set COMBO_FORMULA=linear \
-  --set COST_MULTIPLIER=1.5 \
-  --set SIGNAL_ZSCORE=True \
-  --set SIGNAL_RANK=False \
-  --set SIGNAL_WINSOR_PCT_LOW=0.01 \
-  --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
-  --set SIGNAL_MISSING_POLICY=drop \
-  --set INDUSTRY_NEUTRAL=True \
-  --set INDUSTRY_MIN_GROUP=5 \
-  --set SIGNAL_NEUTRALIZE_SIZE=True \
-  --set SIGNAL_NEUTRALIZE_BETA=True \
-  --set MIN_MARKET_CAP=2000000000 \
-  --set MIN_DOLLAR_VOLUME=5000000 \
-  --set MIN_PRICE=5 \
-  |& tee logs/combo_postwf_stress_x1_5.log
-
-# 7.3 Post-hoc diagnostics on latest combo outputs
-python3 scripts/posthoc_factor_diagnostics.py --strategy strategies/combo_v2 --top-pct 0.2
+# 7)（可选）检查线上接口返回的评分日期
+curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard | /Users/hui/miniconda3/bin/python3 - <<'PY'
+import sys, json
+obj=json.load(sys.stdin)
+rows=obj.get('rows',[])
+if not rows:
+    print('rows=0')
+else:
+    ds=[r.get('date') for r in rows if r.get('date')]
+    print('rows=',len(rows))
+    print('latest_date=', max(ds) if ds else 'N/A')
+PY

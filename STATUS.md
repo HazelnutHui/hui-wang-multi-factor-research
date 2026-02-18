@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17 (combo post-WF stress validation completed)
+Last updated: 2026-02-18 (daily pipeline hardened for incremental live publish)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -145,3 +145,13 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 2. Compare combo walk-forward against single-factor baselines under identical constraints
 3. Start paper-trading candidate phase (4-8 weeks, frozen research config)
 4. Define live kill-switch thresholds and capital ramp plan
+
+## 8) Daily Pipeline Runtime Notes (2026-02-18)
+- Daily pipeline remains: `pull -> run -> sync` via `scripts/daily_update_pipeline.sh`
+- Run mode default is live snapshot (`RUN_MODE=live_snapshot`) and updates:
+  - `strategies/combo_v2/results/test_signals_latest.csv`
+- Signal date interpretation:
+  - `date=T` means data up to `T`, for next trading day `T+1`
+- Recent ops issue observed:
+  - Some local environments fail DNS resolution to FMP host.
+  - Mitigation added: `FMP_RESOLVE_IPS` for direct resolve fallback in incremental dividend-adjusted pull.

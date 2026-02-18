@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-18
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -130,7 +130,7 @@ Latest completed stress result (2026-02-17):
 ### 2.11 Daily lightweight update pipeline (incremental, not full overwrite)
 Three-step design:
 1. Incremental pull (`latest/recent`, no full rebuild by default)
-2. Run current combo strategy once (refresh `test_signals_latest.csv` + latest run json)
+2. Run current combo strategy once in live-daily profile (refresh `test_signals_latest.csv`)
 3. Sync minimal outputs to web side
 
 Scripts:
@@ -138,6 +138,13 @@ Scripts:
 - `scripts/daily_run_combo_current.sh`
 - `scripts/daily_sync_web.sh`
 - `scripts/daily_update_pipeline.sh` (orchestrator)
+
+Default strategy config used by `daily_run_combo_current.sh`:
+- `configs/strategies/combo_v2_live_daily.yaml`
+
+Default run mode:
+- `RUN_MODE=live_snapshot` (latest signal snapshot only, no full train/test rerun)
+- Optional: `RUN_MODE=full_backtest` (if you explicitly want fresh IC/run json)
 
 Examples:
 ```bash
@@ -150,6 +157,18 @@ bash scripts/daily_update_pipeline.sh
 # run only strategy + sync (skip pull)
 DO_PULL=0 bash scripts/daily_update_pipeline.sh
 ```
+
+Operational notes (2026-02-18):
+- `daily_pull_incremental.sh` now auto-selects Python in this order:
+  1) `.venv/bin/python`
+  2) `/Users/hui/miniconda3/bin/python3`
+  3) `python3`
+- If local DNS cannot resolve FMP, set:
+```bash
+export FMP_RESOLVE_IPS='34.194.189.88,52.202.201.64,107.21.126.193'
+```
+- Signal semantics for web publish:
+  - `test_signals_latest.csv` with `date=T` means signal computed with data up to `T` and used for next trading day `T+1`.
 
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
