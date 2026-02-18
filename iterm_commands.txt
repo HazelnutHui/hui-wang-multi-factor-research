@@ -1,36 +1,18 @@
 # 1) 进入项目目录
 cd /Users/hui/quant_score/v4
 
-# 2) 配置 FMP 解析兜底 IP（仅当前终端会话生效）
-export FMP_RESOLVE_IPS='34.194.189.88,52.202.201.64,107.21.126.193'
+# 2)（建议）先提交本地更新到 Git
+git add RUNBOOK.md STATUS.md DOCS_INDEX.md iterm_commands.txt scripts/daily_pull_incremental.sh scripts/daily_run_combo_current.sh scripts/update_divadj_prices_incremental.py
+git commit -m "daily pipeline hardening + docs sync"
+git push
 
-# 3) 配置服务器 SSH key（仅当前终端会话生效）
+# 3) 检查线上服务状态（你已跑过，可复查）
 export SSH_KEY='/Users/hui/Downloads/ssh-key-2026-02-03 (3).key'
-
-# 4) 跑全流程：增量拉取 -> 当日打分 -> 同步到网页端服务器
-DO_PULL=1 DO_RUN=1 DO_SYNC=1 bash scripts/daily_update_pipeline.sh
-
-# 5) 检查本地最新信号日期（应为最新交易日）
-/Users/hui/miniconda3/bin/python3 - <<'PY'
-import pandas as pd
-p='strategies/combo_v2/results/test_signals_latest.csv'
-df=pd.read_csv(p)
-print('rows=', len(df))
-print('latest_date=', df['date'].max())
-PY
-
-# 6)（可选）检查线上服务状态
 ssh -i "$SSH_KEY" ubuntu@132.226.88.196 "sudo systemctl status hui-uvicorn --no-pager -n 20"
 
-# 7)（可选）检查线上接口返回的评分日期
-curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard | /Users/hui/miniconda3/bin/python3 - <<'PY'
-import sys, json
-obj=json.load(sys.stdin)
-rows=obj.get('rows',[])
-if not rows:
-    print('rows=0')
-else:
-    ds=[r.get('date') for r in rows if r.get('date')]
-    print('rows=',len(rows))
-    print('latest_date=', max(ds) if ds else 'N/A')
-PY
+# 4) 检查线上评分接口最新日期（修正版）
+curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard \
+| /Users/hui/miniconda3/bin/python3 -c "import sys,json; obj=json.load(sys.stdin); rows=obj.get('rows',[]); print('rows=',len(rows)); ds=[r.get('date') for r in rows if r.get('date')]; print('latest_date=', max(ds) if ds else 'N/A')"
+
+# 5)（排错用）先看接口原始返回前 300 字符
+curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard | head -c 300
