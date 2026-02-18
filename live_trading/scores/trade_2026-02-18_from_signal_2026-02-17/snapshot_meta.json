@@ -1,0 +1,16 @@
+{
+  "snapshot_type": "live_trade_day_baseline",
+  "trade_date": "2026-02-18",
+  "signal_date": "2026-02-17",
+  "source_file": "/Users/hui/quant_score/v4/strategies/combo_v2/results/test_signals_latest.csv",
+  "source_sha256": "fb2cbfb77b74ad224c7c165ecc73544e94ba695a3a471f101800d057b5d9d686",
+  "rows": 1467,
+  "created_at_local": "2026-02-18T14:44:12",
+  "files": [
+    "scores_full_ranked.csv",
+    "scores_top_100.csv",
+    "scores_bottom_100.csv",
+    "score_deciles_summary.csv"
+  ],
+  "note": "First live trading day baseline snapshot. Do not overwrite."
+}
