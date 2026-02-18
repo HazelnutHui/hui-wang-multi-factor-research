@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-18 (post-close data refresh + first live trading snapshot archived)
+Last updated: 2026-02-18 (first live-day score/accuracy/report archive finalized)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -160,16 +160,19 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
   - Workstation pull succeeded (`updated=1588`, `errors=14`) with same incremental pipeline.
   - Active div-adjusted price cache is updated to `2026-02-18` on workstation.
   - Local cache was synchronized from workstation for post-close analysis.
-- First live trading-day score snapshot (must-keep archive):
+- First live trading-day score/accuracy archive (must-keep):
   - Trade day: `2026-02-18`
   - Source signal date: `2026-02-17` (T->T+1 convention)
   - Local archive:
-    - `live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+    - `live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
+    - `live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
+    - `live_trading/reports/daily/en/trade_2026-02-18_from_signal_2026-02-17/daily_report_en.pdf`
+    - `live_trading/reports/daily/zh/trade_2026-02-18_from_signal_2026-02-17/daily_report_zh.pdf`
   - Web-side archive:
-    - `/home/ubuntu/Hui/data/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
-  - Snapshot files:
-    - `scores_full_ranked.csv`
-    - `scores_top_100.csv`
-    - `scores_bottom_100.csv`
-    - `score_deciles_summary.csv`
-    - `snapshot_meta.json` (includes source checksum)
+    - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
+    - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
+  - Daily evaluation highlights (`signal=2026-02-17`, `trade=2026-02-18`):
+    - `n_total=1467`, `n_matched=1462`, `coverage=0.996592`
+    - `ic_pearson=0.015279`, `ic_spearman=0.043531`
+    - `top_mean_ret=0.012278`, `bottom_mean_ret=0.007026`, `top_bottom_spread=0.005252`
+    - `top_win_rate=0.684932`, `bottom_win_rate=0.602740`

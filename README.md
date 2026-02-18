@@ -106,6 +106,7 @@ Strict Stage2 runner:
 - `scripts/`: data and research utilities
 - `configs/`: protocol and strategy YAML config
 - `tests/`: no-lookahead / lag / factor processing tests
+- `live_trading/`: live daily score, accuracy, and readable reports
 - `data/`: local data cache (excluded from public repo)
 - `logs/`: local run logs (excluded from public repo)
 
@@ -143,6 +144,26 @@ python -m pytest tests
 - Large local datasets, logs, and generated results are intentionally excluded.
 - To reproduce full results, prepare your own data caches and API keys.
 - Do not commit secrets (API tokens, credentials, private keys).
+
+## Live Trading Daily Validation (T -> T+1)
+- Daily score snapshot archive path:
+  - `live_trading/scores/trade_YYYY-MM-DD_from_signal_YYYY-MM-DD/`
+- Daily realized-accuracy archive path:
+  - `live_trading/accuracy/trade_YYYY-MM-DD_from_signal_YYYY-MM-DD/`
+- Daily readable reports path:
+  - `live_trading/reports/daily/en/<run_id>/daily_report_en.pdf`
+  - `live_trading/reports/daily/zh/<run_id>/daily_report_zh.pdf`
+
+Core metrics (institution-style, daily):
+- IC: Pearson and Spearman
+- Top/Bottom bucket mean return and spread
+- Top/Bottom win rate
+- Coverage (`n_matched / n_total`)
+- Decile return table
+
+Current first live day archive:
+- `run_id=trade_2026-02-18_from_signal_2026-02-17`
+- `signal_date=2026-02-17`, `trade_date=2026-02-18`
 
 ## Key Documents
 - `docs/codex_bootstrap_pack/START_HERE.md`: recommended first file for new Codex session handoff

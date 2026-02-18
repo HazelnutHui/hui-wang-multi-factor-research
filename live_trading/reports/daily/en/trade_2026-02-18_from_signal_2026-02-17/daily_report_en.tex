@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\title{Daily Live Trading Report}
+\date{}
+\begin{document}
+\maketitle
+\section*{Run Overview}
+\begin{itemize}
+\item run\_id: \texttt{trade\_2026-02-18\_from\_signal\_2026-02-17}
+\item signal date (T): 2026-02-17
+\item trade date (T+1): 2026-02-18
+\item universe size: 1467
+\item matched symbols: 1462
+\item coverage: 99.66\%
+\end{itemize}
+
+\section*{Core Metrics}
+\begin{itemize}
+\item IC (Pearson): 0.015279
+\item IC (Spearman): 0.043531
+\item Top bucket mean return: 1.23\%
+\item Bottom bucket mean return: 0.70\%
+\item Top-Bottom spread: 0.53\%
+\item Top win rate: 68.49\%
+\item Bottom win rate: 60.27\%
+\end{itemize}
+
+\section*{Decile Return Table}
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+Decile & Count & Mean Return & Std Dev \\
+\midrule
+D1 & 146 & 0.01228 & 0.02892 \\
+D2 & 146 & 0.00918 & 0.02804 \\
+D3 & 146 & 0.00485 & 0.02617 \\
+D4 & 146 & 0.00875 & 0.02295 \\
+D5 & 147 & 0.00295 & 0.02275 \\
+D6 & 146 & 0.00076 & 0.01830 \\
+D7 & 146 & 0.00539 & 0.02207 \\
+D8 & 146 & 0.00795 & 0.02514 \\
+D9 & 146 & 0.01000 & 0.04114 \\
+D10 & 147 & 0.00715 & 0.02497 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Method Note}
+All metrics are computed from previous-day scores and next-trading-day realized returns.
+\end{document}

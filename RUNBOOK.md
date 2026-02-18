@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-18 (workstation fallback + first live-day snapshot archive)
+Last updated: 2026-02-18 (live trading eval + bilingual daily PDF report)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -183,11 +183,43 @@ rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-researc
 rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/fmp/earnings/ /Users/hui/quant_score/v4/data/fmp/earnings/
 ```
 
-First live-day snapshot archive (2026-02-18 trading):
+### 2.12 Live trading daily eval (T -> T+1) + readable PDF
+Run ID convention:
+- `trade_YYYY-MM-DD_from_signal_YYYY-MM-DD`
+
+Daily evaluation from score snapshot and realized returns:
+```bash
+python scripts/live_trading_eval.py \
+  --signals live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/scores_full_ranked.csv \
+  --signal-date 2026-02-17 \
+  --trade-date 2026-02-18 \
+  --realized-file live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/accuracy_check_2026-02-18_symbol_returns.csv
+```
+
+Generate bilingual daily readable reports (PDF):
+```bash
+python scripts/generate_daily_live_report.py \
+  --run-id trade_2026-02-18_from_signal_2026-02-17
+```
+
+Outputs:
+- Scores: `live_trading/scores/<run_id>/signals_T.csv`
+- Accuracy:
+  - `live_trading/accuracy/<run_id>/metrics_T_Tplus1.csv`
+  - `live_trading/accuracy/<run_id>/deciles_T_Tplus1.csv`
+  - `live_trading/accuracy/<run_id>/match_T_Tplus1.csv`
+  - `live_trading/accuracy/metrics_panel.csv`
+- Readable reports:
+  - `live_trading/reports/daily/en/<run_id>/daily_report_en.pdf`
+  - `live_trading/reports/daily/zh/<run_id>/daily_report_zh.pdf`
+
+First live-day archive (2026-02-18 trading):
 - Local:
-  - `live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+  - `live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
+  - `live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
 - Web-side:
-  - `/home/ubuntu/Hui/data/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+  - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
+  - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
 
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`

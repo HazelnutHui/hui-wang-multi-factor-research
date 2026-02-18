@@ -26,5 +26,8 @@ Last updated: 2026-02-18
 - `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
 - `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
+- `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
+- `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
+- `live_trading/reports/README.md`: report path convention and generation command
 - `strategies/`: strategy-level docs and configs
 - `configs/`: protocol and strategy configuration files

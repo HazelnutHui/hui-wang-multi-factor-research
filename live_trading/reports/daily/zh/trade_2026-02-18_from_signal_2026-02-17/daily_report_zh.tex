@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\usepackage{xeCJK}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\setCJKmainfont{Songti SC}
+\title{实战单日可读报告}
+\date{}
+\begin{document}
+\maketitle
+\section*{运行概览}
+\begin{itemize}
+\item 运行ID: \texttt{trade\_2026-02-18\_from\_signal\_2026-02-17}
+\item 打分日(T): 2026-02-17
+\item 交易日(T+1): 2026-02-18
+\item 股票总数: 1467
+\item 成功匹配数: 1462
+\item 覆盖率: 99.66\%
+\end{itemize}
+
+\section*{核心指标}
+\begin{itemize}
+\item IC(Pearson): 0.015279
+\item IC(Spearman): 0.043531
+\item 头部分组平均收益: 1.23\%
+\item 尾部分组平均收益: 0.70\%
+\item 头尾收益差: 0.53\%
+\item 头部分组胜率: 68.49\%
+\item 尾部分组胜率: 60.27\%
+\end{itemize}
+
+\section*{十分位收益表}
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+分组 & 样本数 & 平均收益 & 标准差 \\
+\midrule
+D1 & 146 & 0.01228 & 0.02892 \\
+D2 & 146 & 0.00918 & 0.02804 \\
+D3 & 146 & 0.00485 & 0.02617 \\
+D4 & 146 & 0.00875 & 0.02295 \\
+D5 & 147 & 0.00295 & 0.02275 \\
+D6 & 146 & 0.00076 & 0.01830 \\
+D7 & 146 & 0.00539 & 0.02207 \\
+D8 & 146 & 0.00795 & 0.02514 \\
+D9 & 146 & 0.01000 & 0.04114 \\
+D10 & 147 & 0.00715 & 0.02497 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{方法说明}
+全部指标基于“前一交易日打分 + 下一交易日真实收益”计算。
+\end{document}
