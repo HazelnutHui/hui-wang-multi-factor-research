@@ -1,6 +1,6 @@
 # Combo Weight Experiments (value_v2 + momentum_v2)
 
-Last updated: 2026-02-17 (linear selection + Layer2/Layer3 confirmation completed)
+Last updated: 2026-02-17 (linear selection + Layer2/Layer3 + stress confirmation completed)
 
 ## 1) Objective
 - Find a robust `value_v2 / momentum_v2` weight split for `combo_v2` under the same Stage2 strict constraints.
@@ -88,3 +88,16 @@ Formula comparison outcome:
   - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
 - Operational note:
   - For combo Layer3, `REBALANCE_MODE=None` is required in current setup to avoid one-date-per-year degeneration (`test_ic=N/A`).
+
+## 10) Post-WF Stress Confirmation
+- Run profile:
+  - `COST_MULTIPLIER=1.5`
+  - `MIN_MARKET_CAP=2e9`
+  - `MIN_DOLLAR_VOLUME=5e6`
+- Output path:
+  - `walk_forward_results/combo_v2_postwf_stress_x1_5_p6/combo_v2/walk_forward_summary.csv`
+- Aggregate result:
+  - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
+- Verdict:
+  - Locked combo remains positive and stable under stress; promotion to paper-trading candidate is justified.

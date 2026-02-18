@@ -1,6 +1,6 @@
 # Post-WF Institutional Checklist (Combo Strategy)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-17 (stress run completed and passed)
 
 Purpose: standardized post-walk-forward validation gates before paper/live deployment.
 
@@ -37,7 +37,7 @@ Run rolling validation under stricter liquidity/cap constraints.
 python3 scripts/run_walk_forward.py \
   --factors combo_v2 \
   --train-years 3 --test-years 1 --start-year 2010 --end-year 2025 \
-  --out-dir walk_forward_results/combo_v2_postwf_stress_x1_5 \
+  --out-dir walk_forward_results/combo_v2_postwf_stress_x1_5_p6 \
   --set REBALANCE_MODE=None \
   --set COMBO_FORMULA=linear \
   --set COST_MULTIPLIER=1.5 \
@@ -53,7 +53,7 @@ python3 scripts/run_walk_forward.py \
   --set MIN_MARKET_CAP=2000000000 \
   --set MIN_DOLLAR_VOLUME=5000000 \
   --set MIN_PRICE=5 \
-  |& tee logs/combo_postwf_stress_x1_5.log
+  |& tee logs/combo_postwf_stress_x1_5_p6.log
 ```
 
 Optional harsher scenario:
@@ -78,7 +78,7 @@ Print aggregate metrics from the stress run summary.
 ```bash
 python3 - <<'PY'
 import pandas as pd
-p='walk_forward_results/combo_v2_postwf_stress_x1_5/combo_v2/walk_forward_summary.csv'
+p='walk_forward_results/combo_v2_postwf_stress_x1_5_p6/combo_v2/walk_forward_summary.csv'
 df=pd.read_csv(p)
 x=pd.to_numeric(df['test_ic'], errors='coerce').dropna()
 y=pd.to_numeric(df['test_ic_overall'], errors='coerce').dropna()
@@ -105,3 +105,13 @@ Only after pass:
 1. Promote to paper-trading candidate for 4-8 weeks.
 2. Keep research config frozen during paper period.
 3. Define kill-switch thresholds before first live trade.
+
+## 8) Latest Completed Snapshot (2026-02-17)
+- Stress profile:
+  - `COST_MULTIPLIER=1.5`
+  - `MIN_MARKET_CAP=2e9`
+  - `MIN_DOLLAR_VOLUME=5e6`
+- Aggregate result:
+  - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
+- Verdict: pass, move to paper-trading candidate phase.

@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-17 (combo Layer2/Layer3 completed with locked linear settings)
+Last updated: 2026-02-17 (combo post-WF stress validation completed)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -18,6 +18,7 @@ Last updated: 2026-02-17 (combo Layer2/Layer3 completed with locked linear setti
   - `combo_v2` Layer1 segmented completed with locked linear settings
   - `combo_v2` Layer2 fixed train/test completed (`train_ic=0.080637`, `test_ic=0.053038`)
   - `combo_v2` Layer3 walk-forward completed (2013-2025 windows, `REBALANCE_MODE=None`)
+  - `combo_v2` post-WF stress validation completed (`COST_MULTIPLIER=1.5` + stricter universe), passed
   - `combo_v2` now locked as core candidate (`value+momentum`, linear)
 
 ## 2) Factor Progress Snapshot (New Protocol Rerun)
@@ -69,6 +70,11 @@ Last updated: 2026-02-17 (combo Layer2/Layer3 completed with locked linear setti
     - Important implementation note:
       - Without `REBALANCE_MODE=None`, walk-forward degenerated to one rebalance date per year and produced `test_ic=N/A`.
       - Correct production research setting for this combo walk-forward run is `REBALANCE_MODE=None`.
+  - Post-WF stress validation metrics (6-core shard run, merged):
+    - Path: `walk_forward_results/combo_v2_postwf_stress_x1_5_p6/combo_v2/walk_forward_summary.csv`
+    - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
+    - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
+    - Verdict: pass (stress scenario remains positive and stable)
 
 ## 3) Stage 1 Metrics (Completed, 2-Year Segments)
 `v2.1` results:
@@ -136,6 +142,6 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 
 ## 7) Next Steps
 1. Keep locked combo (`linear`, `value=0.90`, `momentum=0.10`) as current primary candidate
-2. Run `POST_WF_INSTITUTIONAL_CHECKLIST.md` (cost stress + walk-forward stress + diagnostics)
-3. Compare combo walk-forward against single-factor baselines under identical constraints
-4. Decide promotion to paper-trading candidate
+2. Compare combo walk-forward against single-factor baselines under identical constraints
+3. Start paper-trading candidate phase (4-8 weeks, frozen research config)
+4. Define live kill-switch thresholds and capital ramp plan

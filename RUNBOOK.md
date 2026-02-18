@@ -121,6 +121,12 @@ Includes:
 - post-hoc risk diagnostics (`scripts/posthoc_factor_diagnostics.py`)
 - pass/fail criteria for promotion
 
+Latest completed stress result (2026-02-17):
+- Profile: `COST_MULTIPLIER=1.5`, `MIN_MARKET_CAP=2e9`, `MIN_DOLLAR_VOLUME=5e6`
+- Output: `walk_forward_results/combo_v2_postwf_stress_x1_5_p6/combo_v2/walk_forward_summary.csv`
+- `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
+- `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
+
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
 - Walk-forward runs: `walk_forward_results/<timestamp>/`

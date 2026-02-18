@@ -81,6 +81,10 @@ Strict Stage2 runner:
   - Layer3 walk-forward (`REBALANCE_MODE=None`, test years 2013-2025):
     - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
     - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
+- Post-WF stress validation (passed):
+  - Run profile: `COST_MULTIPLIER=1.5`, `MIN_MARKET_CAP=2e9`, `MIN_DOLLAR_VOLUME=5e6`
+  - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
+  - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`
