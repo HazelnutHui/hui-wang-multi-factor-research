@@ -69,7 +69,7 @@ python3 scripts/run_walk_forward.py \
 
 ### 2.6 Derive combo weights from segmented outputs
 ```bash
-python scripts/derive_combo_weights.py --root . --out analysis/combo_v2_weights_suggested.csv
+python scripts/derive_combo_weights.py --root . --out segment_results/derived/combo_v2_weights_suggested.csv
 ```
 
 ### 2.6b Combo segmented weight-grid (corrected path)

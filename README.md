@@ -166,8 +166,7 @@ Current first live day archive:
 - `signal_date=2026-02-17`, `trade_date=2026-02-18`
 
 ## Key Documents
-- `docs/codex_bootstrap_pack/START_HERE.md`: recommended first file for new Codex session handoff
-- `docs/codex_bootstrap_pack/`: curated minimal context pack for fast session synchronization
+- `CODEX_SESSION_GUIDE.md`: single-file handoff guide for new Codex sessions (read this first)
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
