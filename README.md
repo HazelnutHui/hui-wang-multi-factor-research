@@ -150,6 +150,7 @@ python -m pytest tests
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
+- `docs/hui_dashboard/README.md`: Hui dashboard deployment/runtime notes and operations guide
 - `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight experiments and final selection log
 - `POST_WF_INSTITUTIONAL_CHECKLIST.md`: post walk-forward institutional validation gates before paper/live
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
