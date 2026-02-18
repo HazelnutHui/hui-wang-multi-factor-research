@@ -127,6 +127,30 @@ Latest completed stress result (2026-02-17):
 - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
 - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
 
+### 2.11 Daily lightweight update pipeline (incremental, not full overwrite)
+Three-step design:
+1. Incremental pull (`latest/recent`, no full rebuild by default)
+2. Run current combo strategy once (refresh `test_signals_latest.csv` + latest run json)
+3. Sync minimal outputs to web side
+
+Scripts:
+- `scripts/daily_pull_incremental.sh`
+- `scripts/daily_run_combo_current.sh`
+- `scripts/daily_sync_web.sh`
+- `scripts/daily_update_pipeline.sh` (orchestrator)
+
+Examples:
+```bash
+# dry-run full pipeline
+DRY_RUN=1 bash scripts/daily_update_pipeline.sh
+
+# full daily run
+bash scripts/daily_update_pipeline.sh
+
+# run only strategy + sync (skip pull)
+DO_PULL=0 bash scripts/daily_update_pipeline.sh
+```
+
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
 - Walk-forward runs: `walk_forward_results/<timestamp>/`
