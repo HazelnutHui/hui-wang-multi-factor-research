@@ -1,0 +1,2 @@
+run_id,signal_date,trade_date,n_total,n_matched,coverage,ic_pearson,ic_spearman,top_pct,top_n,bottom_n,top_mean_ret,bottom_mean_ret,top_bottom_spread,top_win_rate,bottom_win_rate
+trade_2026-02-18_from_signal_2026-02-17,2026-02-17,2026-02-18,1467,1462,0.9965916837082481,0.015279368490923638,0.043531207696268885,0.1,146,146,0.01227809416809689,0.00702569738078506,0.005252396787311831,0.684931506849315,0.6027397260273972
