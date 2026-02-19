@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-19 (2/18 close signal refresh synced to web)
+Last updated: 2026-02-19 (live snapshot, T->T+1 archive, and web sync completed)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -146,75 +146,42 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
 3. Start paper-trading candidate phase (4-8 weeks, frozen research config)
 4. Define live kill-switch thresholds and capital ramp plan
 
-## 8) Daily Pipeline Runtime Notes (2026-02-18)
-- Daily pipeline remains: `pull -> run -> sync` via `scripts/daily_update_pipeline.sh`
-- Run mode default is live snapshot (`RUN_MODE=live_snapshot`) and updates:
-  - `strategies/combo_v2/results/test_signals_latest.csv`
-- Signal date interpretation:
-  - `date=T` means data up to `T`, for next trading day `T+1`
-- Recent ops issue observed:
-  - Some local environments fail DNS resolution to FMP host.
-  - Mitigation added: `FMP_RESOLVE_IPS` for direct resolve fallback in incremental dividend-adjusted pull.
-- 2026-02-18 close refresh execution note:
-  - Local host pull failed due DNS/network path to FMP.
-  - Workstation pull succeeded (`updated=1588`, `errors=14`) with same incremental pipeline.
-  - Active div-adjusted price cache is updated to `2026-02-18` on workstation.
-  - Local cache was synchronized from workstation for post-close analysis.
-- First live trading-day score/accuracy archive (must-keep):
-  - Trade day: `2026-02-18`
-  - Source signal date: `2026-02-17` (T->T+1 convention)
-  - Local archive:
-    - `live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
-    - `live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
-    - `live_trading/reports/daily/en/trade_2026-02-18_from_signal_2026-02-17/daily_report_en.pdf`
-    - `live_trading/reports/daily/zh/trade_2026-02-18_from_signal_2026-02-17/daily_report_zh.pdf`
-  - Web-side archive:
-    - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
-    - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
-  - Daily evaluation highlights (`signal=2026-02-17`, `trade=2026-02-18`):
-    - `n_total=1467`, `n_matched=1462`, `coverage=0.996592`
-    - `ic_pearson=0.015279`, `ic_spearman=0.043531`
-    - `top_mean_ret=0.012278`, `bottom_mean_ret=0.007026`, `top_bottom_spread=0.005252`
-    - `top_win_rate=0.684932`, `bottom_win_rate=0.602740`
+## 8) Current Live Ops Snapshot
+- Daily runtime workflow (stable):
+  - `pull -> run -> eval -> report -> sync`
+  - scripts: `daily_pull_incremental.sh`, `daily_run_combo_current.sh`, `live_trading_eval.py`, `generate_daily_live_report.py`, `daily_sync_web.sh`
+- Signal semantics (stable):
+  - `date=T` in latest signal file means score computed with data up to `T`, for next trading day `T+1`.
+- Network fallback (stable):
+  - If local DNS fails for FMP, use `FMP_RESOLVE_IPS` for direct resolve fallback.
+- Live rule now active (stable):
+  - `value` requires at least `VALUE_COMPONENT_MIN_COUNT` valid components in combo path.
+  - Live config reference: `configs/strategies/combo_v2_live_daily.yaml` (`version: 2.1-live-min2-2026-02-19`).
 
-## 9) 2026-02-19 Ops Update (Signal Refresh + Web Sync)
-- Goal:
-  - Refresh latest live snapshot to `signal_date=2026-02-18` and publish to web data root.
-- Result:
-  - Workstation run succeeded with live snapshot mode:
-    - command: `PY_BIN=.venv/bin/python bash scripts/daily_run_combo_current.sh`
-    - output: `strategies/combo_v2/results/live_signals_2026-02-19_090245.csv`
-    - latest: `strategies/combo_v2/results/test_signals_latest.csv`
-    - signal date: `2026-02-18`
-    - rows: `1502`
-- Sync:
-  - Synced latest score file back to local `v4`.
-  - Synced to web-side quant root via:
-    - `SSH_KEY=/Users/hui/.ssh/oci_hui.key bash scripts/daily_sync_web.sh`
-  - Remote verification path:
-    - `/home/ubuntu/Hui/data/quant_score/v4/strategies/combo_v2/results/test_signals_latest.csv`
-    - top ranks match local (starts with `CLSK`, `BLKB`, `KVYO`)
+## 9) Latest Completed Daily Validation (T -> T+1)
+- Latest completed accuracy run:
+  - `run_id=trade_2026-02-19_from_signal_2026-02-18`
+  - Local score archive: `live_trading/scores/trade_2026-02-19_from_signal_2026-02-18/`
+  - Local accuracy archive: `live_trading/accuracy/trade_2026-02-19_from_signal_2026-02-18/`
+  - Readable reports:
+    - `live_trading/reports/daily/en/trade_2026-02-19_from_signal_2026-02-18/daily_report_en.pdf`
+    - `live_trading/reports/daily/zh/trade_2026-02-19_from_signal_2026-02-18/daily_report_zh.pdf`
+- Metrics:
+  - `n_total=1467`, `n_matched=1462`, `coverage=0.996592`
+  - `ic_pearson=0.003560`, `ic_spearman=-0.005979`
+  - `top_mean_ret=-0.000208`, `bottom_mean_ret=-0.001189`, `top_bottom_spread=0.000981`
+  - `top_win_rate=0.458904`, `bottom_win_rate=0.458904`
+- Metrics panel updated:
+  - `live_trading/accuracy/metrics_panel.csv`
 
-## 10) 2026-02-19 Live Rule Hotfix (Value min-component gate)
-- Trigger:
-  - Live ranking review found high sensitivity to single-component value availability in some names.
-- Rule change (effective immediately for live snapshot):
-  - In combo path, `value` now requires at least `VALUE_COMPONENT_MIN_COUNT` valid components (same gate as mainstream composite logic).
-  - Current live config keeps `VALUE_COMPONENT_MIN_COUNT=2`.
-  - Live strategy version updated:
-    - `configs/strategies/combo_v2_live_daily.yaml`
-    - `version: 2.1-live-min2-2026-02-19`
-- Implementation:
-  - `backtest/factor_engine.py`:
-    - `calculate_value`: enforce `VALUE_COMPONENT_MIN_COUNT`
-    - `calculate_quality`: enforce `QUALITY_COMPONENT_MIN_COUNT` (consistency hardening)
-- Verification run (workstation):
-  - command: `PY_BIN=.venv/bin/python bash scripts/daily_run_combo_current.sh`
-  - output snapshot: `strategies/combo_v2/results/live_signals_2026-02-19_092539.csv`
-  - signal date: `2026-02-18`
-  - rows: `1501` (previous `1502`)
-- Impact check (`2026-02-18` signal, old vs new):
-  - `CLSK`: rank `1 -> 514`, score `3.5766 -> 0.2589`
-  - Top10 removed: `CLSK`, `FELE`
-  - Top10 added: `WDC`, `DOCN`
-  - New Top3: `BLKB`, `KVYO`, `JEF`
+## 10) Current Live Signal Ready For Next Trading Day
+- Latest live snapshot status:
+  - source: `strategies/combo_v2/results/test_signals_latest.csv`
+  - `signal_date=2026-02-19`
+  - rows: `1501`
+- Next-day score archive prepared:
+  - `live_trading/scores/trade_2026-02-20_from_signal_2026-02-19/`
+
+## 11) Web Sync Status
+- Latest score file and key docs have been synced to web-side quant root:
+  - `/home/ubuntu/Hui/data/quant_score/v4`

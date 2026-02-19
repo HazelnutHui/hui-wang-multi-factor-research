@@ -1,6 +1,6 @@
 # CODEX Session Guide
 
-Last updated: 2026-02-18
+Last updated: 2026-02-19
 
 This is the single handoff file for new Codex sessions in this repo.
 
@@ -76,3 +76,9 @@ Use this prompt in a new session:
 ```text
 Please start from CODEX_SESSION_GUIDE.md and continue today’s live_trading workflow only.
 ```
+
+## 9) Current Run Pointers
+- Latest completed validation run:
+  - `trade_2026-02-19_from_signal_2026-02-18`
+- Current next-day signal snapshot:
+  - `trade_2026-02-20_from_signal_2026-02-19`
