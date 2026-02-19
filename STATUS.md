@@ -194,3 +194,27 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
   - Remote verification path:
     - `/home/ubuntu/Hui/data/quant_score/v4/strategies/combo_v2/results/test_signals_latest.csv`
     - top ranks match local (starts with `CLSK`, `BLKB`, `KVYO`)
+
+## 10) 2026-02-19 Live Rule Hotfix (Value min-component gate)
+- Trigger:
+  - Live ranking review found high sensitivity to single-component value availability in some names.
+- Rule change (effective immediately for live snapshot):
+  - In combo path, `value` now requires at least `VALUE_COMPONENT_MIN_COUNT` valid components (same gate as mainstream composite logic).
+  - Current live config keeps `VALUE_COMPONENT_MIN_COUNT=2`.
+  - Live strategy version updated:
+    - `configs/strategies/combo_v2_live_daily.yaml`
+    - `version: 2.1-live-min2-2026-02-19`
+- Implementation:
+  - `backtest/factor_engine.py`:
+    - `calculate_value`: enforce `VALUE_COMPONENT_MIN_COUNT`
+    - `calculate_quality`: enforce `QUALITY_COMPONENT_MIN_COUNT` (consistency hardening)
+- Verification run (workstation):
+  - command: `PY_BIN=.venv/bin/python bash scripts/daily_run_combo_current.sh`
+  - output snapshot: `strategies/combo_v2/results/live_signals_2026-02-19_092539.csv`
+  - signal date: `2026-02-18`
+  - rows: `1501` (previous `1502`)
+- Impact check (`2026-02-18` signal, old vs new):
+  - `CLSK`: rank `1 -> 514`, score `3.5766 -> 0.2589`
+  - Top10 removed: `CLSK`, `FELE`
+  - Top10 added: `WDC`, `DOCN`
+  - New Top3: `BLKB`, `KVYO`, `JEF`

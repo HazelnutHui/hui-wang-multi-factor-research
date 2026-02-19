@@ -1,0 +1,81 @@
+strategy:
+  id: "combo_v2_live_daily"
+  name: "COMBO_V2_LIVE_DAILY"
+  version: "2.1-live-min2-2026-02-19"
+  output_dir: "strategies/combo_v2"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2024-12-31"
+  test_start: "2025-01-01"
+  test_end: "2026-12-31"
+
+execution:
+  # Daily refresh cadence for live-style scoring.
+  rebalance_freq: 1
+  holding_period: 20
+
+calendar:
+  # Important: avoid year-degeneration seen with fixed month_end mode in this setup.
+  rebalance_mode: null
+
+neutralization:
+  industry_neutral: true
+  industry_min_group: 5
+  signal_zscore: true
+  signal_rank: false
+  signal_winsor_pct_low: 0.01
+  signal_winsor_pct_high: 0.99
+  signal_missing_policy: "drop"
+  signal_neutralize_size: true
+  signal_neutralize_beta: true
+
+universe:
+  min_market_cap: 1000000000.0
+  min_dollar_volume: 2000000.0
+  min_price: 5.0
+
+factors:
+  # Locked combo weights for current production candidate.
+  weights:
+    value: 0.90
+    momentum: 0.10
+    quality: 0.00
+    reversal: 0.0
+    low_vol: 0.0
+    pead: 0.0
+  momentum:
+    lookback: 126
+    skip: 21
+    use_monthly: false
+    lookback_months: 6
+    skip_months: 1
+    use_residual: true
+    bench_symbol: "SPY"
+    resid_est_window: 252
+  value:
+    weights:
+      earnings_yield: 1.0
+      fcf_yield: 1.0
+      ev_ebitda_yield: 1.0
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 2
+    component_missing_policy: "drop"
+  quality:
+    weights:
+      roe: 1.0
+      roa: 0.5
+      gross_margin: 0.5
+      cfo_to_assets: 1.0
+      debt_to_equity: -0.5
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 3
+    component_missing_policy: "drop"

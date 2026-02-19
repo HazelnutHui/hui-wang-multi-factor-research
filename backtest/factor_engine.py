@@ -572,8 +572,10 @@ class FactorEngine:
         if not metrics:
             return None
         weights = self.config.get('QUALITY_WEIGHTS') or {}
+        min_count = int(self.config.get("QUALITY_COMPONENT_MIN_COUNT", 1) or 1)
         score = 0.0
         wsum = 0.0
+        valid_count = 0
         transform_mode = self.config.get("QUALITY_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
@@ -583,6 +585,9 @@ class FactorEngine:
             vf = self._transform_component(float(v), transform_mode)
             score += wf * vf
             wsum += abs(wf)
+            valid_count += 1
+        if valid_count < min_count:
+            return None
         if wsum <= 0:
             return None
         return float(score / wsum)
@@ -594,8 +599,10 @@ class FactorEngine:
         if not metrics:
             return None
         weights = self.config.get('VALUE_WEIGHTS') or {}
+        min_count = int(self.config.get("VALUE_COMPONENT_MIN_COUNT", 1) or 1)
         score = 0.0
         wsum = 0.0
+        valid_count = 0
         transform_mode = self.config.get("VALUE_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
@@ -605,6 +612,9 @@ class FactorEngine:
             vf = self._transform_component(float(v), transform_mode)
             score += wf * vf
             wsum += abs(wf)
+            valid_count += 1
+        if valid_count < min_count:
+            return None
         if wsum <= 0:
             return None
         return float(score / wsum)
