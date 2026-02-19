@@ -1,0 +1,16 @@
+{
+  "snapshot_type": "live_trade_day_signal_preparation",
+  "trade_date": "2026-02-20",
+  "signal_date": "2026-02-19",
+  "source_file": "/Users/hui/quant_score/v4/strategies/combo_v2/results/test_signals_latest.csv",
+  "source_sha256": "f689f2934aa58dd458e334cf95993b7658dc4801f4bf0f8c1d7723b7135afe74",
+  "rows": 1467,
+  "created_at_local": "2026-02-19T15:57:19",
+  "files": [
+    "scores_full_ranked.csv",
+    "scores_top_100.csv",
+    "scores_bottom_100.csv",
+    "score_deciles_summary.csv"
+  ],
+  "note": "Prepared from latest live snapshot after 2026-02-19 close; accuracy pending next trade day."
+}

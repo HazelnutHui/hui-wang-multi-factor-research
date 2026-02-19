@@ -1,0 +1,16 @@
+{
+  "snapshot_type": "live_trade_day_baseline",
+  "trade_date": "2026-02-19",
+  "signal_date": "2026-02-18",
+  "source_file": "/Users/hui/quant_score/v4/strategies/combo_v2/results/live_signals_2026-02-19_092539.csv",
+  "source_sha256": "627a35d47b7b6ef41d9a4d2aa7df13ee0d160b126b45aa5be5ef260af6d84723",
+  "rows": 1467,
+  "created_at_local": "2026-02-19T15:56:17",
+  "files": [
+    "scores_full_ranked.csv",
+    "scores_top_100.csv",
+    "scores_bottom_100.csv",
+    "score_deciles_summary.csv"
+  ],
+  "note": "Daily trade-day snapshot archive."
+}
