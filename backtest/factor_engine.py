@@ -577,7 +577,7 @@ class FactorEngine:
         transform_mode = self.config.get("QUALITY_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
-            if v is None or (isinstance(v, float) and np.isnan(v)):
+            if v is None or pd.isna(v):
                 continue
             wf = float(w)
             vf = self._transform_component(float(v), transform_mode)
@@ -599,7 +599,7 @@ class FactorEngine:
         transform_mode = self.config.get("VALUE_COMPONENT_TRANSFORM", "signed_log")
         for k, w in weights.items():
             v = metrics.get(k)
-            if v is None or (isinstance(v, float) and np.isnan(v)):
+            if v is None or pd.isna(v):
                 continue
             wf = float(w)
             vf = self._transform_component(float(v), transform_mode)
@@ -709,7 +709,7 @@ class FactorEngine:
                     if w is None or float(w) == 0.0:
                         continue
                     v = f.get(k, None)
-                    if v is None or (isinstance(v, float) and np.isnan(v)):
+                    if v is None or pd.isna(v):
                         continue
                     sig += float(w) * float(v)
                     used = True

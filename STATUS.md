@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-18 (first live-day score/accuracy/report archive finalized)
+Last updated: 2026-02-19 (2/18 close signal refresh synced to web)
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
@@ -176,3 +176,21 @@ Core-pair strict+cache rerun (`v2026_02_16c_vm`):
     - `ic_pearson=0.015279`, `ic_spearman=0.043531`
     - `top_mean_ret=0.012278`, `bottom_mean_ret=0.007026`, `top_bottom_spread=0.005252`
     - `top_win_rate=0.684932`, `bottom_win_rate=0.602740`
+
+## 9) 2026-02-19 Ops Update (Signal Refresh + Web Sync)
+- Goal:
+  - Refresh latest live snapshot to `signal_date=2026-02-18` and publish to web data root.
+- Result:
+  - Workstation run succeeded with live snapshot mode:
+    - command: `PY_BIN=.venv/bin/python bash scripts/daily_run_combo_current.sh`
+    - output: `strategies/combo_v2/results/live_signals_2026-02-19_090245.csv`
+    - latest: `strategies/combo_v2/results/test_signals_latest.csv`
+    - signal date: `2026-02-18`
+    - rows: `1502`
+- Sync:
+  - Synced latest score file back to local `v4`.
+  - Synced to web-side quant root via:
+    - `SSH_KEY=/Users/hui/.ssh/oci_hui.key bash scripts/daily_sync_web.sh`
+  - Remote verification path:
+    - `/home/ubuntu/Hui/data/quant_score/v4/strategies/combo_v2/results/test_signals_latest.csv`
+    - top ranks match local (starts with `CLSK`, `BLKB`, `KVYO`)
