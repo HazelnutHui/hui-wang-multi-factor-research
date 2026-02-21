@@ -19,7 +19,7 @@ fi
 usage() {
   cat <<USAGE
 Usage:
-  bash scripts/workstation_official_run.sh --workflow <name> --tag <decision_tag> [--owner <owner>] [--notes <notes>] [--require-clean] -- <workflow args>
+  bash scripts/workstation_official_run.sh --workflow <name> --tag <decision_tag> [--owner <owner>] [--notes <notes>] [--require-clean] [--threads <n>] -- <workflow args>
 
 Example:
   bash scripts/workstation_official_run.sh \
@@ -40,6 +40,7 @@ TAG=""
 OWNER=""
 NOTES=""
 REQUIRE_CLEAN=0
+THREADS="${THREADS:-8}"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -62,6 +63,10 @@ while [ "$#" -gt 0 ]; do
     --require-clean)
       REQUIRE_CLEAN=1
       shift
+      ;;
+    --threads)
+      THREADS="$2"
+      shift 2
       ;;
     --help|-h)
       usage
@@ -120,9 +125,15 @@ cat > "$AUDIT_DIR/context.json" <<CTX
   "workflow": "${WORKFLOW}",
   "decision_tag": "${TAG}",
   "owner": "${OWNER}",
-  "notes": "${NOTES}"
+  "notes": "${NOTES}",
+  "threads": ${THREADS}
 }
 CTX
+
+export OMP_NUM_THREADS="${THREADS}"
+export MKL_NUM_THREADS="${THREADS}"
+export OPENBLAS_NUM_THREADS="${THREADS}"
+export NUMEXPR_NUM_THREADS="${THREADS}"
 
 set +e
 "${CMD[@]}" 2>&1 | tee "$AUDIT_DIR/run.log"
