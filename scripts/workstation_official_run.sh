@@ -4,6 +4,16 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
+PYTHON_BIN=""
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "Neither python3 nor python is available." >&2
+  exit 127
+fi
+
 usage() {
   cat <<USAGE
 Usage:
@@ -95,7 +105,7 @@ GIT_COMMIT="$(git rev-parse HEAD)"
 GIT_BRANCH="$(git branch --show-current)"
 HOSTNAME_VAL="$(hostname)"
 
-CMD=(python scripts/run_research_workflow.py --workflow "$WORKFLOW" -- "$@")
+CMD=("$PYTHON_BIN" scripts/run_research_workflow.py --workflow "$WORKFLOW" -- "$@")
 printf '%q ' "${CMD[@]}" > "$AUDIT_DIR/command.sh"
 printf '\n' >> "$AUDIT_DIR/command.sh"
 
