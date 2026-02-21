@@ -31,6 +31,7 @@ python scripts/auto_research_scheduler.py
 3. optional stop on orchestrator failure
 4. optional webhook + command alert channels on failure
 5. alert dedupe window prevents repeated noisy alerts for same failure pattern
+6. structured alert payload includes run metadata and recent failure summary
 
 ## Outputs
 
@@ -55,4 +56,17 @@ python scripts/auto_research_scheduler.py
 - `alert_dedupe_window_seconds`
 - `alert_webhook_url`
 - `alert_webhook_timeout_seconds`
+- `alert_recent_failures_limit`
 - `alert_command`
+
+## Alert Payload Contract
+
+Webhook `payload` and `AUTO_RESEARCH_ALERT_JSON` include:
+1. scheduler cycle metadata (`cycle`, `scheduler_policy_json`)
+2. orchestrator execution metadata (`orchestrator_policy_json`, `orchestrator_execute`)
+3. failure metadata (`rc`, `stopped_reason`, `run_dir`, `orchestrator_report_json`)
+4. `recent_failures` list from scheduler ledger (bounded by `alert_recent_failures_limit`)
+
+For command channel:
+1. `AUTO_RESEARCH_ALERT_MSG` carries human-readable message
+2. `AUTO_RESEARCH_ALERT_JSON` carries structured JSON payload

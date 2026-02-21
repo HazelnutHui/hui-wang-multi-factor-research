@@ -32,6 +32,7 @@ def _default_policy() -> dict[str, Any]:
         "alert_dedupe_window_seconds": 1800,
         "alert_webhook_url": "",
         "alert_webhook_timeout_seconds": 10,
+        "alert_recent_failures_limit": 5,
         "alert_command": "",
     }
 
@@ -112,11 +113,13 @@ def _run_orchestrator(root: Path, orchestrator_policy_json: str, execute: bool) 
         cmd.append("--execute")
     proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True)
     run_dir = ""
+    report_json = ""
     stopped_reason = ""
     for line in proc.stdout.splitlines():
         line = line.strip()
         if line.startswith("[done] orchestrator_json="):
             p = line.split("=", 1)[1].strip()
+            report_json = str(Path(p).resolve())
             run_dir = str(Path(p).resolve().parent)
         if line.startswith("[done] stopped_reason="):
             rest = line.split("=", 1)[1]
@@ -127,11 +130,39 @@ def _run_orchestrator(root: Path, orchestrator_policy_json: str, execute: bool) 
         "stdout": proc.stdout.strip(),
         "stderr": proc.stderr.strip(),
         "run_dir": run_dir,
+        "report_json": report_json,
         "stopped_reason": stopped_reason,
     }
 
 
-def _maybe_alert(policy: dict[str, Any], msg: str, root: Path, dedupe_key: str = "") -> None:
+def _recent_failures(rows: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    bad = {"candidate_queue_failed", "next_run_plan_failed", "repair_plan_failed", "validation_failed", "execution_failed"}
+    for r in reversed(rows):
+        if str(r.get("stopped_reason", "")) in bad or str(r.get("rc", "")) not in {"0", "0.0", ""}:
+            out.append(
+                {
+                    "cycle": r.get("cycle", ""),
+                    "started_at": r.get("started_at", ""),
+                    "ended_at": r.get("ended_at", ""),
+                    "rc": r.get("rc", ""),
+                    "run_dir": r.get("run_dir", ""),
+                    "stopped_reason": r.get("stopped_reason", ""),
+                }
+            )
+        if len(out) >= max(1, int(limit)):
+            break
+    return out
+
+
+def _maybe_alert(
+    policy: dict[str, Any],
+    msg: str,
+    root: Path,
+    *,
+    dedupe_key: str = "",
+    payload: dict[str, Any] | None = None,
+) -> None:
     if not bool(policy.get("alert_on_failure", False)):
         return
     state_path = (root / str(policy.get("alert_state_json", "audit/auto_research/auto_research_scheduler_alert_state.json"))).resolve()
@@ -150,15 +181,18 @@ def _maybe_alert(policy: dict[str, Any], msg: str, root: Path, dedupe_key: str =
         return
 
     sent_any = False
+    payload_obj = payload or {}
     webhook_url = str(policy.get("alert_webhook_url", "")).strip()
     if webhook_url:
-        payload = {
+        webhook_payload = {
             "timestamp": dt.datetime.now().isoformat(),
             "source": "auto_research_scheduler",
+            "event_type": "scheduler_orchestrator_failure",
             "message": msg,
             "dedupe_window_seconds": dedupe_window,
+            "payload": payload_obj,
         }
-        body = json.dumps(payload).encode("utf-8")
+        body = json.dumps(webhook_payload).encode("utf-8")
         req = urllib.request.Request(
             webhook_url,
             data=body,
@@ -177,6 +211,7 @@ def _maybe_alert(policy: dict[str, Any], msg: str, root: Path, dedupe_key: str =
     if cmd:
         env = os.environ.copy()
         env["AUTO_RESEARCH_ALERT_MSG"] = msg
+        env["AUTO_RESEARCH_ALERT_JSON"] = json.dumps(payload_obj, ensure_ascii=True)
         rc = subprocess.run(cmd, cwd=str(root), env=env, shell=True, check=False).returncode
         sent_any = sent_any or (rc == 0)
 
@@ -238,6 +273,7 @@ def main() -> None:
                 "ended_at": ended_at,
                 "rc": res["rc"],
                 "run_dir": res["run_dir"],
+                "report_json": res.get("report_json", ""),
                 "stopped_reason": res["stopped_reason"],
                 "orchestrator_policy_json": orchestrator_policy_json,
                 "orchestrator_execute": str(orchestrator_execute),
@@ -262,6 +298,18 @@ def main() -> None:
             print(f"[cycle] {cycle} rc={res['rc']} run_dir={res['run_dir']} stopped_reason={res['stopped_reason']}")
             if int(res["rc"]) != 0:
                 stop_reason = "orchestrator_failure"
+                recent_limit = int(policy.get("alert_recent_failures_limit", 5))
+                alert_payload = {
+                    "cycle": cycle,
+                    "scheduler_policy_json": str(Path(args.policy_json).resolve()),
+                    "orchestrator_policy_json": orchestrator_policy_json,
+                    "orchestrator_execute": orchestrator_execute,
+                    "rc": res["rc"],
+                    "stopped_reason": res["stopped_reason"],
+                    "run_dir": res.get("run_dir", ""),
+                    "orchestrator_report_json": res.get("report_json", ""),
+                    "recent_failures": _recent_failures(rows, limit=recent_limit),
+                }
                 _maybe_alert(
                     policy,
                     (
@@ -270,6 +318,7 @@ def main() -> None:
                     ),
                     root,
                     dedupe_key=f"orchestrator_failure:rc={res['rc']}:reason={res['stopped_reason']}",
+                    payload=alert_payload,
                 )
                 if stop_on_fail:
                     break

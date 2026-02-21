@@ -13,5 +13,6 @@
   "alert_dedupe_window_seconds": 1800,
   "alert_webhook_url": "",
   "alert_webhook_timeout_seconds": 10,
+  "alert_recent_failures_limit": 5,
   "alert_command": ""
 }
