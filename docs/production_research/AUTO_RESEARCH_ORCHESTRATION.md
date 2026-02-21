@@ -11,6 +11,9 @@ Purpose:
 
 - `scripts/auto_research_orchestrator.py`
 - `configs/research/auto_research_policy.json`
+- upstream optional search planner:
+  - `scripts/build_search_v1_trials.py`
+  - `configs/research/auto_research_search_v1_policy.json`
 
 ## Loop Sequence (Per Round)
 

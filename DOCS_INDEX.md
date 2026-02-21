@@ -46,6 +46,7 @@ Last updated: 2026-02-21
 - `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
 - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
 - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
+- `docs/production_research/AUTO_RESEARCH_SEARCH_V1.md`: standard for combo_v2 search-v1 trial planning, derived strategy generation, and audited execution reports
 - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`: standard for unattended orchestrator scheduling with lock/heartbeat/alerts
 - `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`: standard for workstation systemd deployment and service operations
 - `docs/production_research/LOW_NETWORK_MODE.md`: standard low-network profile and switching procedure
@@ -77,6 +78,7 @@ Last updated: 2026-02-21
 - `scripts/execute_next_run_plan.py`: execute ranked command from next_run_plan.json (supports dry-run)
 - `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
 - `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
+- `scripts/build_search_v1_trials.py`: build search-v1 trial plan, derived strategy yamls, and optional execution report
 - `scripts/auto_research_scheduler.py`: run orchestrator by cadence with singleton lock, heartbeat, and scheduler ledger
 - `scripts/test_scheduler_alert_channels.py`: self-test scheduler alert channels (command/email dry-run dedupe and payload contract)
 - `scripts/switch_auto_research_mode.sh`: switch scheduler policy between low-network and standard profiles with audit trail
@@ -88,6 +90,7 @@ Last updated: 2026-02-21
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
+- `configs/research/auto_research_search_v1_policy.json`: versioned search-v1 trial policy for combo_v2 parameter exploration
 - `configs/research/auto_research_scheduler_policy.json`: scheduler policy for orchestration cadence and failure handling
 - `configs/research/auto_research_scheduler_policy.low_network.json`: low-network scheduler profile (no outbound alerts; local+dry-run only)
 - `audit/auto_research/auto_research_ledger.csv`: append-only ledger of orchestrator cycles
@@ -98,6 +101,9 @@ Last updated: 2026-02-21
 - `audit/auto_research/auto_research_scheduler_ledger.csv`: append-only scheduler cycle ledger
 - `audit/auto_research/auto_research_scheduler_ledger.md`: human-readable scheduler cycle ledger snapshot
 - `audit/auto_research/auto_research_scheduler_alert_state.json`: scheduler alert dedupe state (last sent keys/timestamps)
+- `audit/search_v1/<ts>_search_v1/search_v1_trial_plan.json`: search-v1 trial plan output (machine-readable)
+- `audit/search_v1/<ts>_search_v1/search_v1_trial_plan.md`: search-v1 trial plan output (human-readable)
+- `audit/search_v1/<ts>_search_v1/search_v1_execution_report.json`: search-v1 execution status report
 - `audit/system_closure/<ts>_closure/system_closure_report.json`: consolidated closure check report
 - `audit/system_closure/<ts>_closure/system_closure_report.md`: readable closure check report
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot

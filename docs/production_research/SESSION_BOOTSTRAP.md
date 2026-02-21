@@ -38,6 +38,7 @@ Use this exact read order for new sessions focused on production workflow.
 30. `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`
 31. `docs/production_research/LOW_NETWORK_MODE.md`
 32. `docs/production_research/SYSTEM_CLOSURE_CHECK.md`
+33. `docs/production_research/AUTO_RESEARCH_SEARCH_V1.md`
 
 ## Mandatory checks before editing/running
 

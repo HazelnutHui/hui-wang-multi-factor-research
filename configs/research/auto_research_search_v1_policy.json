@@ -1,0 +1,20 @@
+{
+  "mode": "grid",
+  "max_trials": 12,
+  "seed": 42,
+  "execute": false,
+  "dry_run": true,
+  "base_strategy": "configs/strategies/combo_v2_prod.yaml",
+  "workflow": {
+    "factor": "combo_v2",
+    "cost_multipliers": "1.5,2.0",
+    "wf_shards": 4,
+    "out_dir": "gate_results/search_v1"
+  },
+  "space": {
+    "value_weight": [0.5, 0.6, 0.7],
+    "momentum_lookback": [63, 126, 252],
+    "rebalance_freq": [10, 21],
+    "min_dollar_volume": [2000000.0, 5000000.0]
+  }
+}

@@ -45,6 +45,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_PLANNING.md`: generation standard for rerun command/hypothesis plan
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `AUTO_RESEARCH_ORCHESTRATION.md`: multi-round automated research orchestration standard
+- `AUTO_RESEARCH_SEARCH_V1.md`: parameter-search trial planning/execution standard for combo_v2
 - `AUTO_RESEARCH_SCHEDULER.md`: unattended scheduler standard for orchestrator cadence/heartbeat/alerts
 - `AUTO_RESEARCH_DEPLOYMENT.md`: workstation deployment standard for scheduler service operations
 - `LOW_NETWORK_MODE.md`: low-network operation profile and mode switch standard
@@ -76,6 +77,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/execute_next_run_plan.py`
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/auto_research_orchestrator.py`
+- `scripts/build_search_v1_trials.py`
 - `scripts/auto_research_scheduler.py`
 - `scripts/test_scheduler_alert_channels.py`
 - `scripts/switch_auto_research_mode.sh`
@@ -90,6 +92,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 
 - `configs/research/candidate_queue_policy.json`
 - `configs/research/auto_research_policy.json`
+- `configs/research/auto_research_search_v1_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`
 - `configs/research/auto_research_scheduler_policy.low_network.json`
 
