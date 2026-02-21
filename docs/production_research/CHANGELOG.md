@@ -50,6 +50,7 @@
   - `scripts/generate_candidate_queue.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-refreshes candidate queue
   - `configs/research/candidate_queue_policy.json` added for versioned mixed-mode scheduling (`3 robust + 1 exploration`)
+  - `scripts/generate_candidate_queue.py` now auto-avoids decision_tag collisions via incremental suffixing
 - next-run plan automation:
   - `docs/production_research/NEXT_RUN_PLANNING.md`
   - `scripts/generate_next_run_plan.py`

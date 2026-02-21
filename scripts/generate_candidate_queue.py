@@ -119,9 +119,40 @@ def _suggested_action(row: dict[str, Any]) -> str:
     return "research_iteration_with_new_hypothesis"
 
 
-def _next_tag(row: dict[str, Any]) -> str:
-    base = str(row.get("decision_tag") or "candidate")
-    return f"{base}_next"
+def _load_run_dir_names() -> list[str]:
+    base = Path("audit/workstation_runs")
+    if not base.exists():
+        return []
+    return [p.name for p in base.glob("*") if p.is_dir()]
+
+
+def _reserve_nonconflicting_tag(
+    *,
+    source_decision_tag: str,
+    factor: str,
+    run_dir_names: list[str],
+    reserved: set[str],
+) -> str:
+    if source_decision_tag:
+        base = f"{source_decision_tag}_next"
+    elif factor:
+        base = f"{factor}_next"
+    else:
+        base = "candidate_next"
+
+    def _exists(tag: str) -> bool:
+        if tag in reserved:
+            return True
+        needle = f"_{tag}"
+        return any(needle in n for n in run_dir_names)
+
+    cand = base
+    idx = 2
+    while _exists(cand):
+        cand = f"{base}{idx}"
+        idx += 1
+    reserved.add(cand)
+    return cand
 
 
 def _failure_penalty(
@@ -161,6 +192,8 @@ def _build_queue(
     high_penalty_per_item: float,
     domain_penalties: dict[str, float],
 ) -> list[dict[str, Any]]:
+    run_dir_names = _load_run_dir_names()
+    reserved_tags: set[str] = set()
     latest_by_factor: dict[str, dict[str, Any]] = {}
     for r in rows:
         fac = str(r.get("factor") or "unknown")
@@ -197,7 +230,12 @@ def _build_queue(
                 domain_penalties=domain_penalties,
             )
             pr = round(pr - fail_penalty, 4)
-        next_tag = _next_tag(r)
+        next_tag = _reserve_nonconflicting_tag(
+            source_decision_tag=source_tag,
+            factor=factor,
+            run_dir_names=run_dir_names,
+            reserved=reserved_tags,
+        )
         cmd = (
             "bash scripts/workstation_official_run.sh "
             f"--workflow production_gates --tag {next_tag} --owner hui "
@@ -271,7 +309,12 @@ def _build_queue(
                 high_penalty_per_item=high_penalty_per_item,
                 domain_penalties=domain_penalties,
             )
-        next_tag = _next_tag(r)
+        next_tag = _reserve_nonconflicting_tag(
+            source_decision_tag=source_tag,
+            factor=factor,
+            run_dir_names=run_dir_names,
+            reserved=reserved_tags,
+        )
         fallback.append(
             {
                 "queue_generated_at": dt.datetime.now().isoformat(),

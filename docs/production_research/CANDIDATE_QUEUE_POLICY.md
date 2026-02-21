@@ -62,6 +62,14 @@ Configured in `configs/research/candidate_queue_policy.json` under `failure_feed
 3. `exploration_only`:
    - only exploration candidates
 
+## Decision Tag Collision Handling
+
+Queue generation auto-avoids `decision_tag` collisions:
+
+1. proposed tag starts from `<source_decision_tag>_next` (or `<factor>_next`)
+2. if conflict exists in `audit/workstation_runs`, tag auto-increments (`..._next2`, `..._next3`, ...)
+3. within the same queue build, tags are reserved to avoid duplicates
+
 ## Queue Actions
 
 1. `promote_candidate` -> `paper_candidate_validation`
