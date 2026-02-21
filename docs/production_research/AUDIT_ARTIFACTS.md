@@ -75,9 +75,11 @@ Examples:
 Required after official sync/finalization:
 - governance completeness report json/md
 - remediation plan json/md
+- standardized run review markdown
 
 Examples:
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.json`
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.md`
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_remediation_plan.json`
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_remediation_plan.md`
+- `gate_results/production_gates_<ts>/production_gates_run_review.md`

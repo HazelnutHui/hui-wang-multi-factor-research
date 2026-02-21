@@ -26,6 +26,7 @@ Behavior:
 3) run local finalize script to update stage ledger and summary
 4) run local governance audit checker
 5) generate remediation plan from governance audit output
+6) generate standardized run review markdown
 USAGE
 }
 
@@ -116,6 +117,9 @@ fi
   set -e
   "$PYTHON_BIN" scripts/governance_remediation_plan.py \
     --audit-json "$LOCAL_RUN_DIR/governance_audit_check.json"
+  "$PYTHON_BIN" scripts/generate_run_review.py \
+    --run-dir "$LOCAL_RUN_DIR" \
+    --report-json "$LOCAL_REPORT_JSON"
   if [ "$GOV_RC" -ne 0 ]; then
     echo "governance audit check failed (exit=$GOV_RC). See remediation plan under $LOCAL_RUN_DIR" >&2
     exit "$GOV_RC"

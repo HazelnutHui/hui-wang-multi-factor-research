@@ -91,6 +91,14 @@ python scripts/governance_remediation_plan.py \
   --audit-json audit/workstation_runs/<...>/governance_audit_check.json
 ```
 
+Run review generation (auto-invoked in post-run sync flow):
+
+```bash
+python scripts/generate_run_review.py \
+  --run-dir audit/workstation_runs/<...> \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.

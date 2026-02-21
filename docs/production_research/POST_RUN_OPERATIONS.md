@@ -41,6 +41,7 @@ What this does:
    - `production_gates_final_summary.md`
 5. run local governance completeness check (`scripts/governance_audit_checker.py`)
 6. generate remediation plan (`scripts/governance_remediation_plan.py`)
+7. generate standardized run review (`scripts/generate_run_review.py`)
 
 ## Explicit-path mode
 
@@ -65,7 +66,9 @@ bash scripts/post_run_sync_and_finalize.sh \
 5. remediation plan exists (especially if check failed):
 - `audit/workstation_runs/<...>/governance_remediation_plan.json`
 - `audit/workstation_runs/<...>/governance_remediation_plan.md`
-6. if needed, commit governance/docs updates and push.
+6. run review markdown exists:
+- `gate_results/production_gates_<ts>/production_gates_run_review.md`
+7. if needed, commit governance/docs updates and push.
 
 ## Notes
 

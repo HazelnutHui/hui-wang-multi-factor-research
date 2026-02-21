@@ -38,6 +38,8 @@
   - `docs/production_research/RUN_REVIEW_TEMPLATE.md`
 - review generator:
   - `scripts/generate_run_review.py`
+- post-run flow extension:
+  - `scripts/post_run_sync_and_finalize.sh` now auto-generates `production_gates_run_review.md`
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically
