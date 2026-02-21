@@ -43,3 +43,17 @@ python scripts/generate_next_run_plan.py --dq-input-csv data/your_input.csv
 python scripts/execute_next_run_plan.py --rank 1 --dry-run
 python scripts/execute_next_run_plan.py --rank 1
 ```
+
+Execution safety checks (default enabled):
+
+1. command must use `workstation_official_run.sh` and `--workflow production_gates`
+2. `--tag` must be new (no existing run dir collision)
+3. `--freeze-file` must exist
+4. `--dq-input-csv` must be non-placeholder and path must exist
+
+Override options (only for exceptional cases):
+
+```bash
+python scripts/execute_next_run_plan.py --rank 1 --dry-run --allow-placeholder-dq
+python scripts/execute_next_run_plan.py --rank 1 --skip-validation
+```
