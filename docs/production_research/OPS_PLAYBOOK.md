@@ -1,6 +1,6 @@
 # Production Ops Playbook
 
-Last updated: 2026-02-20
+Last updated: 2026-02-21
 
 ## 1) One-time setup
 
@@ -53,3 +53,21 @@ python scripts/run_research_workflow.py --workflow production_gates -- \
 2. No gate is bypassed (`skip_guardrails=False`, `skip_risk_diagnostics=False`).
 3. Freeze file is present and unchanged.
 4. Run artifacts are archived with manifest and gate report.
+
+## 7) Workstation official wrapper (recommended)
+
+```bash
+bash scripts/workstation_official_run.sh \
+  --workflow production_gates \
+  --tag committee_YYYY-MM-DD_runN \
+  --owner hui \
+  --notes "official workstation gate run" \
+  -- \
+  --strategy configs/strategies/combo_v2_prod.yaml \
+  --factor combo_v2 \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
+  --out-dir gate_results
+```
+
+Artifacts are stored under:
+- `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`

@@ -1,6 +1,6 @@
 # Workstation Primary Mode (8C/64G)
 
-Last updated: 2026-02-20
+Last updated: 2026-02-21
 
 Purpose:
 - make workstation the default execution environment for heavy research/gate workloads;
@@ -84,3 +84,23 @@ If gate run fails:
 2. record root cause in gate registry `notes`;
 3. rerun with explicit change notes (new `decision-tag`);
 4. keep both failed and rerun records.
+
+## 8) Official wrapper workflow
+
+Preferred official run entry:
+
+```bash
+bash scripts/workstation_official_run.sh \
+  --workflow production_gates \
+  --tag committee_YYYY-MM-DD_runN \
+  --owner hui \
+  --notes "official workstation run" \
+  -- \
+  --strategy configs/strategies/combo_v2_prod.yaml \
+  --factor combo_v2 \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
+  --out-dir gate_results
+```
+
+This automatically writes preflight and run audit artifacts under:
+- `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`

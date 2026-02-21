@@ -2,6 +2,15 @@
 
 ## 2026-02-21
 
+### Added
+- stage governance docs:
+  - `docs/production_research/STAGE_EXECUTION_STANDARD.md`
+  - `docs/production_research/STAGE_AUDIT_LOG.md`
+  - `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
+- workstation wrappers:
+  - `scripts/workstation_preflight.sh`
+  - `scripts/workstation_official_run.sh`
+
 ### Renamed
 - governance namespace:
   - `docs/institutional/` -> `docs/production_research/`
@@ -16,7 +25,7 @@
   - `institutional_gates_*` -> `production_gates_*`
   - `institutional_gates_report.*` -> `production_gates_report.*`
 
-### Added
+### Added (naming migration)
 - terminology governance:
   - `docs/production_research/TERMINOLOGY_POLICY.md`
 - migration evidence:

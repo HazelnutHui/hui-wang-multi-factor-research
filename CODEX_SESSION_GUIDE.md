@@ -26,8 +26,11 @@ This is the single handoff file for new Codex sessions in this repo.
 10. `docs/production_research/AUDIT_ARTIFACTS.md`
 11. `docs/production_research/TERMINOLOGY_POLICY.md`
 12. `docs/production_research/RENAMING_AUDIT_2026-02-21.md`
-13. `WEBSITE_HANDOFF.md`
-14. `live_trading/reports/README.md`
+13. `docs/production_research/STAGE_EXECUTION_STANDARD.md`
+14. `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
+15. `docs/production_research/STAGE_AUDIT_LOG.md`
+16. `WEBSITE_HANDOFF.md`
+17. `live_trading/reports/README.md`
 
 If the task is specifically about daily validation quality, also read:
 1. `live_trading/accuracy/metrics_panel.csv`

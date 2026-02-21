@@ -18,6 +18,9 @@ Use this exact read order for new sessions focused on production workflow.
 10. `gate_results/gate_registry.csv`
 11. `docs/production_research/TERMINOLOGY_POLICY.md`
 12. `docs/production_research/RENAMING_AUDIT_2026-02-21.md`
+13. `docs/production_research/STAGE_EXECUTION_STANDARD.md`
+14. `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
+15. `docs/production_research/STAGE_AUDIT_LOG.md`
 
 ## Mandatory checks before editing/running
 

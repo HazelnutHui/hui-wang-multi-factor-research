@@ -24,6 +24,9 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `AUDIT_SNAPSHOT_2026-02-20.md`: path-level audit snapshot for handoff/reference
 - `TERMINOLOGY_POLICY.md`: canonical naming policy for production governance terms
 - `RENAMING_AUDIT_2026-02-21.md`: full migration audit record for legacy-term cleanup
+- `STAGE_EXECUTION_STANDARD.md`: stage-by-stage production research execution standard
+- `STAGE_AUDIT_LOG.md`: append-only stage-level audit ledger
+- `WORKSTATION_RUNNER_SPEC.md`: wrapper-script specification for workstation official runs
 
 ## Core scripts
 
@@ -32,6 +35,8 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/run_segmented_factors.py`
 - `scripts/run_walk_forward.py`
 - `scripts/run_production_gates.py`
+- `scripts/workstation_preflight.sh`
+- `scripts/workstation_official_run.sh`
 - `scripts/research_governance.py`
 
 ## Related outputs

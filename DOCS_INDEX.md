@@ -25,6 +25,9 @@ Last updated: 2026-02-21
 - `docs/production_research/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
 - `docs/production_research/TERMINOLOGY_POLICY.md`: canonical production naming policy
 - `docs/production_research/RENAMING_AUDIT_2026-02-21.md`: full renaming audit trail
+- `docs/production_research/STAGE_EXECUTION_STANDARD.md`: stage-by-stage production execution standard
+- `docs/production_research/WORKSTATION_RUNNER_SPEC.md`: official workstation wrapper and audit outputs
+- `docs/production_research/STAGE_AUDIT_LOG.md`: append-only stage decision ledger
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
