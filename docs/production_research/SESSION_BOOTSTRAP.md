@@ -22,6 +22,11 @@ Use this exact read order for new sessions focused on production workflow.
 14. `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
 15. `docs/production_research/STAGE_AUDIT_LOG.md`
 16. `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`
+17. `docs/production_research/DATA_QUALITY_POLICY.md`
+18. `docs/production_research/RISK_REGISTER.md`
+19. `docs/production_research/MODEL_CHANGE_CONTROL.md`
+20. `docs/production_research/INCIDENT_RESPONSE.md`
+21. `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
 
 ## Mandatory checks before editing/running
 
@@ -32,6 +37,7 @@ Use this exact read order for new sessions focused on production workflow.
    - `--skip-risk-diagnostics`
    - `--skip-statistical-gates`
 4. Confirm output root and artifact retention path.
+5. Confirm a passing data quality gate artifact exists (or run one before official gate execution).
 
 ## Minimal new-session prompt
 

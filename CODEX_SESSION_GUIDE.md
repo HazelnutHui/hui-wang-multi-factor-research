@@ -12,6 +12,7 @@ If a new session is opened with workspace access, following this file step-by-st
 3. Use SSOT priority rules when documents disagree.
 4. Do not perform destructive cleanup while any official run is active.
 5. For heavy official runs, use workstation-only flow.
+6. For official runs, require a passing data quality gate artifact before gate execution.
 
 ## 2) Session Objective (Primary Track)
 
@@ -41,13 +42,19 @@ Read in order:
 14. `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
 15. `docs/production_research/STAGE_AUDIT_LOG.md`
 16. `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`
-17. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+17. `docs/production_research/DATA_QUALITY_POLICY.md`
+18. `docs/production_research/RISK_REGISTER.md`
+19. `docs/production_research/MODEL_CHANGE_CONTROL.md`
+20. `docs/production_research/INCIDENT_RESPONSE.md`
+21. `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
+22. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
 2. identify active workstation `run_dir`
 3. identify freeze file in use
 4. identify whether run is `in_progress` or finished
+5. identify latest data quality gate artifact path and pass/fail status (for official runs)
 
 ## 4) SSOT Priority (Conflict Resolution)
 
@@ -99,6 +106,15 @@ Interpretation:
 
 Official wrapper template:
 ```bash
+python scripts/data_quality_gate.py \
+  --input-csv data/your_input.csv \
+  --required-columns date,ticker,score \
+  --numeric-columns score \
+  --key-columns date,ticker \
+  --date-column date \
+  --max-staleness-days 7 \
+  --out-dir gate_results/data_quality
+
 bash scripts/workstation_official_run.sh \
   --workflow production_gates \
   --tag committee_YYYY-MM-DD_runN \

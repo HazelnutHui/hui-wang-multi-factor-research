@@ -17,16 +17,18 @@ Define a strict, repeatable stage system so every research phase has:
 - Required artifacts:
   - decision note (`decision_tag`, owner, date)
   - freeze file (`runs/freeze/*.freeze.json`)
+  - data contract declaration (required columns/key/date fields)
 - Gate:
   - no run without freeze artifact for official path.
 
 2. `S1` Baseline Validation
 - Input: frozen config, baseline backtest/walk-forward spec.
 - Required artifacts:
+  - data quality report (`data_quality_report.json/.md`)
   - run manifest(s)
   - baseline summary metrics (IC/coverage/cost assumptions)
 - Gate:
-  - baseline metrics not violating hard rejection criteria.
+  - data quality pass + baseline metrics not violating hard rejection criteria.
 
 3. `S2` Stress and Robustness
 - Input: S1 candidate.

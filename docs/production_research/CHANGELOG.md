@@ -19,6 +19,18 @@
   - `scripts/post_run_sync_and_finalize.sh`
   - wrapper supports `--threads` for BLAS/OpenMP thread controls
   - gate runner supports `--wf-shards` for WF shard parallelism
+- governance controls:
+  - `docs/production_research/DATA_QUALITY_POLICY.md`
+  - `docs/production_research/RISK_REGISTER.md`
+  - `docs/production_research/MODEL_CHANGE_CONTROL.md`
+  - `docs/production_research/INCIDENT_RESPONSE.md`
+  - `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
+- data quality checker:
+  - `scripts/data_quality_gate.py`
+- playbook/bootstrap updates:
+  - `CODEX_SESSION_GUIDE.md` mandatory sequence extended with new governance controls
+  - `docs/production_research/SESSION_BOOTSTRAP.md` mandatory sequence extended
+  - `docs/production_research/OPS_PLAYBOOK.md` includes pre-gate data quality step
 
 ### Renamed
 - governance namespace:

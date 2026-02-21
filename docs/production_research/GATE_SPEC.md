@@ -9,8 +9,26 @@ This document defines hard gates for promotion decisions (`research -> paper -> 
 1. Freeze consistency is enforced (`--freeze-file`).
 2. PIT/lag guardrails are enabled (default; do not use `--skip-guardrails` in official runs).
 3. Run manifests are generated and archived.
+4. Data quality gate must pass before official execution (`scripts/data_quality_gate.py`).
 
-## 2) Cost stress gates
+## 2) Data quality gate (pre-gate hard check)
+
+Runner:
+- `scripts/data_quality_gate.py`
+
+Hard conditions:
+1. required columns present
+2. minimum row count met
+3. missing ratio per column within threshold
+4. duplicate ratio within threshold
+5. numeric integrity checks pass
+6. freshness check passes (if `date_column` configured)
+
+Output artifacts:
+- `data_quality_report.json`
+- `data_quality_report.md`
+
+## 3) Cost stress gates
 
 Runner:
 - `scripts/run_production_gates.py`
@@ -26,7 +44,7 @@ Gate keys:
 - `cost_gate_x1_5_positive`
 - `cost_gate_x2_0_positive`
 
-## 3) Walk-forward stress gates
+## 4) Walk-forward stress gates
 
 Stress profile defaults:
 - `COST_MULTIPLIER=1.5`
@@ -42,7 +60,7 @@ Gate keys:
 - `wf_gate_positive_mean`
 - `wf_gate_pos_ratio`
 
-## 4) Risk diagnostics gates
+## 5) Risk diagnostics gates
 
 Source:
 - `scripts/posthoc_factor_diagnostics.py`
@@ -59,12 +77,12 @@ Gate keys:
 - `risk_gate_size_corr_abs`
 - `risk_gate_industry_coverage`
 
-## 5) Overall pass rule
+## 6) Overall pass rule
 
 - `overall_pass=True` only when all enabled hard gates are `True`.
 - If `--skip-risk-diagnostics` is used, risk gates are excluded from the final conjunction and run is non-official by policy.
 
-## 6) Statistical gates (multiple testing control)
+## 7) Statistical gates (multiple testing control)
 
 Runner:
 - `scripts/run_statistical_gates.py`
@@ -80,7 +98,7 @@ Factor-level pass defaults:
 In integrated production gates:
 - `stat_gate_factor_pass=True` is required unless `--skip-statistical-gates` is explicitly set.
 
-## 7) Outputs and audit
+## 8) Outputs and audit
 
 Per gate run:
 - `cost_stress_results.csv`
@@ -88,7 +106,7 @@ Per gate run:
 - `production_gates_report.md`
 - registry append entry in `gate_results/gate_registry.csv` (if enabled)
 
-## 8) Promotion policy
+## 9) Promotion policy
 
 Recommended:
 1. `overall_pass=True` for at least one full official gate run under frozen config.

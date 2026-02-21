@@ -18,7 +18,22 @@ python scripts/run_with_config.py \
   --write-freeze
 ```
 
-## 3) Run production hard gates
+## 3) Run data quality gate (mandatory for official runs)
+
+```bash
+python scripts/data_quality_gate.py \
+  --input-csv data/your_input.csv \
+  --required-columns date,ticker,score \
+  --numeric-columns score \
+  --key-columns date,ticker \
+  --date-column date \
+  --max-staleness-days 7 \
+  --out-dir gate_results/data_quality
+```
+
+Proceed only when `overall_pass: true`.
+
+## 4) Run production hard gates
 
 ```bash
 python scripts/run_production_gates.py \
@@ -28,7 +43,7 @@ python scripts/run_production_gates.py \
   --out-dir gate_results
 ```
 
-## 4) Unified entry alternative
+## 5) Unified entry alternative
 
 ```bash
 python scripts/run_research_workflow.py --workflow production_gates -- \
@@ -38,7 +53,7 @@ python scripts/run_research_workflow.py --workflow production_gates -- \
   --out-dir gate_results
 ```
 
-## 5) Read outputs
+## 6) Read outputs
 
 1. Open latest:
    - `gate_results/production_gates_<ts>/production_gates_report.md`
@@ -47,14 +62,15 @@ python scripts/run_research_workflow.py --workflow production_gates -- \
 3. Check registry:
    - `gate_results/gate_registry.csv`
 
-## 6) Decision checklist
+## 7) Decision checklist
 
 1. `overall_pass` is `True`.
 2. No gate is bypassed (`skip_guardrails=False`, `skip_risk_diagnostics=False`).
-3. Freeze file is present and unchanged.
-4. Run artifacts are archived with manifest and gate report.
+3. Data quality report shows `overall_pass=True`.
+4. Freeze file is present and unchanged.
+5. Run artifacts are archived with manifest and gate report.
 
-## 7) Workstation official wrapper (recommended)
+## 8) Workstation official wrapper (recommended)
 
 ```bash
 bash scripts/workstation_official_run.sh \

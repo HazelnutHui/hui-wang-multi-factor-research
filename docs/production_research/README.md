@@ -31,6 +31,11 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `CURRENT_GATE_STATUS_2026-02-21.md`: active rerun status snapshot with verified execution context
 - `PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: verified performance bottlenecks and prioritized optimization backlog
 - `POST_RUN_OPERATIONS.md`: standardized sync/finalize procedure after official run completion
+- `DATA_QUALITY_POLICY.md`: pre-gate data quality hard-check policy and thresholds
+- `RISK_REGISTER.md`: active risk inventory with owners, mitigations, and review cadence
+- `MODEL_CHANGE_CONTROL.md`: model/factor change classification, evidence requirements, and approvals
+- `INCIDENT_RESPONSE.md`: incident level definitions, response SLA, and closure requirements
+- `SECURITY_AND_ACCESS_CONTROL.md`: credential, access, and workstation security baseline
 
 ## Core scripts
 
@@ -45,6 +50,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/finalize_gate_run.py`
 - `scripts/finalize_gate_run.sh`
 - `scripts/post_run_sync_and_finalize.sh`
+- `scripts/data_quality_gate.py`
 - `scripts/research_governance.py`
 
 ## Related outputs
