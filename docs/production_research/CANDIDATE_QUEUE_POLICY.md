@@ -8,6 +8,16 @@ This policy defines how the system selects next-run factor candidates from the e
 
 - `scripts/generate_candidate_queue.py`
 
+## Policy Config (Versioned)
+
+- `configs/research/candidate_queue_policy.json`
+
+Default:
+- mode: `mixed`
+- top_n: `4`
+- min_score: `45.0`
+- mixed ratio: `robust_slots=3`, `exploration_slots=1`
+
 ## Input
 
 - `audit/factor_registry/factor_experiment_registry.csv`
@@ -34,6 +44,15 @@ This policy defines how the system selects next-run factor candidates from the e
    - if strict selection returns no candidates, queue uses top scored factors for exploration runs
    - action forced to `research_iteration_with_new_hypothesis`
 
+## Mode Semantics
+
+1. `mixed`:
+   - take robust and exploration candidates by configured slot ratio
+2. `robust_only`:
+   - only `promote_candidate` and `watchlist_rerun`
+3. `exploration_only`:
+   - only exploration candidates
+
 ## Queue Actions
 
 1. `promote_candidate` -> `paper_candidate_validation`
@@ -49,7 +68,7 @@ python scripts/generate_candidate_queue.py
 Optional tuning:
 
 ```bash
-python scripts/generate_candidate_queue.py --top-n 30 --min-score 50
+python scripts/generate_candidate_queue.py --mode robust_only --top-n 10 --min-score 55
 ```
 
 ## Integration

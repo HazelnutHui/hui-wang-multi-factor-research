@@ -61,6 +61,7 @@ Completion check after reading:
 5. identify latest data quality gate artifact path and pass/fail status (for official runs)
 6. identify latest factor registry update and leaderboard status
 7. identify latest factor candidate queue output and top candidate
+8. identify active candidate queue policy config (`configs/research/candidate_queue_policy.json`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 

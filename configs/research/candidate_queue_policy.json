@@ -1,0 +1,9 @@
+{
+  "mode": "mixed",
+  "top_n": 4,
+  "min_score": 45.0,
+  "mixed": {
+    "robust_slots": 3,
+    "exploration_slots": 1
+  }
+}

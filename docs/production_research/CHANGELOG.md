@@ -48,6 +48,7 @@
   - `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
   - `scripts/generate_candidate_queue.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-refreshes candidate queue
+  - `configs/research/candidate_queue_policy.json` added for versioned mixed-mode scheduling (`3 robust + 1 exploration`)
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically

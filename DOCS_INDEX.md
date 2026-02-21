@@ -65,6 +65,7 @@ Last updated: 2026-02-21
 - `scripts/update_factor_experiment_registry.py`: update experiment registry and leaderboard from gate artifacts
 - `scripts/generate_candidate_queue.py`: generate next-run prioritized factor candidate queue from registry
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
+- `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command
 - `strategies/`: strategy-level docs and configs

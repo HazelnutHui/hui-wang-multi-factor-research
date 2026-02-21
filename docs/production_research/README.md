@@ -65,6 +65,10 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/generate_candidate_queue.py`
 - `scripts/research_governance.py`
 
+## Related config
+
+- `configs/research/candidate_queue_policy.json`
+
 ## Related outputs
 
 - Run manifests:
