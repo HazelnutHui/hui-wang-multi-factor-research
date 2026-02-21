@@ -54,7 +54,8 @@ Read in order:
 26. `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`
 27. `docs/production_research/SESSION_HANDOFF_READINESS.md`
 28. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
-29. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+29. `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
+30. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -71,6 +72,7 @@ Completion check after reading:
 12. identify active auto-research policy config (`configs/research/auto_research_policy.json`)
 13. identify latest auto-research ledger status (`audit/auto_research/auto_research_ledger.md`)
 14. identify latest weekly auto-research health summary (`audit/auto_research/auto_research_weekly_summary.md`)
+15. identify scheduler liveness and last-cycle status (`audit/auto_research/auto_research_scheduler_heartbeat.json`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 

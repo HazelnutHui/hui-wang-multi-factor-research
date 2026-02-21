@@ -100,6 +100,7 @@ Required when automated multi-round orchestration is used:
 - policy config snapshot reference in report metadata
 - append-only orchestrator ledger csv/md
 - rolling weekly summary csv/md
+- scheduler heartbeat + scheduler ledger csv/md (if scheduler mode enabled)
 
 Examples:
 - `audit/auto_research/<ts>_orchestrator/auto_research_orchestrator_report.json`
@@ -108,4 +109,8 @@ Examples:
 - `audit/auto_research/auto_research_ledger.md`
 - `audit/auto_research/auto_research_weekly_summary.csv`
 - `audit/auto_research/auto_research_weekly_summary.md`
+- `audit/auto_research/auto_research_scheduler_heartbeat.json`
+- `audit/auto_research/auto_research_scheduler_ledger.csv`
+- `audit/auto_research/auto_research_scheduler_ledger.md`
 - `configs/research/auto_research_policy.json`
+- `configs/research/auto_research_scheduler_policy.json`

@@ -45,6 +45,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_PLANNING.md`: generation standard for rerun command/hypothesis plan
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `AUTO_RESEARCH_ORCHESTRATION.md`: multi-round automated research orchestration standard
+- `AUTO_RESEARCH_SCHEDULER.md`: unattended scheduler standard for orchestrator cadence/heartbeat/alerts
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
 - `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new Codex continuity
 
@@ -72,6 +73,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/execute_next_run_plan.py`
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/auto_research_orchestrator.py`
+- `scripts/auto_research_scheduler.py`
 - `scripts/update_failure_pattern_db.py`
 - `scripts/check_session_handoff_readiness.py`
 - `scripts/research_governance.py`
@@ -80,6 +82,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 
 - `configs/research/candidate_queue_policy.json`
 - `configs/research/auto_research_policy.json`
+- `configs/research/auto_research_scheduler_policy.json`
 
 ## Related outputs
 

@@ -1,0 +1,13 @@
+{
+  "interval_seconds": 3600,
+  "max_cycles": 0,
+  "stop_on_orchestrator_failure": true,
+  "orchestrator_policy_json": "configs/research/auto_research_policy.json",
+  "orchestrator_execute": false,
+  "lock_file": "audit/auto_research/auto_research_scheduler.lock",
+  "heartbeat_json": "audit/auto_research/auto_research_scheduler_heartbeat.json",
+  "ledger_csv": "audit/auto_research/auto_research_scheduler_ledger.csv",
+  "ledger_md": "audit/auto_research/auto_research_scheduler_ledger.md",
+  "alert_on_failure": false,
+  "alert_command": ""
+}

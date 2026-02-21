@@ -67,11 +67,15 @@
   - `scripts/repair_next_run_plan_paths.py` now supports decision-tag normalization (`committee_YYYY-MM-DD_runN`) with collision avoidance
 - auto research orchestration:
   - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
+  - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
   - `scripts/auto_research_orchestrator.py`
+  - `scripts/auto_research_scheduler.py`
   - `configs/research/auto_research_policy.json`
+  - `configs/research/auto_research_scheduler_policy.json`
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
   - orchestration loop now appends run-level ledger outputs (`audit/auto_research/auto_research_ledger.csv/.md`)
   - orchestration loop now updates rolling health summary (`audit/auto_research/auto_research_weekly_summary.csv/.md`)
+  - scheduler mode now supports singleton lock, heartbeat, scheduler ledger, and optional failure alert command
   - orchestrator now supports retry/backoff for pre-execution generation stages
   - orchestrator now supports multi-metric stagnation stop (`priority_score`, `gate_failure_count`, `high_remediation_count`)
 - failure pattern database:
