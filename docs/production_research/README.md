@@ -66,6 +66,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/update_factor_experiment_registry.py`
 - `scripts/generate_candidate_queue.py`
 - `scripts/generate_next_run_plan.py`
+- `scripts/execute_next_run_plan.py`
 - `scripts/update_failure_pattern_db.py`
 - `scripts/research_governance.py`
 

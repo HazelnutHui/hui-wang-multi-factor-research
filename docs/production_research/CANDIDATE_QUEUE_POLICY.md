@@ -44,6 +44,15 @@ Default:
    - if strict selection returns no candidates, queue uses top scored factors for exploration runs
    - action forced to `research_iteration_with_new_hypothesis`
 
+## Failure Feedback
+
+If enabled in policy config, historical governance failures for the same `decision_tag` reduce candidate priority:
+
+1. per-high-severity penalty
+2. per-domain penalty (`Consistency`, `DataQuality`, `Runtime`, `Artifacts`, `Ledger`)
+
+Configured in `configs/research/candidate_queue_policy.json` under `failure_feedback`.
+
 ## Mode Semantics
 
 1. `mixed`:

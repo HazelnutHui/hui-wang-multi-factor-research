@@ -53,6 +53,7 @@
 - next-run plan automation:
   - `docs/production_research/NEXT_RUN_PLANNING.md`
   - `scripts/generate_next_run_plan.py`
+  - `scripts/execute_next_run_plan.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
 - failure pattern database:
   - `docs/production_research/FAILURE_PATTERN_DB.md`

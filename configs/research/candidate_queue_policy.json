@@ -5,5 +5,17 @@
   "mixed": {
     "robust_slots": 3,
     "exploration_slots": 1
+  },
+  "failure_feedback": {
+    "enabled": true,
+    "failure_db_csv": "audit/failure_patterns/failure_patterns.csv",
+    "high_penalty_per_item": 6.0,
+    "domain_penalties": {
+      "Consistency": 4.0,
+      "DataQuality": 4.0,
+      "Runtime": 3.0,
+      "Artifacts": 3.0,
+      "Ledger": 2.0
+    }
   }
 }

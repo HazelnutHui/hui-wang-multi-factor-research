@@ -29,6 +29,13 @@ def _load_registry(path: Path) -> list[dict[str, Any]]:
         return list(csv.DictReader(f))
 
 
+def _load_failure_db(path: Path | None) -> list[dict[str, Any]]:
+    if path is None or not path.exists():
+        return []
+    with open(path, newline="") as f:
+        return list(csv.DictReader(f))
+
+
 def _load_policy(path: Path | None) -> dict[str, Any]:
     policy = {
         "mode": "mixed",
@@ -37,6 +44,18 @@ def _load_policy(path: Path | None) -> dict[str, Any]:
         "mixed": {
             "robust_slots": 3,
             "exploration_slots": 1,
+        },
+        "failure_feedback": {
+            "enabled": True,
+            "failure_db_csv": "audit/failure_patterns/failure_patterns.csv",
+            "high_penalty_per_item": 6.0,
+            "domain_penalties": {
+                "Consistency": 4.0,
+                "DataQuality": 4.0,
+                "Runtime": 3.0,
+                "Artifacts": 3.0,
+                "Ledger": 2.0,
+            },
         },
     }
     if path is None or not path.exists():
@@ -53,6 +72,18 @@ def _load_policy(path: Path | None) -> dict[str, Any]:
                         if k in loaded["mixed"]
                     }
                 )
+            if isinstance(loaded.get("failure_feedback"), dict):
+                policy["failure_feedback"].update(
+                    {
+                        k: loaded["failure_feedback"][k]
+                        for k in ["enabled", "failure_db_csv", "high_penalty_per_item"]
+                        if k in loaded["failure_feedback"]
+                    }
+                )
+                if isinstance(loaded["failure_feedback"].get("domain_penalties"), dict):
+                    policy["failure_feedback"]["domain_penalties"].update(
+                        loaded["failure_feedback"]["domain_penalties"]
+                    )
     except Exception:
         pass
     return policy
@@ -93,7 +124,43 @@ def _next_tag(row: dict[str, Any]) -> str:
     return f"{base}_next"
 
 
-def _build_queue(rows: list[dict[str, Any]], mode: str, top_n: int, min_score: float, robust_slots: int, exploration_slots: int) -> list[dict[str, Any]]:
+def _failure_penalty(
+    *,
+    decision_tag: str,
+    failure_rows: list[dict[str, Any]],
+    high_penalty_per_item: float,
+    domain_penalties: dict[str, float],
+) -> tuple[float, int, list[str]]:
+    if not decision_tag:
+        return 0.0, 0, []
+    matched = [r for r in failure_rows if str(r.get("decision_tag", "")) == decision_tag]
+    if not matched:
+        return 0.0, 0, []
+    penalty = 0.0
+    domains: list[str] = []
+    for r in matched:
+        sev = str(r.get("severity", ""))
+        dom = str(r.get("domain", ""))
+        if sev == "High":
+            penalty += float(high_penalty_per_item)
+        penalty += float(domain_penalties.get(dom, 0.0))
+        if dom and dom not in domains:
+            domains.append(dom)
+    return round(penalty, 4), len(matched), domains
+
+
+def _build_queue(
+    rows: list[dict[str, Any]],
+    mode: str,
+    top_n: int,
+    min_score: float,
+    robust_slots: int,
+    exploration_slots: int,
+    failure_rows: list[dict[str, Any]],
+    failure_feedback_enabled: bool,
+    high_penalty_per_item: float,
+    domain_penalties: dict[str, float],
+) -> list[dict[str, Any]]:
     latest_by_factor: dict[str, dict[str, Any]] = {}
     for r in rows:
         fac = str(r.get("factor") or "unknown")
@@ -118,6 +185,18 @@ def _build_queue(rows: list[dict[str, Any]], mode: str, top_n: int, min_score: f
         factor = str(r.get("factor") or "")
         strategy = str(r.get("strategy") or "")
         freeze_file = str(r.get("freeze_file") or "")
+        source_tag = str(r.get("decision_tag") or "")
+        fail_penalty = 0.0
+        fail_count = 0
+        fail_domains: list[str] = []
+        if failure_feedback_enabled:
+            fail_penalty, fail_count, fail_domains = _failure_penalty(
+                decision_tag=source_tag,
+                failure_rows=failure_rows,
+                high_penalty_per_item=high_penalty_per_item,
+                domain_penalties=domain_penalties,
+            )
+            pr = round(pr - fail_penalty, 4)
         next_tag = _next_tag(r)
         cmd = (
             "bash scripts/workstation_official_run.sh "
@@ -131,11 +210,14 @@ def _build_queue(rows: list[dict[str, Any]], mode: str, top_n: int, min_score: f
                 "queue_generated_at": dt.datetime.now().isoformat(),
                 "factor": factor,
                 "strategy": strategy,
-                "source_decision_tag": str(r.get("decision_tag") or ""),
+                "source_decision_tag": source_tag,
                 "source_report_json": str(r.get("report_json") or ""),
                 "source_score_total": score,
                 "source_recommendation": rec,
                 "priority_score": pr,
+                "failure_penalty": fail_penalty,
+                "failure_match_count": fail_count,
+                "failure_domains": "|".join(fail_domains),
                 "suggested_action": action,
                 "proposed_decision_tag": next_tag,
                 "proposed_command": cmd,
@@ -178,17 +260,31 @@ def _build_queue(rows: list[dict[str, Any]], mode: str, top_n: int, min_score: f
         factor = str(r.get("factor") or "")
         strategy = str(r.get("strategy") or "")
         freeze_file = str(r.get("freeze_file") or "")
+        source_tag = str(r.get("decision_tag") or "")
+        fail_penalty = 0.0
+        fail_count = 0
+        fail_domains: list[str] = []
+        if failure_feedback_enabled:
+            fail_penalty, fail_count, fail_domains = _failure_penalty(
+                decision_tag=source_tag,
+                failure_rows=failure_rows,
+                high_penalty_per_item=high_penalty_per_item,
+                domain_penalties=domain_penalties,
+            )
         next_tag = _next_tag(r)
         fallback.append(
             {
                 "queue_generated_at": dt.datetime.now().isoformat(),
                 "factor": factor,
                 "strategy": strategy,
-                "source_decision_tag": str(r.get("decision_tag") or ""),
+                "source_decision_tag": source_tag,
                 "source_report_json": str(r.get("report_json") or ""),
                 "source_score_total": score,
                 "source_recommendation": str(r.get("recommendation") or ""),
-                "priority_score": round(score, 4),
+                "priority_score": round(score - fail_penalty, 4),
+                "failure_penalty": fail_penalty,
+                "failure_match_count": fail_count,
+                "failure_domains": "|".join(fail_domains),
                 "suggested_action": "research_iteration_with_new_hypothesis",
                 "proposed_decision_tag": next_tag,
                 "proposed_command": (
@@ -226,12 +322,12 @@ def _write_md(path: Path, rows: list[dict[str, Any]], registry_csv: Path) -> Non
         f"- source_registry: `{registry_csv}`",
         f"- queue_size: {len(rows)}",
         "",
-        "| rank | factor | source_decision_tag | source_score_total | source_recommendation | priority_score | suggested_action | proposed_decision_tag |",
-        "|---|---|---|---:|---|---:|---|---|",
+        "| rank | factor | source_decision_tag | source_score_total | source_recommendation | priority_score | failure_penalty | failure_domains | suggested_action | proposed_decision_tag |",
+        "|---|---|---|---:|---|---:|---:|---|---|---|",
     ]
     for i, r in enumerate(rows, start=1):
         lines.append(
-            f"| {i} | {r['factor']} | {r['source_decision_tag']} | {r['source_score_total']} | {r['source_recommendation']} | {r['priority_score']} | {r['suggested_action']} | {r['proposed_decision_tag']} |"
+            f"| {i} | {r['factor']} | {r['source_decision_tag']} | {r['source_score_total']} | {r['source_recommendation']} | {r['priority_score']} | {r.get('failure_penalty',0)} | {r.get('failure_domains','')} | {r['suggested_action']} | {r['proposed_decision_tag']} |"
         )
     lines += ["", "## Proposed Commands", ""]
     if rows:
@@ -263,9 +359,18 @@ def main() -> None:
     mixed = policy.get("mixed") or {}
     robust_slots = int(args.robust_slots) if int(args.robust_slots) >= 0 else int(mixed.get("robust_slots", 3))
     exploration_slots = int(args.exploration_slots) if int(args.exploration_slots) >= 0 else int(mixed.get("exploration_slots", 1))
+    failure_feedback = policy.get("failure_feedback") or {}
+    failure_feedback_enabled = bool(failure_feedback.get("enabled", True))
+    failure_db_csv = Path(str(failure_feedback.get("failure_db_csv", "audit/failure_patterns/failure_patterns.csv"))).resolve()
+    high_penalty_per_item = float(failure_feedback.get("high_penalty_per_item", 6.0))
+    domain_penalties = {
+        str(k): float(v)
+        for k, v in dict(failure_feedback.get("domain_penalties") or {}).items()
+    }
 
     registry_csv = Path(args.registry_csv).resolve()
     rows = _load_registry(registry_csv)
+    failure_rows = _load_failure_db(failure_db_csv if failure_feedback_enabled else None)
     queue = _build_queue(
         rows,
         mode=mode,
@@ -273,6 +378,10 @@ def main() -> None:
         min_score=min_score,
         robust_slots=robust_slots,
         exploration_slots=exploration_slots,
+        failure_rows=failure_rows,
+        failure_feedback_enabled=failure_feedback_enabled,
+        high_penalty_per_item=high_penalty_per_item,
+        domain_penalties=domain_penalties,
     )
 
     out_csv = Path(args.out_csv).resolve()

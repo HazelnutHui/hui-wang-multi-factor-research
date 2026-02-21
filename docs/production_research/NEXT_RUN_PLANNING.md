@@ -36,3 +36,10 @@ python scripts/generate_next_run_plan.py --dq-input-csv data/your_input.csv
 
 - recommended to run immediately after candidate queue refresh
 - output markdown is committee-ready and can be used as next-run command checklist
+
+## Optional One-Click Execution
+
+```bash
+python scripts/execute_next_run_plan.py --rank 1 --dry-run
+python scripts/execute_next_run_plan.py --rank 1
+```

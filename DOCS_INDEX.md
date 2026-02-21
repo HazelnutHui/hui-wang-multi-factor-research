@@ -67,6 +67,7 @@ Last updated: 2026-02-21
 - `scripts/update_factor_experiment_registry.py`: update experiment registry and leaderboard from gate artifacts
 - `scripts/generate_candidate_queue.py`: generate next-run prioritized factor candidate queue from registry
 - `scripts/generate_next_run_plan.py`: generate next-run command/hypothesis plan from queue + remediation + latest report
+- `scripts/execute_next_run_plan.py`: execute ranked command from next_run_plan.json (supports dry-run)
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
