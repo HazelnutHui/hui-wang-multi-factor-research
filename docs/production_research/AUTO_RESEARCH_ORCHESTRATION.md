@@ -56,6 +56,9 @@ python scripts/auto_research_orchestrator.py --execute --max-rounds 2 --max-exec
 Per orchestrator run:
 - `audit/auto_research/<timestamp>_orchestrator/auto_research_orchestrator_report.json`
 - `audit/auto_research/<timestamp>_orchestrator/auto_research_orchestrator_report.md`
+- append-only ledger updates:
+  - `audit/auto_research/auto_research_ledger.csv`
+  - `audit/auto_research/auto_research_ledger.md`
 
 Each round includes:
 1. return code and logs for queue/plan/repair/validate/execute

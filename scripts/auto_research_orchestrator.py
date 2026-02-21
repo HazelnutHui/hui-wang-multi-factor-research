@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import datetime as dt
 import json
 import subprocess
@@ -168,6 +169,72 @@ def _write_md(path: Path, payload: dict[str, Any]) -> None:
     lines += ["", f"- output_json: `{payload.get('output_json','')}`"]
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n")
+
+
+def _read_csv_rows(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with open(path, newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def _write_csv_rows(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in fields})
+
+
+def _update_ledger(*, root: Path, payload: dict[str, Any], out_json: Path, out_md: Path) -> tuple[Path, Path]:
+    ledger_csv = (root / "audit/auto_research/auto_research_ledger.csv").resolve()
+    ledger_md = (root / "audit/auto_research/auto_research_ledger.md").resolve()
+    rows = _read_csv_rows(ledger_csv)
+    rounds = payload.get("rounds") or []
+    last_round = rounds[-1] if rounds else {}
+    best_metrics = payload.get("best_metrics") or {}
+    row = {
+        "generated_at": payload.get("generated_at", ""),
+        "run_dir": str(out_json.parent),
+        "report_json": str(out_json),
+        "report_md": str(out_md),
+        "policy_json": str(payload.get("policy_json", "")),
+        "execute_enabled": str(payload.get("execute_enabled", False)),
+        "stopped_reason": str(payload.get("stopped_reason", "")),
+        "rounds_completed": str(payload.get("rounds_completed", 0)),
+        "executions_done": str(payload.get("executions_done", 0)),
+        "best_priority_score": str(best_metrics.get("priority_score", "")),
+        "best_gate_failure_count": str(best_metrics.get("gate_failure_count", "")),
+        "best_high_remediation_count": str(best_metrics.get("high_remediation_count", "")),
+        "last_selected_factor": str(last_round.get("selected_factor", "")),
+        "last_selected_tag": str(last_round.get("selected_tag", "")),
+        "last_selected_priority_score": str(last_round.get("selected_priority_score", "")),
+        "no_improve_streak": str(last_round.get("no_improve_streak", "")),
+    }
+    fields = list(row.keys())
+    rows.append(row)
+    _write_csv_rows(ledger_csv, rows, fields)
+
+    lines = [
+        "# Auto Research Ledger",
+        "",
+        f"- updated_at: {dt.datetime.now().isoformat()}",
+        f"- rows: {len(rows)}",
+        "",
+        "| generated_at | stopped_reason | rounds_completed | executions_done | best_priority_score | best_gate_failure_count | best_high_remediation_count | last_selected_factor | last_selected_tag | report_json |",
+        "|---|---|---:|---:|---:|---:|---:|---|---|---|",
+    ]
+    for r in reversed(rows[-50:]):
+        lines.append(
+            f"| {r.get('generated_at','')} | {r.get('stopped_reason','')} | {r.get('rounds_completed','')} | "
+            f"{r.get('executions_done','')} | {r.get('best_priority_score','')} | {r.get('best_gate_failure_count','')} | "
+            f"{r.get('best_high_remediation_count','')} | {r.get('last_selected_factor','')} | "
+            f"{r.get('last_selected_tag','')} | `{r.get('report_json','')}` |"
+        )
+    ledger_md.parent.mkdir(parents=True, exist_ok=True)
+    ledger_md.write_text("\n".join(lines) + "\n")
+    return ledger_csv, ledger_md
 
 
 def main() -> None:
@@ -482,8 +549,15 @@ def main() -> None:
     payload["output_json"] = str(out_json)
     _write_json(out_json, payload)
     _write_md(out_md, payload)
+    ledger_csv, ledger_md = _update_ledger(root=root, payload=payload, out_json=out_json, out_md=out_md)
+    payload["ledger_csv"] = str(ledger_csv)
+    payload["ledger_md"] = str(ledger_md)
+    _write_json(out_json, payload)
+    _write_md(out_md, payload)
     print(f"[done] orchestrator_json={out_json}")
     print(f"[done] orchestrator_md={out_md}")
+    print(f"[done] ledger_csv={ledger_csv}")
+    print(f"[done] ledger_md={ledger_md}")
     print(f"[done] stopped_reason={stopped_reason} rounds={len(rounds)} executions={executions_done}")
 
     bad = {"candidate_queue_failed", "next_run_plan_failed", "repair_plan_failed", "validation_failed", "execution_failed"}

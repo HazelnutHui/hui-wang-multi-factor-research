@@ -69,6 +69,7 @@ Completion check after reading:
 10. identify latest `audit/factor_registry/next_run_plan_fixed.md` and whether tags were normalized
 11. identify latest failure pattern summary status (`audit/failure_patterns/failure_pattern_summary.md`)
 12. identify active auto-research policy config (`configs/research/auto_research_policy.json`)
+13. identify latest auto-research ledger status (`audit/auto_research/auto_research_ledger.md`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 

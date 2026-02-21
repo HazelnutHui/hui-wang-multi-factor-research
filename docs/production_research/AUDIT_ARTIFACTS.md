@@ -98,8 +98,11 @@ Examples:
 Required when automated multi-round orchestration is used:
 - orchestrator report json/md per cycle
 - policy config snapshot reference in report metadata
+- append-only orchestrator ledger csv/md
 
 Examples:
 - `audit/auto_research/<ts>_orchestrator/auto_research_orchestrator_report.json`
 - `audit/auto_research/<ts>_orchestrator/auto_research_orchestrator_report.md`
+- `audit/auto_research/auto_research_ledger.csv`
+- `audit/auto_research/auto_research_ledger.md`
 - `configs/research/auto_research_policy.json`

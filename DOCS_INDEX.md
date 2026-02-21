@@ -78,6 +78,8 @@ Last updated: 2026-02-21
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
+- `audit/auto_research/auto_research_ledger.csv`: append-only ledger of orchestrator cycles
+- `audit/auto_research/auto_research_ledger.md`: human-readable snapshot of latest orchestrator ledger rows
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
