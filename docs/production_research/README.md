@@ -18,7 +18,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `OPS_PLAYBOOK.md`: practical run commands and interpretation flow
 - `CHANGELOG.md`: governance-layer change log
 - `WORKSTATION_PRIMARY_MODE.md`: workstation-first execution policy
-- `SESSION_BOOTSTRAP.md`: mandatory read order for new Codex sessions
+- `SESSION_BOOTSTRAP.md`: mandatory read order for new sessions
 - `AUDIT_ARTIFACTS.md`: required artifact classes for audit/compliance
 - `CURRENT_GATE_STATUS_2026-02-20.md`: current gate-state snapshot and rerun checklist
 - `AUDIT_SNAPSHOT_2026-02-20.md`: path-level audit snapshot for handoff/reference
@@ -46,12 +46,16 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `AUTO_RESEARCH_ORCHESTRATION.md`: multi-round automated research orchestration standard
 - `AUTO_RESEARCH_SEARCH_V1.md`: parameter-search trial planning/execution standard for combo_v2
+- `SYSTEM_OVERVIEW_EN.md`: end-to-end English white paper (architecture, validation flow, governance, and audit)
+- `SYSTEM_OVERVIEW_ZH.md`: end-to-end Chinese system overview (architecture, gates, audit, operations)
+- `NOTION_SYSTEM_OVERVIEW_ZH.md`: Notion-ready Chinese summary for project communication
+- `NOTION_SYSTEM_OVERVIEW_EN.md`: concise English Notion summary for architecture and research logic
 - `AUTO_RESEARCH_SCHEDULER.md`: unattended scheduler standard for orchestrator cadence/heartbeat/alerts
 - `AUTO_RESEARCH_DEPLOYMENT.md`: workstation deployment standard for scheduler service operations
 - `LOW_NETWORK_MODE.md`: low-network operation profile and mode switch standard
 - `SYSTEM_CLOSURE_CHECK.md`: one-command end-of-phase acceptance/closure check standard
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
-- `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new Codex continuity
+- `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new session continuity
 
 ## Core scripts
 

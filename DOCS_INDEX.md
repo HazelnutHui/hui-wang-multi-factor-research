@@ -14,12 +14,12 @@ Last updated: 2026-02-21
 - `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template
 
 ## Additional References
-- `CODEX_SESSION_GUIDE.md`: single-file Codex handoff guide (recommended first read)
+- `SESSION_CONTINUITY_PROTOCOL.md`: single-file session handoff guide (recommended first read)
 - `docs/production_research/README.md`: production governance docs index
 - `docs/production_research/GATE_SPEC.md`: formal hard-gate specification
 - `docs/production_research/OPS_PLAYBOOK.md`: production run operations playbook
 - `docs/production_research/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
-- `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new Codex sessions
+- `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new sessions
 - `docs/production_research/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
 - `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: current production gate state snapshot and rerun checklist
 - `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`: active rerun4 status snapshot and verified execution context
@@ -47,6 +47,10 @@ Last updated: 2026-02-21
 - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
 - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
 - `docs/production_research/AUTO_RESEARCH_SEARCH_V1.md`: standard for combo_v2 search-v1 trial planning, derived strategy generation, and audited execution reports
+- `docs/production_research/SYSTEM_OVERVIEW_EN.md`: full English white paper for architecture, research flow, governance gates, and audit topology
+- `docs/production_research/SYSTEM_OVERVIEW_ZH.md`: 中文完整版系统说明（架构、门禁、审计、低联网与工作站分工）
+- `docs/production_research/NOTION_SYSTEM_OVERVIEW_ZH.md`: 可直接放入 Notion 的中文项目介绍模板
+- `docs/production_research/NOTION_SYSTEM_OVERVIEW_EN.md`: concise English Notion brief (system architecture + research logic)
 - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`: standard for unattended orchestrator scheduling with lock/heartbeat/alerts
 - `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`: standard for workstation systemd deployment and service operations
 - `docs/production_research/LOW_NETWORK_MODE.md`: standard low-network profile and switching procedure

@@ -7,6 +7,10 @@ This project focuses on turning factor ideas into decision-grade research output
 ## Recruiter Quick Link
 - Start here: [`PROJECT_SUMMARY.md`](PROJECT_SUMMARY.md)
 
+## White Paper
+- English: [`docs/production_research/SYSTEM_OVERVIEW_EN.md`](docs/production_research/SYSTEM_OVERVIEW_EN.md)
+- 中文: [`docs/production_research/SYSTEM_OVERVIEW_ZH.md`](docs/production_research/SYSTEM_OVERVIEW_ZH.md)
+
 ## What This Project Does
 - Builds rebalance-date-driven backtests for factor strategies
 - Evaluates factors with segmented IC, fixed train/test, and walk-forward
@@ -166,7 +170,7 @@ Current first live day archive:
 - `signal_date=2026-02-17`, `trade_date=2026-02-18`
 
 ## Key Documents
-- `CODEX_SESSION_GUIDE.md`: single-file handoff guide for new Codex sessions (read this first)
+- `SESSION_CONTINUITY_PROTOCOL.md`: single-file handoff guide for new sessions (read this first)
 - `RUNBOOK.md`: practical command reference
 - `STATUS.md`: current progress and latest run status
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
