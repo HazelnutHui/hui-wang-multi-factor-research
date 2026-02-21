@@ -44,6 +44,10 @@
   - `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
   - `scripts/update_factor_experiment_registry.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-updates registry + leaderboard
+- candidate queue automation:
+  - `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
+  - `scripts/generate_candidate_queue.py`
+  - `scripts/post_run_sync_and_finalize.sh` now auto-refreshes candidate queue
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically

@@ -30,6 +30,7 @@ Use this exact read order for new sessions focused on production workflow.
 22. `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`
 23. `docs/production_research/GOVERNANCE_REMEDIATION_PLAN.md`
 24. `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
+25. `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
 
 ## Mandatory checks before editing/running
 

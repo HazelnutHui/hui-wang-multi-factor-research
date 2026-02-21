@@ -107,6 +107,12 @@ python scripts/update_factor_experiment_registry.py \
   --run-dir audit/workstation_runs/<...>
 ```
 
+Candidate queue refresh (auto-invoked in post-run sync flow):
+
+```bash
+python scripts/generate_candidate_queue.py
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.

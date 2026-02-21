@@ -43,6 +43,7 @@ What this does:
 6. generate remediation plan (`scripts/governance_remediation_plan.py`)
 7. generate standardized run review (`scripts/generate_run_review.py`)
 8. update factor experiment registry (`scripts/update_factor_experiment_registry.py`)
+9. refresh factor candidate queue (`scripts/generate_candidate_queue.py`)
 
 ## Explicit-path mode
 
@@ -72,7 +73,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 7. factor registry artifacts updated:
 - `audit/factor_registry/factor_experiment_registry.csv`
 - `audit/factor_registry/factor_experiment_leaderboard.md`
-8. if needed, commit governance/docs updates and push.
+8. candidate queue artifacts updated:
+- `audit/factor_registry/factor_candidate_queue.csv`
+- `audit/factor_registry/factor_candidate_queue.md`
+9. if needed, commit governance/docs updates and push.
 
 ## Notes
 

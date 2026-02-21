@@ -50,7 +50,8 @@ Read in order:
 22. `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`
 23. `docs/production_research/GOVERNANCE_REMEDIATION_PLAN.md`
 24. `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
-25. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+25. `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
+26. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -59,6 +60,7 @@ Completion check after reading:
 4. identify whether run is `in_progress` or finished
 5. identify latest data quality gate artifact path and pass/fail status (for official runs)
 6. identify latest factor registry update and leaderboard status
+7. identify latest factor candidate queue output and top candidate
 
 ## 4) SSOT Priority (Conflict Resolution)
 

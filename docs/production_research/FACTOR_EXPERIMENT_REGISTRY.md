@@ -78,3 +78,6 @@ python scripts/update_factor_experiment_registry.py
 
 - auto-invoked by `scripts/post_run_sync_and_finalize.sh` after run review generation
 - registry + leaderboard are SSOT inputs for automated candidate queueing
+- queue refresh script:
+  - `scripts/generate_candidate_queue.py`
+  - outputs under `audit/factor_registry/factor_candidate_queue.*`

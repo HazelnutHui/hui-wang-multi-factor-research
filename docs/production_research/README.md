@@ -41,6 +41,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run / monitor / close command templates
 - `RUN_REVIEW_TEMPLATE.md`: standardized committee review template after run closure
 - `FACTOR_EXPERIMENT_REGISTRY.md`: central experiment registry and scoring/ranking standard
+- `CANDIDATE_QUEUE_POLICY.md`: auto-prioritized next-run candidate queue policy
 
 ## Core scripts
 
@@ -61,6 +62,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/governance_remediation_plan.py`
 - `scripts/generate_run_review.py`
 - `scripts/update_factor_experiment_registry.py`
+- `scripts/generate_candidate_queue.py`
 - `scripts/research_governance.py`
 
 ## Related outputs

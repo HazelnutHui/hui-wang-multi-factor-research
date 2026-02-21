@@ -115,3 +115,9 @@ python scripts/update_factor_experiment_registry.py \
   --report-json gate_results/production_gates_<ts>/production_gates_report.json \
   --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag>
 ```
+
+Generate next-run candidate queue:
+
+```bash
+python scripts/generate_candidate_queue.py
+```
