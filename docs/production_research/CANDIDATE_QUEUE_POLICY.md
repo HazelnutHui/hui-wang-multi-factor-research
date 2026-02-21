@@ -30,6 +30,9 @@ This policy defines how the system selects next-run factor candidates from the e
    - overall pass bonus
    - governance/data-quality pass bonus
    - high-severity remediation penalty
+5. fallback mode:
+   - if strict selection returns no candidates, queue uses top scored factors for exploration runs
+   - action forced to `research_iteration_with_new_hypothesis`
 
 ## Queue Actions
 

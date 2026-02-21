@@ -112,7 +112,42 @@ def _build_queue(rows: list[dict[str, Any]], top_n: int, min_score: float) -> li
         )
 
     candidates = sorted(candidates, key=lambda x: float(x["priority_score"]), reverse=True)
-    return candidates[:top_n]
+    if candidates:
+        return candidates[:top_n]
+
+    # Fallback exploration mode: keep pipeline moving when no row passes strict thresholds.
+    fallback: list[dict[str, Any]] = []
+    for r in latest_by_factor.values():
+        score = _to_float(r.get("score_total"))
+        if score <= 0:
+            continue
+        factor = str(r.get("factor") or "")
+        strategy = str(r.get("strategy") or "")
+        freeze_file = str(r.get("freeze_file") or "")
+        next_tag = _next_tag(r)
+        fallback.append(
+            {
+                "queue_generated_at": dt.datetime.now().isoformat(),
+                "factor": factor,
+                "strategy": strategy,
+                "source_decision_tag": str(r.get("decision_tag") or ""),
+                "source_report_json": str(r.get("report_json") or ""),
+                "source_score_total": score,
+                "source_recommendation": str(r.get("recommendation") or ""),
+                "priority_score": round(score, 4),
+                "suggested_action": "research_iteration_with_new_hypothesis",
+                "proposed_decision_tag": next_tag,
+                "proposed_command": (
+                    "bash scripts/workstation_official_run.sh "
+                    f"--workflow production_gates --tag {next_tag} --owner hui "
+                    '--notes "candidate queue fallback run" --threads 8 --dq-input-csv data/your_input.csv -- '
+                    f"--strategy {strategy} --factor {factor} --cost-multipliers 1.5,2.0 --wf-shards 4 "
+                    f"--freeze-file {freeze_file} --out-dir gate_results"
+                ),
+            }
+        )
+    fallback = sorted(fallback, key=lambda x: float(x["priority_score"]), reverse=True)
+    return fallback[:top_n]
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
