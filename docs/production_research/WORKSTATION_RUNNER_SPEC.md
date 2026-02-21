@@ -16,6 +16,7 @@ Standardize heavy-run execution on workstation with auditable wrapper scripts.
 2. `scripts/workstation_official_run.sh`
 - wraps `scripts/run_research_workflow.py`;
 - enforces preflight before execution;
+- enforces data quality gate before `production_gates` execution (unless explicitly skipped with audit trace);
 - stores command/context/log/result under:
   - `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`
 
@@ -28,6 +29,7 @@ bash scripts/workstation_official_run.sh \
   --owner hui \
   --notes "official workstation run" \
   --threads 8 \
+  --dq-input-csv data/your_input.csv \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
@@ -40,6 +42,8 @@ bash scripts/workstation_official_run.sh \
 ## Produced Audit Files
 
 - `preflight.json`
+- `data_quality_command.sh` (if DQ executed)
+- `data_quality.log` (if DQ executed)
 - `context.json`
 - `command.sh`
 - `run.log`
@@ -65,6 +69,15 @@ Post-run sync + finalization (recommended local command):
 bash scripts/post_run_sync_and_finalize.sh --tag committee_YYYY-MM-DD_runN
 ```
 
+Governance completeness check (auto-invoked by post-run sync script):
+
+```bash
+python scripts/governance_audit_checker.py \
+  --run-dir audit/workstation_runs/<...> \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --require-final-summary
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.
@@ -74,3 +87,4 @@ bash scripts/post_run_sync_and_finalize.sh --tag committee_YYYY-MM-DD_runN
   - cores >= 8
   - memory >= 60GB
 - Any preflight failure blocks official execution.
+- Any data quality gate failure blocks official execution.

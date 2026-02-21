@@ -95,6 +95,7 @@ bash scripts/workstation_official_run.sh \
   --tag committee_YYYY-MM-DD_runN \
   --owner hui \
   --notes "official workstation run" \
+  --dq-input-csv data/your_input.csv \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \

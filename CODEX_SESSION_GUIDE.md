@@ -121,6 +121,7 @@ bash scripts/workstation_official_run.sh \
   --owner hui \
   --notes "official workstation gate run" \
   --threads 8 \
+  --dq-input-csv data/your_input.csv \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
@@ -161,9 +162,16 @@ While active process exists:
 ```bash
 bash scripts/finalize_gate_run.sh --tag committee_YYYY-MM-DD_runN
 ```
-3. confirm stage ledger row updated:
+3. run governance completeness check:
+```bash
+python scripts/governance_audit_checker.py \
+  --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag> \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --require-final-summary
+```
+4. confirm stage ledger row updated:
    - `docs/production_research/STAGE_AUDIT_LOG.md`
-4. if failed, keep failed trail and create new rerun with new tag
+5. if failed, keep failed trail and create new rerun with new tag
 
 ## 10) Commit/Sync Rule
 

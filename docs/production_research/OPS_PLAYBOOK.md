@@ -79,6 +79,7 @@ bash scripts/workstation_official_run.sh \
   --owner hui \
   --notes "official workstation gate run" \
   --threads 8 \
+  --dq-input-csv data/your_input.csv \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
@@ -90,3 +91,12 @@ bash scripts/workstation_official_run.sh \
 
 Artifacts are stored under:
 - `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`
+
+Post-run governance check (recommended):
+
+```bash
+python scripts/governance_audit_checker.py \
+  --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag> \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --require-final-summary
+```

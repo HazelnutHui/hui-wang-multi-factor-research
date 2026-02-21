@@ -106,6 +106,10 @@ Per gate run:
 - `production_gates_report.md`
 - registry append entry in `gate_results/gate_registry.csv` (if enabled)
 
+Post-run governance completeness (required for official closure):
+- `audit/workstation_runs/<...>/governance_audit_check.json`
+- `audit/workstation_runs/<...>/governance_audit_check.md`
+
 ## 9) Promotion policy
 
 Recommended:

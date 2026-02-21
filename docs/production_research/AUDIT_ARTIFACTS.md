@@ -43,12 +43,15 @@ Required:
 - gate report json/md
 - cost stress table
 - registry append row
+- data quality report json/md (official runs)
 
 Examples:
 - `gate_results/production_gates_<ts>/production_gates_report.json`
 - `gate_results/production_gates_<ts>/production_gates_report.md`
 - `gate_results/production_gates_<ts>/cost_stress_results.csv`
 - `gate_results/gate_registry.csv`
+- `audit/workstation_runs/<ts>_production_gates_<tag>/data_quality/data_quality_<ts>/data_quality_report.json`
+- `audit/workstation_runs/<ts>_production_gates_<tag>/data_quality/data_quality_<ts>/data_quality_report.md`
 
 ## 5) Diagnostics + statistical controls
 
@@ -66,3 +69,12 @@ Examples:
 1. Keep all official gate report folders permanently.
 2. Keep gate registry append-only; never rewrite old decision rows.
 3. Keep freeze files versioned and human-labeled by strategy and date.
+
+## 7) Post-run governance completeness
+
+Required after official sync/finalization:
+- governance completeness report json/md
+
+Examples:
+- `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.json`
+- `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.md`

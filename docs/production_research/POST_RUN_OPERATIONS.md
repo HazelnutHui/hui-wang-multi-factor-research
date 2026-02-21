@@ -26,6 +26,7 @@ What this does:
 4. run local finalization (`scripts/finalize_gate_run.sh`) to update:
    - `docs/production_research/STAGE_AUDIT_LOG.md`
    - `production_gates_final_summary.md`
+5. run local governance completeness check (`scripts/governance_audit_checker.py`)
 
 ## Explicit-path mode
 
@@ -44,7 +45,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 - `gate_results/production_gates_<ts>/production_gates_final_summary.md`
 3. stage ledger has final row (pass/fail, not in_progress):
 - `docs/production_research/STAGE_AUDIT_LOG.md`
-4. if needed, commit governance/docs updates and push.
+4. governance check outputs exist and pass:
+- `audit/workstation_runs/<...>/governance_audit_check.json`
+- `audit/workstation_runs/<...>/governance_audit_check.md`
+5. if needed, commit governance/docs updates and push.
 
 ## Notes
 

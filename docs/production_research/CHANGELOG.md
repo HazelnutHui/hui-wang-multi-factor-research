@@ -27,6 +27,11 @@
   - `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
 - data quality checker:
   - `scripts/data_quality_gate.py`
+- governance completeness checker:
+  - `scripts/governance_audit_checker.py`
+- runner hardening:
+  - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
+  - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically
 - playbook/bootstrap updates:
   - `CODEX_SESSION_GUIDE.md` mandatory sequence extended with new governance controls
   - `docs/production_research/SESSION_BOOTSTRAP.md` mandatory sequence extended

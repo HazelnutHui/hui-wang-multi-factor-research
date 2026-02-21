@@ -9,6 +9,7 @@ LOCAL_ROOT="/Users/hui/quant_score/v4"
 TAG=""
 RUN_DIR_REMOTE=""
 REPORT_JSON_REMOTE=""
+PYTHON_BIN="python"
 
 usage() {
   cat <<USAGE
@@ -23,6 +24,7 @@ Behavior:
 1) resolve remote run_dir/report_json by tag (unless explicit overrides provided)
 2) rsync run_dir + gate_results folder to local
 3) run local finalize script to update stage ledger and summary
+4) run local governance audit checker
 USAGE
 }
 
@@ -48,6 +50,15 @@ while [ "$#" -gt 0 ]; do
       exit 1 ;;
   esac
 done
+
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "python/python3 not found" >&2
+  exit 127
+fi
 
 if [ -z "$TAG" ] && { [ -z "$RUN_DIR_REMOTE" ] || [ -z "$REPORT_JSON_REMOTE" ]; }; then
   echo "--tag is required unless both --run-dir-remote and --report-json-remote are provided." >&2
@@ -95,6 +106,10 @@ fi
 (
   cd "$LOCAL_ROOT"
   bash scripts/finalize_gate_run.sh --run-dir "$LOCAL_RUN_DIR" --report-json "$LOCAL_REPORT_JSON"
+  "$PYTHON_BIN" scripts/governance_audit_checker.py \
+    --run-dir "$LOCAL_RUN_DIR" \
+    --report-json "$LOCAL_REPORT_JSON" \
+    --require-final-summary
 )
 
 echo "done: synced + finalized"

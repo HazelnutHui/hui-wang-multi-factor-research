@@ -38,6 +38,7 @@ Use this exact read order for new sessions focused on production workflow.
    - `--skip-statistical-gates`
 4. Confirm output root and artifact retention path.
 5. Confirm a passing data quality gate artifact exists (or run one before official gate execution).
+6. After post-run finalization, confirm governance audit check artifacts are present for the run.
 
 ## Minimal new-session prompt
 

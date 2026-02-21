@@ -19,7 +19,7 @@ fi
 usage() {
   cat <<USAGE
 Usage:
-  bash scripts/workstation_official_run.sh --workflow <name> --tag <decision_tag> [--owner <owner>] [--notes <notes>] [--require-clean] [--threads <n>] -- <workflow args>
+  bash scripts/workstation_official_run.sh --workflow <name> --tag <decision_tag> [--owner <owner>] [--notes <notes>] [--require-clean] [--threads <n>] [--dq-input-csv <path>] [--skip-data-quality-check] -- <workflow args>
 
 Example:
   bash scripts/workstation_official_run.sh \
@@ -41,6 +41,16 @@ OWNER=""
 NOTES=""
 REQUIRE_CLEAN=0
 THREADS="${THREADS:-8}"
+DQ_INPUT_CSV=""
+DQ_REQUIRED_COLUMNS="${DQ_REQUIRED_COLUMNS:-date,ticker,score}"
+DQ_NUMERIC_COLUMNS="${DQ_NUMERIC_COLUMNS:-score}"
+DQ_KEY_COLUMNS="${DQ_KEY_COLUMNS:-date,ticker}"
+DQ_DATE_COLUMN="${DQ_DATE_COLUMN:-date}"
+DQ_MIN_ROWS="${DQ_MIN_ROWS:-1000}"
+DQ_MAX_MISSING_RATIO="${DQ_MAX_MISSING_RATIO:-0.05}"
+DQ_MAX_DUPLICATE_RATIO="${DQ_MAX_DUPLICATE_RATIO:-0.01}"
+DQ_MAX_STALENESS_DAYS="${DQ_MAX_STALENESS_DAYS:-7}"
+SKIP_DATA_QUALITY_CHECK=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -67,6 +77,14 @@ while [ "$#" -gt 0 ]; do
     --threads)
       THREADS="$2"
       shift 2
+      ;;
+    --dq-input-csv)
+      DQ_INPUT_CSV="$2"
+      shift 2
+      ;;
+    --skip-data-quality-check)
+      SKIP_DATA_QUALITY_CHECK=1
+      shift
       ;;
     --help|-h)
       usage
@@ -111,6 +129,46 @@ fi
 GIT_COMMIT="$(git rev-parse HEAD)"
 GIT_BRANCH="$(git branch --show-current)"
 HOSTNAME_VAL="$(hostname)"
+DQ_REPORT_JSON=""
+
+if [ "$SKIP_DATA_QUALITY_CHECK" -ne 1 ]; then
+  if [ "$WORKFLOW" = "production_gates" ] && [ -z "$DQ_INPUT_CSV" ]; then
+    echo "For production_gates official runs, --dq-input-csv is required (or explicitly set --skip-data-quality-check)." >&2
+    exit 1
+  fi
+  if [ -n "$DQ_INPUT_CSV" ]; then
+    DQ_ROOT="$AUDIT_DIR/data_quality"
+    mkdir -p "$DQ_ROOT"
+    DQ_CMD=(
+      "$PYTHON_BIN" scripts/data_quality_gate.py
+      --input-csv "$DQ_INPUT_CSV"
+      --required-columns "$DQ_REQUIRED_COLUMNS"
+      --numeric-columns "$DQ_NUMERIC_COLUMNS"
+      --key-columns "$DQ_KEY_COLUMNS"
+      --date-column "$DQ_DATE_COLUMN"
+      --min-rows "$DQ_MIN_ROWS"
+      --max-missing-ratio "$DQ_MAX_MISSING_RATIO"
+      --max-duplicate-ratio "$DQ_MAX_DUPLICATE_RATIO"
+      --max-staleness-days "$DQ_MAX_STALENESS_DAYS"
+      --out-dir "$DQ_ROOT"
+    )
+    printf '%q ' "${DQ_CMD[@]}" > "$AUDIT_DIR/data_quality_command.sh"
+    printf '\n' >> "$AUDIT_DIR/data_quality_command.sh"
+    set +e
+    "${DQ_CMD[@]}" 2>&1 | tee "$AUDIT_DIR/data_quality.log"
+    DQ_RC="${PIPESTATUS[0]}"
+    set -e
+    if [ "$DQ_RC" -ne 0 ]; then
+      echo "Data quality gate failed (exit=${DQ_RC}). See $AUDIT_DIR/data_quality.log" >&2
+      exit "$DQ_RC"
+    fi
+    DQ_REPORT_JSON="$(ls -td "$DQ_ROOT"/data_quality_*/data_quality_report.json 2>/dev/null | head -n1 || true)"
+    if [ -z "$DQ_REPORT_JSON" ] || [ ! -f "$DQ_REPORT_JSON" ]; then
+      echo "Data quality gate passed but report json not found under $DQ_ROOT" >&2
+      exit 1
+    fi
+  fi
+fi
 
 CMD=("$PYTHON_BIN" scripts/run_research_workflow.py --workflow "$WORKFLOW" -- "$@")
 printf '%q ' "${CMD[@]}" > "$AUDIT_DIR/command.sh"
@@ -126,7 +184,10 @@ cat > "$AUDIT_DIR/context.json" <<CTX
   "decision_tag": "${TAG}",
   "owner": "${OWNER}",
   "notes": "${NOTES}",
-  "threads": ${THREADS}
+  "threads": ${THREADS},
+  "skip_data_quality_check": ${SKIP_DATA_QUALITY_CHECK},
+  "data_quality_input_csv": "${DQ_INPUT_CSV}",
+  "data_quality_report_json": "${DQ_REPORT_JSON}"
 }
 CTX
 

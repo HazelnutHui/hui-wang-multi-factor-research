@@ -32,6 +32,7 @@ Last updated: 2026-02-21
 - `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`: retention and safe cleanup rules for audit artifacts
 - `docs/production_research/PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: prioritized non-destructive performance optimization plan
 - `docs/production_research/POST_RUN_OPERATIONS.md`: one-command post-run sync and finalize procedure
+- `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`: governance completeness checker definition and usage
 - `docs/production_research/DATA_QUALITY_POLICY.md`: official pre-gate data quality policy and thresholds
 - `docs/production_research/RISK_REGISTER.md`: append-only production research risk register
 - `docs/production_research/MODEL_CHANGE_CONTROL.md`: change classification and approval matrix standard
@@ -52,6 +53,7 @@ Last updated: 2026-02-21
 - `scripts/post_run_sync_and_finalize.sh`: one-command remote sync + local finalization
 - `scripts/finalize_gate_run.py`: core finalization helper used by finalize shell wrapper
 - `scripts/data_quality_gate.py`: pre-gate dataset quality checker (json/md artifact output, non-zero on fail)
+- `scripts/governance_audit_checker.py`: post-run governance completeness checker (json/md artifact output, non-zero on fail)
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command
