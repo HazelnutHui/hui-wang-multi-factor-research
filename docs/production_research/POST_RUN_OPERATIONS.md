@@ -44,6 +44,7 @@ What this does:
 7. generate standardized run review (`scripts/generate_run_review.py`)
 8. update factor experiment registry (`scripts/update_factor_experiment_registry.py`)
 9. refresh factor candidate queue (`scripts/generate_candidate_queue.py`)
+10. generate next-run execution plan (`scripts/generate_next_run_plan.py`)
 
 ## Explicit-path mode
 
@@ -76,7 +77,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 8. candidate queue artifacts updated:
 - `audit/factor_registry/factor_candidate_queue.csv`
 - `audit/factor_registry/factor_candidate_queue.md`
-9. if needed, commit governance/docs updates and push.
+9. next-run plan artifacts updated:
+- `audit/factor_registry/next_run_plan.json`
+- `audit/factor_registry/next_run_plan.md`
+10. if needed, commit governance/docs updates and push.
 
 ## Notes
 

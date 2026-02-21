@@ -29,6 +29,7 @@ Behavior:
 6) generate standardized run review markdown
 7) update factor experiment registry + leaderboard
 8) refresh factor candidate queue
+9) generate next-run execution plan
 USAGE
 }
 
@@ -126,6 +127,7 @@ fi
     --report-json "$LOCAL_REPORT_JSON" \
     --run-dir "$LOCAL_RUN_DIR"
   "$PYTHON_BIN" scripts/generate_candidate_queue.py
+  "$PYTHON_BIN" scripts/generate_next_run_plan.py
   if [ "$GOV_RC" -ne 0 ]; then
     echo "governance audit check failed (exit=$GOV_RC). See remediation plan under $LOCAL_RUN_DIR" >&2
     exit "$GOV_RC"

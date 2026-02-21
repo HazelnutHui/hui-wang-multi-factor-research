@@ -43,6 +43,7 @@ Last updated: 2026-02-21
 - `docs/production_research/RUN_REVIEW_TEMPLATE.md`: standardized post-run committee review template
 - `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`: centralized experiment registry and scoring/ranking standard
 - `docs/production_research/CANDIDATE_QUEUE_POLICY.md`: candidate queue generation and prioritization policy
+- `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
@@ -64,6 +65,7 @@ Last updated: 2026-02-21
 - `scripts/generate_run_review.py`: generate standardized committee run review markdown from finalized artifacts
 - `scripts/update_factor_experiment_registry.py`: update experiment registry and leaderboard from gate artifacts
 - `scripts/generate_candidate_queue.py`: generate next-run prioritized factor candidate queue from registry
+- `scripts/generate_next_run_plan.py`: generate next-run command/hypothesis plan from queue + remediation + latest report
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id

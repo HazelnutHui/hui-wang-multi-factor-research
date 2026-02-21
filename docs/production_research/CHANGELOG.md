@@ -50,6 +50,10 @@
   - `scripts/generate_candidate_queue.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-refreshes candidate queue
   - `configs/research/candidate_queue_policy.json` added for versioned mixed-mode scheduling (`3 robust + 1 exploration`)
+- next-run plan automation:
+  - `docs/production_research/NEXT_RUN_PLANNING.md`
+  - `scripts/generate_next_run_plan.py`
+  - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/workstation_official_run.sh` now auto-injects `--decision-tag/--owner/--notes` when missing in workflow args

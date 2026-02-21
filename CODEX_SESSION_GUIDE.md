@@ -62,6 +62,7 @@ Completion check after reading:
 6. identify latest factor registry update and leaderboard status
 7. identify latest factor candidate queue output and top candidate
 8. identify active candidate queue policy config (`configs/research/candidate_queue_policy.json`)
+9. identify latest `audit/factor_registry/next_run_plan.md` and planned command set
 
 ## 4) SSOT Priority (Conflict Resolution)
 

@@ -114,6 +114,12 @@ Candidate queue refresh (auto-invoked in post-run sync flow):
 python scripts/generate_candidate_queue.py
 ```
 
+Next-run plan generation (auto-invoked in post-run sync flow):
+
+```bash
+python scripts/generate_next_run_plan.py
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.
