@@ -31,8 +31,8 @@ python scripts/auto_research_scheduler.py
 3. optional stop on orchestrator failure
 4. optional webhook + command alert channels on failure
 5. optional email alert channel on failure
-5. alert dedupe window prevents repeated noisy alerts for same failure pattern
-6. structured alert payload includes run metadata and recent failure summary
+6. alert dedupe window prevents repeated noisy alerts for same failure pattern
+7. structured alert payload includes run metadata and recent failure summary
 
 ## Outputs
 
