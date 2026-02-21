@@ -24,6 +24,11 @@ Run by policy cadence:
 python scripts/auto_research_scheduler.py
 ```
 
+Alert channel selftest (dedupe + payload contract):
+```bash
+python scripts/test_scheduler_alert_channels.py
+```
+
 ## Safety Controls
 
 1. lock file prevents concurrent scheduler instances
@@ -40,6 +45,8 @@ python scripts/auto_research_scheduler.py
 - `audit/auto_research/auto_research_scheduler_ledger.csv`
 - `audit/auto_research/auto_research_scheduler_ledger.md`
 - `audit/auto_research/auto_research_scheduler_alert_state.json`
+- `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.json`
+- `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.md`
 
 ## Policy Keys
 

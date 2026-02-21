@@ -113,6 +113,8 @@ Examples:
 - `audit/auto_research/auto_research_scheduler_ledger.csv`
 - `audit/auto_research/auto_research_scheduler_ledger.md`
 - `audit/auto_research/auto_research_scheduler_alert_state.json`
+- `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.json`
+- `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.md`
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`
 - deployment service files (workstation):

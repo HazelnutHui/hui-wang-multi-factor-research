@@ -75,6 +75,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/auto_research_orchestrator.py`
 - `scripts/auto_research_scheduler.py`
+- `scripts/test_scheduler_alert_channels.py`
 - `scripts/install_auto_research_scheduler_service.sh`
 - `scripts/manage_auto_research_scheduler_service.sh`
 - `scripts/update_failure_pattern_db.py`

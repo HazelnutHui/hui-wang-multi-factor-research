@@ -73,12 +73,14 @@
   - `scripts/auto_research_scheduler.py`
   - `scripts/install_auto_research_scheduler_service.sh`
   - `scripts/manage_auto_research_scheduler_service.sh`
+  - `scripts/test_scheduler_alert_channels.py`
   - `configs/research/auto_research_policy.json`
   - `configs/research/auto_research_scheduler_policy.json`
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
   - orchestration loop now appends run-level ledger outputs (`audit/auto_research/auto_research_ledger.csv/.md`)
   - orchestration loop now updates rolling health summary (`audit/auto_research/auto_research_weekly_summary.csv/.md`)
   - scheduler mode now supports singleton lock, heartbeat, scheduler ledger, webhook/command/email alerts, alert dedupe window, and structured alert payloads (with recent failure summary)
+  - scheduler alert channels now have one-command selftest report output
   - orchestrator now supports retry/backoff for pre-execution generation stages
   - orchestrator now supports multi-metric stagnation stop (`priority_score`, `gate_failure_count`, `high_remediation_count`)
 - failure pattern database:

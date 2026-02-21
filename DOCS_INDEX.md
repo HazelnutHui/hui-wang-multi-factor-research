@@ -76,6 +76,7 @@ Last updated: 2026-02-21
 - `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
 - `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
 - `scripts/auto_research_scheduler.py`: run orchestrator by cadence with singleton lock, heartbeat, and scheduler ledger
+- `scripts/test_scheduler_alert_channels.py`: self-test scheduler alert channels (command/email dry-run dedupe and payload contract)
 - `scripts/install_auto_research_scheduler_service.sh`: install user-level systemd service for scheduler with env file template
 - `scripts/manage_auto_research_scheduler_service.sh`: operate scheduler service (status/start/stop/restart/logs)
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
