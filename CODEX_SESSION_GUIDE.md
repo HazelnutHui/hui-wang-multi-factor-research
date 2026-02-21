@@ -49,7 +49,8 @@ Read in order:
 21. `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
 22. `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`
 23. `docs/production_research/GOVERNANCE_REMEDIATION_PLAN.md`
-24. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+24. `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
+25. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -57,6 +58,7 @@ Completion check after reading:
 3. identify freeze file in use
 4. identify whether run is `in_progress` or finished
 5. identify latest data quality gate artifact path and pass/fail status (for official runs)
+6. identify latest factor registry update and leaderboard status
 
 ## 4) SSOT Priority (Conflict Resolution)
 
@@ -173,10 +175,16 @@ python scripts/governance_audit_checker.py \
 ```
 4. confirm stage ledger row updated:
    - `docs/production_research/STAGE_AUDIT_LOG.md`
-5. if governance check failed, inspect remediation outputs:
+5. refresh factor experiment registry:
+```bash
+python scripts/update_factor_experiment_registry.py \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag>
+```
+6. if governance check failed, inspect remediation outputs:
    - `audit/workstation_runs/<...>/governance_remediation_plan.json`
    - `audit/workstation_runs/<...>/governance_remediation_plan.md`
-6. if failed, keep failed trail and create new rerun with new tag
+7. if failed, keep failed trail and create new rerun with new tag
 
 If run is still active and you want hands-off closure:
 ```bash

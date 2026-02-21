@@ -40,6 +40,10 @@
   - `scripts/generate_run_review.py`
 - post-run flow extension:
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates `production_gates_run_review.md`
+- factor experiment registry:
+  - `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
+  - `scripts/update_factor_experiment_registry.py`
+  - `scripts/post_run_sync_and_finalize.sh` now auto-updates registry + leaderboard
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically

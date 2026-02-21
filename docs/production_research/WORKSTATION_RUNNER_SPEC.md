@@ -99,6 +99,14 @@ python scripts/generate_run_review.py \
   --report-json gate_results/production_gates_<ts>/production_gates_report.json
 ```
 
+Factor registry update (auto-invoked in post-run sync flow):
+
+```bash
+python scripts/update_factor_experiment_registry.py \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --run-dir audit/workstation_runs/<...>
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.

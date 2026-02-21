@@ -76,6 +76,7 @@ Required after official sync/finalization:
 - governance completeness report json/md
 - remediation plan json/md
 - standardized run review markdown
+- factor experiment registry row + leaderboard refresh
 
 Examples:
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.json`
@@ -83,3 +84,5 @@ Examples:
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_remediation_plan.json`
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_remediation_plan.md`
 - `gate_results/production_gates_<ts>/production_gates_run_review.md`
+- `audit/factor_registry/factor_experiment_registry.csv`
+- `audit/factor_registry/factor_experiment_leaderboard.md`

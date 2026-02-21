@@ -42,6 +42,7 @@ What this does:
 5. run local governance completeness check (`scripts/governance_audit_checker.py`)
 6. generate remediation plan (`scripts/governance_remediation_plan.py`)
 7. generate standardized run review (`scripts/generate_run_review.py`)
+8. update factor experiment registry (`scripts/update_factor_experiment_registry.py`)
 
 ## Explicit-path mode
 
@@ -68,7 +69,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 - `audit/workstation_runs/<...>/governance_remediation_plan.md`
 6. run review markdown exists:
 - `gate_results/production_gates_<ts>/production_gates_run_review.md`
-7. if needed, commit governance/docs updates and push.
+7. factor registry artifacts updated:
+- `audit/factor_registry/factor_experiment_registry.csv`
+- `audit/factor_registry/factor_experiment_leaderboard.md`
+8. if needed, commit governance/docs updates and push.
 
 ## Notes
 

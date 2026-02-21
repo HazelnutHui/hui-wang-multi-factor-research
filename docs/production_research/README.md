@@ -40,6 +40,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `SECURITY_AND_ACCESS_CONTROL.md`: credential, access, and workstation security baseline
 - `OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run / monitor / close command templates
 - `RUN_REVIEW_TEMPLATE.md`: standardized committee review template after run closure
+- `FACTOR_EXPERIMENT_REGISTRY.md`: central experiment registry and scoring/ranking standard
 
 ## Core scripts
 
@@ -59,6 +60,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/governance_audit_checker.py`
 - `scripts/governance_remediation_plan.py`
 - `scripts/generate_run_review.py`
+- `scripts/update_factor_experiment_registry.py`
 - `scripts/research_governance.py`
 
 ## Related outputs

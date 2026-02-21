@@ -41,6 +41,7 @@ Last updated: 2026-02-21
 - `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`: security baseline and access controls
 - `docs/production_research/OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run and auto-close command templates
 - `docs/production_research/RUN_REVIEW_TEMPLATE.md`: standardized post-run committee review template
+- `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`: centralized experiment registry and scoring/ranking standard
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
@@ -60,6 +61,7 @@ Last updated: 2026-02-21
 - `scripts/governance_audit_checker.py`: post-run governance completeness checker (json/md artifact output, non-zero on fail)
 - `scripts/governance_remediation_plan.py`: post-run remediation plan generator from governance audit output
 - `scripts/generate_run_review.py`: generate standardized committee run review markdown from finalized artifacts
+- `scripts/update_factor_experiment_registry.py`: update experiment registry and leaderboard from gate artifacts
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command

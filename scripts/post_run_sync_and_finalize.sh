@@ -27,6 +27,7 @@ Behavior:
 4) run local governance audit checker
 5) generate remediation plan from governance audit output
 6) generate standardized run review markdown
+7) update factor experiment registry + leaderboard
 USAGE
 }
 
@@ -120,6 +121,9 @@ fi
   "$PYTHON_BIN" scripts/generate_run_review.py \
     --run-dir "$LOCAL_RUN_DIR" \
     --report-json "$LOCAL_REPORT_JSON"
+  "$PYTHON_BIN" scripts/update_factor_experiment_registry.py \
+    --report-json "$LOCAL_REPORT_JSON" \
+    --run-dir "$LOCAL_RUN_DIR"
   if [ "$GOV_RC" -ne 0 ]; then
     echo "governance audit check failed (exit=$GOV_RC). See remediation plan under $LOCAL_RUN_DIR" >&2
     exit "$GOV_RC"

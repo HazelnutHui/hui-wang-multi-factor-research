@@ -107,3 +107,11 @@ If governance check fails, generate remediation actions:
 python scripts/governance_remediation_plan.py \
   --audit-json audit/workstation_runs/<ts>_production_gates_<decision_tag>/governance_audit_check.json
 ```
+
+Update factor registry and leaderboard:
+
+```bash
+python scripts/update_factor_experiment_registry.py \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json \
+  --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag>
+```
