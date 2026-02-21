@@ -19,6 +19,19 @@ cd /Users/hui/quant_score/v4
 bash scripts/post_run_sync_and_finalize.sh --tag committee_YYYY-MM-DD_runN
 ```
 
+## Wait-then-finalize flow (recommended while run is still active)
+
+```bash
+cd /Users/hui/quant_score/v4
+bash scripts/monitor_then_finalize.sh --tag committee_YYYY-MM-DD_runN --interval 30
+```
+
+What this does:
+1. monitor remote `run_dir` and `run.log`
+2. wait for `result.json` existence
+3. verify no active WF process remains
+4. auto-call `scripts/post_run_sync_and_finalize.sh`
+
 What this does:
 1. detect remote `run_dir` by `decision_tag`
 2. detect latest remote `production_gates_report.json`

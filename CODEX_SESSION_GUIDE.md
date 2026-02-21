@@ -178,6 +178,11 @@ python scripts/governance_audit_checker.py \
    - `audit/workstation_runs/<...>/governance_remediation_plan.md`
 6. if failed, keep failed trail and create new rerun with new tag
 
+If run is still active and you want hands-off closure:
+```bash
+bash scripts/monitor_then_finalize.sh --tag committee_YYYY-MM-DD_runN --interval 30
+```
+
 ## 10) Commit/Sync Rule
 
 Preferred flow:

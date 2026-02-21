@@ -49,6 +49,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/workstation_preflight.sh`
 - `scripts/workstation_official_run.sh`
 - `scripts/monitor_gate_run.sh`
+- `scripts/monitor_then_finalize.sh`
 - `scripts/finalize_gate_run.py`
 - `scripts/finalize_gate_run.sh`
 - `scripts/post_run_sync_and_finalize.sh`

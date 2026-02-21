@@ -50,6 +50,7 @@ Last updated: 2026-02-21
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
 - `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
 - `scripts/monitor_gate_run.sh`: non-destructive monitor for active official gate runs
+- `scripts/monitor_then_finalize.sh`: monitor active run and auto-trigger post-run sync/finalize when safe
 - `scripts/finalize_gate_run.sh`: one-command post-run finalization (ledger + summary)
 - `scripts/post_run_sync_and_finalize.sh`: one-command remote sync + local finalization
 - `scripts/finalize_gate_run.py`: core finalization helper used by finalize shell wrapper

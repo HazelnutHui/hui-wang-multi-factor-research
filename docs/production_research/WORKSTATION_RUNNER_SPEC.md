@@ -57,6 +57,12 @@ Live monitor (non-destructive):
 bash scripts/monitor_gate_run.sh --tag committee_YYYY-MM-DD_runN --host hui@100.66.103.44 --interval 30
 ```
 
+Monitor-until-complete then auto-finalize:
+
+```bash
+bash scripts/monitor_then_finalize.sh --tag committee_YYYY-MM-DD_runN --interval 30
+```
+
 Post-run ledger finalization:
 
 ```bash
