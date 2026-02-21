@@ -75,6 +75,9 @@ Last updated: 2026-02-21
 - `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
+- `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
+- `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
+- `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command
 - `strategies/`: strategy-level docs and configs
