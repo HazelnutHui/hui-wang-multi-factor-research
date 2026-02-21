@@ -30,6 +30,7 @@ python scripts/auto_research_scheduler.py
 2. heartbeat json records running/stopped status
 3. optional stop on orchestrator failure
 4. optional webhook + command alert channels on failure
+5. optional email alert channel on failure
 5. alert dedupe window prevents repeated noisy alerts for same failure pattern
 6. structured alert payload includes run metadata and recent failure summary
 
@@ -57,6 +58,19 @@ python scripts/auto_research_scheduler.py
 - `alert_webhook_url`
 - `alert_webhook_timeout_seconds`
 - `alert_recent_failures_limit`
+- `alert_email_enabled`
+- `alert_email_smtp_host`
+- `alert_email_smtp_port`
+- `alert_email_use_ssl`
+- `alert_email_use_starttls`
+- `alert_email_timeout_seconds`
+- `alert_email_from`
+- `alert_email_to`
+- `alert_email_subject_prefix`
+- `alert_email_username_env`
+- `alert_email_password_env`
+- `alert_email_dry_run`
+- `alert_email_dry_run_dir`
 - `alert_command`
 
 ## Alert Payload Contract
@@ -70,3 +84,7 @@ Webhook `payload` and `AUTO_RESEARCH_ALERT_JSON` include:
 For command channel:
 1. `AUTO_RESEARCH_ALERT_MSG` carries human-readable message
 2. `AUTO_RESEARCH_ALERT_JSON` carries structured JSON payload
+
+For email channel:
+1. SMTP credentials are read from env vars configured by `alert_email_username_env` and `alert_email_password_env`
+2. `alert_email_dry_run=true` writes `.eml` files to `alert_email_dry_run_dir` without sending network traffic

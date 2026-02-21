@@ -8,10 +8,12 @@ import csv
 import datetime as dt
 import json
 import os
+import smtplib
 import subprocess
 import sys
 import time
 import urllib.request
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +35,19 @@ def _default_policy() -> dict[str, Any]:
         "alert_webhook_url": "",
         "alert_webhook_timeout_seconds": 10,
         "alert_recent_failures_limit": 5,
+        "alert_email_enabled": False,
+        "alert_email_smtp_host": "",
+        "alert_email_smtp_port": 465,
+        "alert_email_use_ssl": True,
+        "alert_email_use_starttls": False,
+        "alert_email_timeout_seconds": 10,
+        "alert_email_from": "",
+        "alert_email_to": [],
+        "alert_email_subject_prefix": "[auto-research]",
+        "alert_email_username_env": "AUTO_RESEARCH_SMTP_USER",
+        "alert_email_password_env": "AUTO_RESEARCH_SMTP_PASS",
+        "alert_email_dry_run": False,
+        "alert_email_dry_run_dir": "audit/auto_research/email_dry_run",
         "alert_command": "",
     }
 
@@ -155,6 +170,72 @@ def _recent_failures(rows: list[dict[str, Any]], limit: int) -> list[dict[str, A
     return out
 
 
+def _send_email_alert(policy: dict[str, Any], msg: str, payload_obj: dict[str, Any], root: Path) -> bool:
+    if not bool(policy.get("alert_email_enabled", False)):
+        return False
+    to_list = policy.get("alert_email_to") or []
+    recipients = [str(x).strip() for x in to_list if str(x).strip()]
+    sender = str(policy.get("alert_email_from", "")).strip()
+    if not recipients or not sender:
+        return False
+
+    subject_prefix = str(policy.get("alert_email_subject_prefix", "[auto-research]")).strip()
+    subject = f"{subject_prefix} scheduler failure: rc={payload_obj.get('rc')} reason={payload_obj.get('stopped_reason')}"
+    body_lines = [
+        "auto_research scheduler alert",
+        "",
+        f"message: {msg}",
+        "",
+        "payload:",
+        json.dumps(payload_obj, ensure_ascii=True, indent=2),
+    ]
+    body = "\n".join(body_lines)
+
+    em = EmailMessage()
+    em["Subject"] = subject
+    em["From"] = sender
+    em["To"] = ", ".join(recipients)
+    em.set_content(body)
+
+    if bool(policy.get("alert_email_dry_run", False)):
+        dry_dir = (root / str(policy.get("alert_email_dry_run_dir", "audit/auto_research/email_dry_run"))).resolve()
+        dry_dir.mkdir(parents=True, exist_ok=True)
+        ts = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        out = dry_dir / f"{ts}_scheduler_alert.eml"
+        out.write_text(em.as_string())
+        return True
+
+    host = str(policy.get("alert_email_smtp_host", "")).strip()
+    port = int(policy.get("alert_email_smtp_port", 465))
+    timeout = max(1, int(policy.get("alert_email_timeout_seconds", 10)))
+    use_ssl = bool(policy.get("alert_email_use_ssl", True))
+    use_starttls = bool(policy.get("alert_email_use_starttls", False))
+    if not host:
+        return False
+
+    user_env = str(policy.get("alert_email_username_env", "AUTO_RESEARCH_SMTP_USER")).strip()
+    pass_env = str(policy.get("alert_email_password_env", "AUTO_RESEARCH_SMTP_PASS")).strip()
+    username = os.environ.get(user_env, "")
+    password = os.environ.get(pass_env, "")
+
+    try:
+        if use_ssl:
+            with smtplib.SMTP_SSL(host=host, port=port, timeout=timeout) as s:
+                if username:
+                    s.login(username, password)
+                s.send_message(em)
+        else:
+            with smtplib.SMTP(host=host, port=port, timeout=timeout) as s:
+                if use_starttls:
+                    s.starttls()
+                if username:
+                    s.login(username, password)
+                s.send_message(em)
+        return True
+    except Exception:
+        return False
+
+
 def _maybe_alert(
     policy: dict[str, Any],
     msg: str,
@@ -206,6 +287,8 @@ def _maybe_alert(
             sent_any = True
         except Exception:
             sent_any = False
+
+    sent_any = _send_email_alert(policy, msg=msg, payload_obj=payload_obj, root=root) or sent_any
 
     cmd = str(policy.get("alert_command", "")).strip()
     if cmd:

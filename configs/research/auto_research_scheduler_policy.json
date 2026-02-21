@@ -14,5 +14,18 @@
   "alert_webhook_url": "",
   "alert_webhook_timeout_seconds": 10,
   "alert_recent_failures_limit": 5,
+  "alert_email_enabled": false,
+  "alert_email_smtp_host": "",
+  "alert_email_smtp_port": 465,
+  "alert_email_use_ssl": true,
+  "alert_email_use_starttls": false,
+  "alert_email_timeout_seconds": 10,
+  "alert_email_from": "",
+  "alert_email_to": [],
+  "alert_email_subject_prefix": "[auto-research]",
+  "alert_email_username_env": "AUTO_RESEARCH_SMTP_USER",
+  "alert_email_password_env": "AUTO_RESEARCH_SMTP_PASS",
+  "alert_email_dry_run": false,
+  "alert_email_dry_run_dir": "audit/auto_research/email_dry_run",
   "alert_command": ""
 }
