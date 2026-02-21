@@ -39,6 +39,8 @@ Last updated: 2026-02-21
 - `docs/production_research/MODEL_CHANGE_CONTROL.md`: change classification and approval matrix standard
 - `docs/production_research/INCIDENT_RESPONSE.md`: incident severity and response timeline standard
 - `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`: security baseline and access controls
+- `docs/production_research/OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run and auto-close command templates
+- `docs/production_research/RUN_REVIEW_TEMPLATE.md`: standardized post-run committee review template
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets

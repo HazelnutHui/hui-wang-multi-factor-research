@@ -38,6 +38,8 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `MODEL_CHANGE_CONTROL.md`: model/factor change classification, evidence requirements, and approvals
 - `INCIDENT_RESPONSE.md`: incident level definitions, response SLA, and closure requirements
 - `SECURITY_AND_ACCESS_CONTROL.md`: credential, access, and workstation security baseline
+- `OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run / monitor / close command templates
+- `RUN_REVIEW_TEMPLATE.md`: standardized committee review template after run closure
 
 ## Core scripts
 
