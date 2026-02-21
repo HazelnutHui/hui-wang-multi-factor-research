@@ -48,6 +48,8 @@ Last updated: 2026-02-21
 - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
 - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`: standard for unattended orchestrator scheduling with lock/heartbeat/alerts
 - `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`: standard for workstation systemd deployment and service operations
+- `docs/production_research/LOW_NETWORK_MODE.md`: standard low-network profile and switching procedure
+- `docs/production_research/SYSTEM_CLOSURE_CHECK.md`: standard for one-command end-of-phase closure checks
 - `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
 - `docs/production_research/SESSION_HANDOFF_READINESS.md`: standard for validating new-session handoff traceability
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
@@ -77,6 +79,8 @@ Last updated: 2026-02-21
 - `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
 - `scripts/auto_research_scheduler.py`: run orchestrator by cadence with singleton lock, heartbeat, and scheduler ledger
 - `scripts/test_scheduler_alert_channels.py`: self-test scheduler alert channels (command/email dry-run dedupe and payload contract)
+- `scripts/switch_auto_research_mode.sh`: switch scheduler policy between low-network and standard profiles with audit trail
+- `scripts/run_system_closure_check.py`: run closure checks and generate consolidated closure report
 - `scripts/install_auto_research_scheduler_service.sh`: install user-level systemd service for scheduler with env file template
 - `scripts/manage_auto_research_scheduler_service.sh`: operate scheduler service (status/start/stop/restart/logs)
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
@@ -85,6 +89,7 @@ Last updated: 2026-02-21
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
 - `configs/research/auto_research_scheduler_policy.json`: scheduler policy for orchestration cadence and failure handling
+- `configs/research/auto_research_scheduler_policy.low_network.json`: low-network scheduler profile (no outbound alerts; local+dry-run only)
 - `audit/auto_research/auto_research_ledger.csv`: append-only ledger of orchestrator cycles
 - `audit/auto_research/auto_research_ledger.md`: human-readable snapshot of latest orchestrator ledger rows
 - `audit/auto_research/auto_research_weekly_summary.csv`: last-7-days daily aggregate health metrics for orchestrator runs
@@ -93,6 +98,8 @@ Last updated: 2026-02-21
 - `audit/auto_research/auto_research_scheduler_ledger.csv`: append-only scheduler cycle ledger
 - `audit/auto_research/auto_research_scheduler_ledger.md`: human-readable scheduler cycle ledger snapshot
 - `audit/auto_research/auto_research_scheduler_alert_state.json`: scheduler alert dedupe state (last sent keys/timestamps)
+- `audit/system_closure/<ts>_closure/system_closure_report.json`: consolidated closure check report
+- `audit/system_closure/<ts>_closure/system_closure_report.md`: readable closure check report
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback

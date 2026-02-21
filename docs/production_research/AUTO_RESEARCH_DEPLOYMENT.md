@@ -59,6 +59,13 @@ bash scripts/manage_auto_research_scheduler_service.sh --action restart
 4. `audit/auto_research/auto_research_ledger.csv`
 5. `audit/auto_research/auto_research_weekly_summary.md`
 
+## Low-Network Mode (Recommended Default)
+
+Before enabling unattended service, switch scheduler policy to low-network:
+```bash
+bash scripts/switch_auto_research_mode.sh --mode low-network
+```
+
 ## Rollback
 
 ```bash

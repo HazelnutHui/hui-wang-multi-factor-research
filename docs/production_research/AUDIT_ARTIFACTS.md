@@ -115,8 +115,12 @@ Examples:
 - `audit/auto_research/auto_research_scheduler_alert_state.json`
 - `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.json`
 - `audit/auto_research/<ts>_alert_selftest/scheduler_alert_selftest_report.md`
+- `audit/auto_research/mode_switch/<ts>_switch.md`
+- `audit/system_closure/<ts>_closure/system_closure_report.json`
+- `audit/system_closure/<ts>_closure/system_closure_report.md`
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`
+- `configs/research/auto_research_scheduler_policy.low_network.json`
 - deployment service files (workstation):
   - `~/.config/systemd/user/auto-research-scheduler.service`
   - `~/.config/auto-research-scheduler/auto-research-scheduler.env`

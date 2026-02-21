@@ -29,6 +29,11 @@ Alert channel selftest (dedupe + payload contract):
 python scripts/test_scheduler_alert_channels.py
 ```
 
+Final closure check:
+```bash
+python scripts/run_system_closure_check.py
+```
+
 ## Safety Controls
 
 1. lock file prevents concurrent scheduler instances

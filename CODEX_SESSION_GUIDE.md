@@ -56,7 +56,9 @@ Read in order:
 28. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
 29. `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
 30. `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`
-31. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+31. `docs/production_research/LOW_NETWORK_MODE.md`
+32. `docs/production_research/SYSTEM_CLOSURE_CHECK.md`
+33. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -75,6 +77,7 @@ Completion check after reading:
 14. identify latest weekly auto-research health summary (`audit/auto_research/auto_research_weekly_summary.md`)
 15. identify scheduler liveness and last-cycle status (`audit/auto_research/auto_research_scheduler_heartbeat.json`)
 16. identify scheduler service deployment status (systemd user service + env file on workstation)
+17. identify active scheduler mode (low-network vs standard) and latest mode-switch audit note
 
 ## 4) SSOT Priority (Conflict Resolution)
 

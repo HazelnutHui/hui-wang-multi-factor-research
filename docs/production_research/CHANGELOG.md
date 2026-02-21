@@ -69,18 +69,25 @@
   - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
   - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
   - `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`
+  - `docs/production_research/LOW_NETWORK_MODE.md`
+  - `docs/production_research/SYSTEM_CLOSURE_CHECK.md`
   - `scripts/auto_research_orchestrator.py`
   - `scripts/auto_research_scheduler.py`
   - `scripts/install_auto_research_scheduler_service.sh`
   - `scripts/manage_auto_research_scheduler_service.sh`
+  - `scripts/switch_auto_research_mode.sh`
+  - `scripts/run_system_closure_check.py`
   - `scripts/test_scheduler_alert_channels.py`
   - `configs/research/auto_research_policy.json`
   - `configs/research/auto_research_scheduler_policy.json`
+  - `configs/research/auto_research_scheduler_policy.low_network.json`
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
   - orchestration loop now appends run-level ledger outputs (`audit/auto_research/auto_research_ledger.csv/.md`)
   - orchestration loop now updates rolling health summary (`audit/auto_research/auto_research_weekly_summary.csv/.md`)
   - scheduler mode now supports singleton lock, heartbeat, scheduler ledger, webhook/command/email alerts, alert dedupe window, and structured alert payloads (with recent failure summary)
   - scheduler alert channels now have one-command selftest report output
+  - low-network profile and one-command mode switch added with audit trail
+  - one-command system closure check added with consolidated closure report
   - orchestrator now supports retry/backoff for pre-execution generation stages
   - orchestrator now supports multi-metric stagnation stop (`priority_score`, `gate_failure_count`, `high_remediation_count`)
 - failure pattern database:
