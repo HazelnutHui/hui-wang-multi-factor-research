@@ -27,6 +27,10 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `STAGE_EXECUTION_STANDARD.md`: stage-by-stage production research execution standard
 - `STAGE_AUDIT_LOG.md`: append-only stage-level audit ledger
 - `WORKSTATION_RUNNER_SPEC.md`: wrapper-script specification for workstation official runs
+- `ARTIFACT_RETENTION_AND_CLEANUP.md`: retention boundary and safe cleanup policy for audit vs temporary outputs
+- `CURRENT_GATE_STATUS_2026-02-21.md`: active rerun status snapshot with verified execution context
+- `PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: verified performance bottlenecks and prioritized optimization backlog
+- `POST_RUN_OPERATIONS.md`: standardized sync/finalize procedure after official run completion
 
 ## Core scripts
 
@@ -37,6 +41,10 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/run_production_gates.py`
 - `scripts/workstation_preflight.sh`
 - `scripts/workstation_official_run.sh`
+- `scripts/monitor_gate_run.sh`
+- `scripts/finalize_gate_run.py`
+- `scripts/finalize_gate_run.sh`
+- `scripts/post_run_sync_and_finalize.sh`
 - `scripts/research_governance.py`
 
 ## Related outputs

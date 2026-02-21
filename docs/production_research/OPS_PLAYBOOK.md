@@ -62,10 +62,13 @@ bash scripts/workstation_official_run.sh \
   --tag committee_YYYY-MM-DD_runN \
   --owner hui \
   --notes "official workstation gate run" \
+  --threads 8 \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
+  --cost-multipliers 1.5,2.0 \
+  --wf-shards 4 \
+  --freeze-file runs/freeze/combo_v2_prod_<date>_g<commit>.freeze.json \
   --out-dir gate_results
 ```
 

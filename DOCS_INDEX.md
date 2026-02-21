@@ -22,12 +22,16 @@ Last updated: 2026-02-21
 - `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new Codex sessions
 - `docs/production_research/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
 - `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: current production gate state snapshot and rerun checklist
+- `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`: active rerun4 status snapshot and verified execution context
 - `docs/production_research/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
 - `docs/production_research/TERMINOLOGY_POLICY.md`: canonical production naming policy
 - `docs/production_research/RENAMING_AUDIT_2026-02-21.md`: full renaming audit trail
 - `docs/production_research/STAGE_EXECUTION_STANDARD.md`: stage-by-stage production execution standard
 - `docs/production_research/WORKSTATION_RUNNER_SPEC.md`: official workstation wrapper and audit outputs
 - `docs/production_research/STAGE_AUDIT_LOG.md`: append-only stage decision ledger
+- `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`: retention and safe cleanup rules for audit artifacts
+- `docs/production_research/PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: prioritized non-destructive performance optimization plan
+- `docs/production_research/POST_RUN_OPERATIONS.md`: one-command post-run sync and finalize procedure
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
@@ -38,6 +42,10 @@ Last updated: 2026-02-21
 - `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
 - `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
+- `scripts/monitor_gate_run.sh`: non-destructive monitor for active official gate runs
+- `scripts/finalize_gate_run.sh`: one-command post-run finalization (ledger + summary)
+- `scripts/post_run_sync_and_finalize.sh`: one-command remote sync + local finalization
+- `scripts/finalize_gate_run.py`: core finalization helper used by finalize shell wrapper
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command

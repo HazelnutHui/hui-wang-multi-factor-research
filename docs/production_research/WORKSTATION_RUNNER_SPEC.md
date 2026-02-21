@@ -27,10 +27,13 @@ bash scripts/workstation_official_run.sh \
   --tag committee_YYYY-MM-DD_xxx \
   --owner hui \
   --notes "official workstation run" \
+  --threads 8 \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
+  --cost-multipliers 1.5,2.0 \
+  --wf-shards 4 \
+  --freeze-file runs/freeze/combo_v2_prod_<date>_g<commit>.freeze.json \
   --out-dir gate_results
 ```
 
@@ -42,9 +45,31 @@ bash scripts/workstation_official_run.sh \
 - `run.log`
 - `result.json`
 
+## Monitoring / Finalization
+
+Live monitor (non-destructive):
+
+```bash
+bash scripts/monitor_gate_run.sh --tag committee_YYYY-MM-DD_runN --host hui@100.66.103.44 --interval 30
+```
+
+Post-run ledger finalization:
+
+```bash
+bash scripts/finalize_gate_run.sh --tag committee_YYYY-MM-DD_runN
+```
+
+Post-run sync + finalization (recommended local command):
+
+```bash
+bash scripts/post_run_sync_and_finalize.sh --tag committee_YYYY-MM-DD_runN
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.
+- Use `--threads` to set BLAS/OpenMP thread env vars for heavy workloads.
+- Use `--wf-shards` to run walk-forward stress in parallel shards by test-year buckets.
 - Preflight default minimums:
   - cores >= 8
   - memory >= 60GB

@@ -21,6 +21,7 @@ Use this exact read order for new sessions focused on production workflow.
 13. `docs/production_research/STAGE_EXECUTION_STANDARD.md`
 14. `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
 15. `docs/production_research/STAGE_AUDIT_LOG.md`
+16. `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`
 
 ## Mandatory checks before editing/running
 

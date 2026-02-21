@@ -59,6 +59,10 @@ Define a strict, repeatable stage system so every research phase has:
 - Use:
   - `scripts/workstation_preflight.sh`
   - `scripts/workstation_official_run.sh`
+- Performance profile for heavy gates:
+  - `--threads 8`
+  - `--cost-multipliers 1.5,2.0` (baseline 1.0 can be omitted for speed in rerun mode)
+  - `--wf-shards 4` (walk-forward shard parallelism)
 - Local machine is for code/docs edits and lightweight checks.
 
 ## Mandatory Explainability Pack per Stage

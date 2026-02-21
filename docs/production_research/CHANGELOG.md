@@ -7,9 +7,18 @@
   - `docs/production_research/STAGE_EXECUTION_STANDARD.md`
   - `docs/production_research/STAGE_AUDIT_LOG.md`
   - `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
+  - `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`
+  - `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+  - `docs/production_research/POST_RUN_OPERATIONS.md`
 - workstation wrappers:
   - `scripts/workstation_preflight.sh`
   - `scripts/workstation_official_run.sh`
+  - `scripts/monitor_gate_run.sh`
+  - `scripts/finalize_gate_run.py`
+  - `scripts/finalize_gate_run.sh`
+  - `scripts/post_run_sync_and_finalize.sh`
+  - wrapper supports `--threads` for BLAS/OpenMP thread controls
+  - gate runner supports `--wf-shards` for WF shard parallelism
 
 ### Renamed
 - governance namespace:
