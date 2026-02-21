@@ -1,4 +1,5 @@
 import argparse
+import concurrent.futures as cf
 import json
 import os
 import subprocess
@@ -108,6 +109,7 @@ def main() -> None:
     p.add_argument("--wf-start-year", type=int, default=2010)
     p.add_argument("--wf-end-year", type=int, default=2025)
     p.add_argument("--wf-rebalance-mode", default="None", help="WF REBALANCE_MODE override (combo default: None)")
+    p.add_argument("--wf-shards", type=int, default=1, help="Parallel shards for walk-forward by test_year")
     p.add_argument("--stress-cost-multiplier", type=float, default=1.5)
     p.add_argument("--stress-min-market-cap", type=float, default=2_000_000_000)
     p.add_argument("--stress-min-dollar-volume", type=float, default=5_000_000)
@@ -177,7 +179,7 @@ def main() -> None:
 
     # 2) Walk-forward stress under stricter universe
     wf_out = out_root / "walk_forward_stress"
-    wf_cmd = [
+    wf_base = [
         sys.executable,
         str(ROOT / "scripts" / "run_walk_forward.py"),
         "--factors",
@@ -190,8 +192,6 @@ def main() -> None:
         str(args.wf_start_year),
         "--end-year",
         str(args.wf_end_year),
-        "--out-dir",
-        str(wf_out),
         "--set",
         f"COST_MULTIPLIER={args.stress_cost_multiplier}",
         "--set",
@@ -207,13 +207,63 @@ def main() -> None:
         mc_path = Path(args.stress_market_cap_dir).expanduser()
         if not mc_path.is_absolute():
             mc_path = (ROOT / mc_path).resolve()
-        wf_cmd += ["--set", f"MARKET_CAP_DIR={mc_path}"]
-        wf_cmd += ["--set", f"MARKET_CAP_STRICT={args.stress_market_cap_strict}"]
+        wf_base += ["--set", f"MARKET_CAP_DIR={mc_path}"]
+        wf_base += ["--set", f"MARKET_CAP_STRICT={args.stress_market_cap_strict}"]
     if args.wf_freeze_file:
-        wf_cmd += ["--freeze-file", str(args.wf_freeze_file)]
+        wf_base += ["--freeze-file", str(args.wf_freeze_file)]
     if args.skip_guardrails:
-        wf_cmd += ["--skip-guardrails"]
-    wf_code = _run(wf_cmd, dry_run=args.dry_run)
+        wf_base += ["--skip-guardrails"]
+
+    wf_shards = max(1, int(args.wf_shards))
+    if wf_shards == 1:
+        wf_cmd = wf_base + ["--out-dir", str(wf_out)]
+        wf_code = _run(wf_cmd, dry_run=args.dry_run)
+    else:
+        test_year_start = int(args.wf_start_year) + int(args.wf_train_years)
+        test_year_end = int(args.wf_end_year)
+        all_test_years = list(range(test_year_start, test_year_end + 1))
+        if not all_test_years:
+            wf_code = 1
+        else:
+            shard_lists = [[] for _ in range(min(wf_shards, len(all_test_years)))]
+            for idx, y in enumerate(all_test_years):
+                shard_lists[idx % len(shard_lists)].append(y)
+            shard_cmds = []
+            for i, years in enumerate(shard_lists):
+                if not years:
+                    continue
+                only_years = ",".join(str(y) for y in years)
+                shard_out = wf_out / f"shard_{i:02d}"
+                cmd = wf_base + ["--only-years", only_years, "--out-dir", str(shard_out)]
+                shard_cmds.append(cmd)
+            codes = []
+            if args.dry_run:
+                for cmd in shard_cmds:
+                    codes.append(_run(cmd, dry_run=True))
+            else:
+                with cf.ThreadPoolExecutor(max_workers=len(shard_cmds)) as ex:
+                    futs = [ex.submit(_run, cmd, False) for cmd in shard_cmds]
+                    for fut in futs:
+                        codes.append(int(fut.result()))
+            wf_code = 0 if all(c == 0 for c in codes) else 1
+
+            if not args.dry_run and wf_code == 0:
+                parts = []
+                for i in range(len(shard_lists)):
+                    p_csv = wf_out / f"shard_{i:02d}" / args.factor / "walk_forward_summary.csv"
+                    if p_csv.exists():
+                        try:
+                            parts.append(pd.read_csv(p_csv))
+                        except Exception:
+                            pass
+                if parts:
+                    merged = pd.concat(parts, ignore_index=True)
+                    sort_cols = [c for c in ["test_start", "train_start"] if c in merged.columns]
+                    if sort_cols:
+                        merged = merged.sort_values(sort_cols)
+                    merged_dir = wf_out / args.factor
+                    merged_dir.mkdir(parents=True, exist_ok=True)
+                    merged.to_csv(merged_dir / "walk_forward_summary.csv", index=False)
 
     wf_summary_path = wf_out / args.factor / "walk_forward_summary.csv"
     wf_stats = {"ok": False, "reason": "dry_run"}
