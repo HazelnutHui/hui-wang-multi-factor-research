@@ -71,7 +71,7 @@
   - `configs/research/auto_research_policy.json`
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
   - orchestrator now supports retry/backoff for pre-execution generation stages
-  - orchestrator now supports `stop_on_no_improvement_rounds` to auto-stop stagnant loops
+  - orchestrator now supports multi-metric stagnation stop (`priority_score`, `gate_failure_count`, `high_remediation_count`)
 - failure pattern database:
   - `docs/production_research/FAILURE_PATTERN_DB.md`
   - `scripts/update_failure_pattern_db.py`

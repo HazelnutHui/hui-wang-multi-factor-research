@@ -31,6 +31,13 @@ def _default_policy() -> dict[str, Any]:
         "stop_on_validation_failure": True,
         "stop_on_empty_plan": True,
         "stop_on_no_improvement_rounds": 0,
+        "stagnation": {
+            "enabled": True,
+            "max_no_improvement_rounds": 0,
+            "priority_score_min_delta": 0.0,
+            "gate_failures_min_delta": 0.0,
+            "high_remediation_min_delta": 0.0,
+        },
         "sleep_seconds_between_rounds": 0,
         "dq_input_csv": "data/your_input.csv",
         "retry": {
@@ -62,7 +69,7 @@ def _load_policy(path: Path | None) -> dict[str, Any]:
         if not isinstance(loaded, dict):
             return out
         out.update({k: v for k, v in loaded.items() if k in out and not isinstance(out[k], dict)})
-        for k in ["retry", "candidate_queue", "next_run_plan"]:
+        for k in ["stagnation", "retry", "candidate_queue", "next_run_plan"]:
             if isinstance(loaded.get(k), dict):
                 out[k].update(loaded[k])
     except Exception:
@@ -127,6 +134,14 @@ def _parse_plan_commands(path: Path) -> list[dict[str, Any]]:
     return []
 
 
+def _metric_improved(*, current: float, best: float | None, direction: str, min_delta: float) -> bool:
+    if best is None:
+        return True
+    if direction == "higher":
+        return current > float(best) + float(min_delta)
+    return current < float(best) - float(min_delta)
+
+
 def _write_md(path: Path, payload: dict[str, Any]) -> None:
     lines = [
         "# Auto Research Orchestrator Run",
@@ -173,6 +188,14 @@ def main() -> None:
     stop_on_validation_failure = bool(policy.get("stop_on_validation_failure", True))
     stop_on_empty_plan = bool(policy.get("stop_on_empty_plan", True))
     stop_on_no_improvement_rounds = int(policy.get("stop_on_no_improvement_rounds", 0))
+    stagnation = policy.get("stagnation") or {}
+    stagnation_enabled = bool(stagnation.get("enabled", True))
+    stagnation_max_rounds = int(
+        stagnation.get("max_no_improvement_rounds", stop_on_no_improvement_rounds)
+    )
+    priority_min_delta = float(stagnation.get("priority_score_min_delta", 0.0))
+    gate_failures_min_delta = float(stagnation.get("gate_failures_min_delta", 0.0))
+    high_rem_min_delta = float(stagnation.get("high_remediation_min_delta", 0.0))
     sleep_secs = int(policy.get("sleep_seconds_between_rounds", 0))
     dq_input_csv = str(policy.get("dq_input_csv", "data/your_input.csv"))
     retry = policy.get("retry") or {}
@@ -190,7 +213,11 @@ def main() -> None:
     rounds: list[dict[str, Any]] = []
     executions_done = 0
     stopped_reason = "max_rounds_reached"
-    best_priority_score: float | None = None
+    best_metrics: dict[str, float | None] = {
+        "priority_score": None,
+        "gate_failure_count": None,
+        "high_remediation_count": None,
+    }
     no_improve_streak = 0
 
     for r in range(1, max_rounds + 1):
@@ -251,6 +278,19 @@ def main() -> None:
             stopped_reason = "next_run_plan_failed"
             rounds.append(rr)
             break
+
+        plan_json_path = (root / str(npp.get("out_json", "audit/factor_registry/next_run_plan.json"))).resolve()
+        gate_failure_count = 0
+        high_remediation_count = 0
+        if plan_json_path.exists():
+            try:
+                plan_obj = _read_json(plan_json_path)
+                gate_failure_count = len(plan_obj.get("gate_failures") or [])
+                high_remediation_count = len(plan_obj.get("high_severity_remediations") or [])
+            except Exception:
+                pass
+        rr["gate_failure_count"] = gate_failure_count
+        rr["high_remediation_count"] = high_remediation_count
 
         repair_cmd = [
             sys.executable,
@@ -364,18 +404,45 @@ def main() -> None:
             rr["execute_stderr"] = ""
 
         cur_score = float(rr.get("selected_priority_score", 0.0))
-        if best_priority_score is None or cur_score > best_priority_score:
-            best_priority_score = cur_score
-            rr["improved_vs_best"] = True
+        improved_metrics: list[str] = []
+        if _metric_improved(
+            current=cur_score,
+            best=best_metrics["priority_score"],
+            direction="higher",
+            min_delta=priority_min_delta,
+        ):
+            best_metrics["priority_score"] = cur_score
+            improved_metrics.append("priority_score")
+        if _metric_improved(
+            current=float(rr.get("gate_failure_count", 0)),
+            best=best_metrics["gate_failure_count"],
+            direction="lower",
+            min_delta=gate_failures_min_delta,
+        ):
+            best_metrics["gate_failure_count"] = float(rr.get("gate_failure_count", 0))
+            improved_metrics.append("gate_failure_count")
+        if _metric_improved(
+            current=float(rr.get("high_remediation_count", 0)),
+            best=best_metrics["high_remediation_count"],
+            direction="lower",
+            min_delta=high_rem_min_delta,
+        ):
+            best_metrics["high_remediation_count"] = float(rr.get("high_remediation_count", 0))
+            improved_metrics.append("high_remediation_count")
+
+        rr["improved_metrics"] = improved_metrics
+        rr["improved_vs_best"] = len(improved_metrics) > 0
+        if rr["improved_vs_best"]:
             no_improve_streak = 0
         else:
-            rr["improved_vs_best"] = False
             no_improve_streak += 1
-        rr["best_priority_score_so_far"] = best_priority_score
+        rr["best_priority_score_so_far"] = best_metrics["priority_score"]
+        rr["best_gate_failure_count_so_far"] = best_metrics["gate_failure_count"]
+        rr["best_high_remediation_count_so_far"] = best_metrics["high_remediation_count"]
         rr["no_improve_streak"] = no_improve_streak
 
         rounds.append(rr)
-        if stop_on_no_improvement_rounds > 0 and no_improve_streak >= stop_on_no_improvement_rounds:
+        if stagnation_enabled and stagnation_max_rounds > 0 and no_improve_streak >= stagnation_max_rounds:
             stopped_reason = "no_improvement_stop"
             break
         if executions_done >= max_executions and execute_enabled:
@@ -391,7 +458,13 @@ def main() -> None:
         "execute_enabled": execute_enabled,
         "max_rounds": max_rounds,
         "max_executions": max_executions,
-        "stop_on_no_improvement_rounds": stop_on_no_improvement_rounds,
+        "stagnation": {
+            "enabled": stagnation_enabled,
+            "max_no_improvement_rounds": stagnation_max_rounds,
+            "priority_score_min_delta": priority_min_delta,
+            "gate_failures_min_delta": gate_failures_min_delta,
+            "high_remediation_min_delta": high_rem_min_delta,
+        },
         "retry": {
             "max_attempts": retry_max_attempts,
             "backoff_seconds": retry_backoff_seconds,
@@ -400,7 +473,7 @@ def main() -> None:
         },
         "rounds_completed": len(rounds),
         "executions_done": executions_done,
-        "best_priority_score": best_priority_score,
+        "best_metrics": best_metrics,
         "stopped_reason": stopped_reason,
         "rounds": rounds,
     }

@@ -33,7 +33,7 @@ Default policy is safe mode:
 3. stop on validation failure
 4. stop on empty plan
 5. retry only pre-execution generation stages (`candidate_queue`, `next_run_plan`, `repair_plan`)
-6. stop when configured no-improvement streak is reached
+6. stop when configured no-improvement streak is reached (multi-metric)
 
 ## Standard Usage
 
@@ -71,6 +71,7 @@ Each round includes:
 - `stop_on_validation_failure`
 - `stop_on_empty_plan`
 - `stop_on_no_improvement_rounds`
+- `stagnation.*`
 - `sleep_seconds_between_rounds`
 - `dq_input_csv`
 - `retry.*`
@@ -83,3 +84,13 @@ Each round includes:
 2. Keep `execute_enabled=false` unless current dataset/freeze path are verified.
 3. Treat non-zero orchestrator exit as governance event; inspect round-level logs in report json.
 4. Use `stop_on_no_improvement_rounds` to prevent budget burn when top candidate priority score does not improve.
+
+## Multi-Metric No-Improvement Rule
+
+Per round, orchestrator tracks:
+1. `selected_priority_score` (higher is better)
+2. `gate_failure_count` (lower is better)
+3. `high_remediation_count` (lower is better)
+
+If none of these metrics improve versus historical best (subject to configured min deltas), `no_improve_streak` increments.
+When streak reaches `stagnation.max_no_improvement_rounds`, run stops with `stopped_reason=no_improvement_stop`.

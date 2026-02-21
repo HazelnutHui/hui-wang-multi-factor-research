@@ -6,6 +6,13 @@
   "stop_on_validation_failure": true,
   "stop_on_empty_plan": true,
   "stop_on_no_improvement_rounds": 2,
+  "stagnation": {
+    "enabled": true,
+    "max_no_improvement_rounds": 2,
+    "priority_score_min_delta": 0.0,
+    "gate_failures_min_delta": 0.0,
+    "high_remediation_min_delta": 0.0
+  },
   "sleep_seconds_between_rounds": 0,
   "dq_input_csv": "data/your_input.csv",
   "retry": {
