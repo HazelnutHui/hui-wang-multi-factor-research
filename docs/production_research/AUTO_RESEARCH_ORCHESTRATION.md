@@ -59,6 +59,9 @@ Per orchestrator run:
 - append-only ledger updates:
   - `audit/auto_research/auto_research_ledger.csv`
   - `audit/auto_research/auto_research_ledger.md`
+- rolling health summary updates:
+  - `audit/auto_research/auto_research_weekly_summary.csv`
+  - `audit/auto_research/auto_research_weekly_summary.md`
 
 Each round includes:
 1. return code and logs for queue/plan/repair/validate/execute

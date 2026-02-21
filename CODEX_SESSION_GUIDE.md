@@ -70,6 +70,7 @@ Completion check after reading:
 11. identify latest failure pattern summary status (`audit/failure_patterns/failure_pattern_summary.md`)
 12. identify active auto-research policy config (`configs/research/auto_research_policy.json`)
 13. identify latest auto-research ledger status (`audit/auto_research/auto_research_ledger.md`)
+14. identify latest weekly auto-research health summary (`audit/auto_research/auto_research_weekly_summary.md`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 

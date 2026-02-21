@@ -187,6 +187,20 @@ def _write_csv_rows(path: Path, rows: list[dict[str, Any]], fields: list[str]) -
             w.writerow({k: r.get(k, "") for k in fields})
 
 
+def _to_float(v: Any) -> float:
+    try:
+        return float(v)
+    except Exception:
+        return 0.0
+
+
+def _to_int(v: Any) -> int:
+    try:
+        return int(float(v))
+    except Exception:
+        return 0
+
+
 def _update_ledger(*, root: Path, payload: dict[str, Any], out_json: Path, out_md: Path) -> tuple[Path, Path]:
     ledger_csv = (root / "audit/auto_research/auto_research_ledger.csv").resolve()
     ledger_md = (root / "audit/auto_research/auto_research_ledger.md").resolve()
@@ -235,6 +249,154 @@ def _update_ledger(*, root: Path, payload: dict[str, Any], out_json: Path, out_m
     ledger_md.parent.mkdir(parents=True, exist_ok=True)
     ledger_md.write_text("\n".join(lines) + "\n")
     return ledger_csv, ledger_md
+
+
+def _update_weekly_summary(*, root: Path, ledger_csv: Path) -> tuple[Path, Path]:
+    out_md = (root / "audit/auto_research/auto_research_weekly_summary.md").resolve()
+    out_csv = (root / "audit/auto_research/auto_research_weekly_summary.csv").resolve()
+    rows = _read_csv_rows(ledger_csv)
+
+    now = dt.datetime.now()
+    week_cutoff = now - dt.timedelta(days=7)
+    week_rows: list[dict[str, Any]] = []
+    for r in rows:
+        raw_ts = str(r.get("generated_at", "")).strip()
+        try:
+            ts = dt.datetime.fromisoformat(raw_ts)
+        except Exception:
+            continue
+        if ts >= week_cutoff:
+            week_rows.append(r)
+
+    def _agg(rs: list[dict[str, Any]]) -> dict[str, Any]:
+        total = len(rs)
+        if total <= 0:
+            return {
+                "runs": 0,
+                "failure_runs": 0,
+                "failure_rate": 0.0,
+                "avg_rounds_completed": 0.0,
+                "avg_executions_done": 0.0,
+                "avg_best_priority_score": 0.0,
+            }
+        fail_reasons = {
+            "candidate_queue_failed",
+            "next_run_plan_failed",
+            "repair_plan_failed",
+            "validation_failed",
+            "execution_failed",
+        }
+        failures = sum(1 for x in rs if str(x.get("stopped_reason", "")) in fail_reasons)
+        return {
+            "runs": total,
+            "failure_runs": failures,
+            "failure_rate": round(float(failures) / float(total), 4),
+            "avg_rounds_completed": round(sum(_to_float(x.get("rounds_completed")) for x in rs) / float(total), 4),
+            "avg_executions_done": round(sum(_to_float(x.get("executions_done")) for x in rs) / float(total), 4),
+            "avg_best_priority_score": round(
+                sum(_to_float(x.get("best_priority_score")) for x in rs) / float(total), 4
+            ),
+        }
+
+    all_agg = _agg(rows)
+    week_agg = _agg(week_rows)
+
+    stop_reason_counts: dict[str, int] = {}
+    for r in week_rows:
+        k = str(r.get("stopped_reason", "")).strip() or "unknown"
+        stop_reason_counts[k] = int(stop_reason_counts.get(k, 0)) + 1
+    stop_reason_items = sorted(stop_reason_counts.items(), key=lambda x: x[1], reverse=True)
+
+    day_map: dict[str, dict[str, Any]] = {}
+    for r in week_rows:
+        ts = str(r.get("generated_at", ""))[:10]
+        if not ts:
+            continue
+        day = day_map.setdefault(ts, {"date": ts, "runs": 0, "failure_runs": 0, "executions_done": 0, "rounds_sum": 0.0})
+        day["runs"] = int(day["runs"]) + 1
+        if str(r.get("stopped_reason", "")) in {
+            "candidate_queue_failed",
+            "next_run_plan_failed",
+            "repair_plan_failed",
+            "validation_failed",
+            "execution_failed",
+        }:
+            day["failure_runs"] = int(day["failure_runs"]) + 1
+        day["executions_done"] = int(day["executions_done"]) + _to_int(r.get("executions_done"))
+        day["rounds_sum"] = float(day["rounds_sum"]) + _to_float(r.get("rounds_completed"))
+
+    daily_rows: list[dict[str, Any]] = []
+    for d in sorted(day_map.keys()):
+        item = day_map[d]
+        runs = max(1, int(item["runs"]))
+        daily_rows.append(
+            {
+                "date": d,
+                "runs": int(item["runs"]),
+                "failure_runs": int(item["failure_runs"]),
+                "failure_rate": round(float(item["failure_runs"]) / float(runs), 4),
+                "executions_done": int(item["executions_done"]),
+                "avg_rounds_completed": round(float(item["rounds_sum"]) / float(runs), 4),
+            }
+        )
+
+    _write_csv_rows(
+        out_csv,
+        daily_rows,
+        ["date", "runs", "failure_runs", "failure_rate", "executions_done", "avg_rounds_completed"],
+    )
+
+    lines = [
+        "# Auto Research Weekly Summary",
+        "",
+        f"- generated_at: {now.isoformat()}",
+        f"- source_ledger_csv: `{ledger_csv}`",
+        f"- window_days: 7",
+        "",
+        "## Last 7 Days",
+        "",
+        f"- runs: {week_agg['runs']}",
+        f"- failure_runs: {week_agg['failure_runs']}",
+        f"- failure_rate: {week_agg['failure_rate']}",
+        f"- avg_rounds_completed: {week_agg['avg_rounds_completed']}",
+        f"- avg_executions_done: {week_agg['avg_executions_done']}",
+        f"- avg_best_priority_score: {week_agg['avg_best_priority_score']}",
+        "",
+        "## All Time",
+        "",
+        f"- runs: {all_agg['runs']}",
+        f"- failure_runs: {all_agg['failure_runs']}",
+        f"- failure_rate: {all_agg['failure_rate']}",
+        f"- avg_rounds_completed: {all_agg['avg_rounds_completed']}",
+        f"- avg_executions_done: {all_agg['avg_executions_done']}",
+        f"- avg_best_priority_score: {all_agg['avg_best_priority_score']}",
+        "",
+        "## Stop Reasons (Last 7 Days)",
+        "",
+    ]
+    if stop_reason_items:
+        for k, v in stop_reason_items:
+            lines.append(f"- {k}: {v}")
+    else:
+        lines.append("- none")
+
+    lines += [
+        "",
+        "## Daily Aggregates (Last 7 Days)",
+        "",
+        "| date | runs | failure_runs | failure_rate | executions_done | avg_rounds_completed |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    if daily_rows:
+        for r in daily_rows:
+            lines.append(
+                f"| {r['date']} | {r['runs']} | {r['failure_runs']} | {r['failure_rate']} | {r['executions_done']} | {r['avg_rounds_completed']} |"
+            )
+    else:
+        lines.append("| - | 0 | 0 | 0 | 0 | 0 |")
+    out_md.parent.mkdir(parents=True, exist_ok=True)
+    out_md.write_text("\n".join(lines) + "\n")
+    return out_csv, out_md
 
 
 def main() -> None:
@@ -550,14 +712,19 @@ def main() -> None:
     _write_json(out_json, payload)
     _write_md(out_md, payload)
     ledger_csv, ledger_md = _update_ledger(root=root, payload=payload, out_json=out_json, out_md=out_md)
+    weekly_csv, weekly_md = _update_weekly_summary(root=root, ledger_csv=ledger_csv)
     payload["ledger_csv"] = str(ledger_csv)
     payload["ledger_md"] = str(ledger_md)
+    payload["weekly_summary_csv"] = str(weekly_csv)
+    payload["weekly_summary_md"] = str(weekly_md)
     _write_json(out_json, payload)
     _write_md(out_md, payload)
     print(f"[done] orchestrator_json={out_json}")
     print(f"[done] orchestrator_md={out_md}")
     print(f"[done] ledger_csv={ledger_csv}")
     print(f"[done] ledger_md={ledger_md}")
+    print(f"[done] weekly_summary_csv={weekly_csv}")
+    print(f"[done] weekly_summary_md={weekly_md}")
     print(f"[done] stopped_reason={stopped_reason} rounds={len(rounds)} executions={executions_done}")
 
     bad = {"candidate_queue_failed", "next_run_plan_failed", "repair_plan_failed", "validation_failed", "execution_failed"}

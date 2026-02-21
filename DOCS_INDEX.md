@@ -80,6 +80,8 @@ Last updated: 2026-02-21
 - `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
 - `audit/auto_research/auto_research_ledger.csv`: append-only ledger of orchestrator cycles
 - `audit/auto_research/auto_research_ledger.md`: human-readable snapshot of latest orchestrator ledger rows
+- `audit/auto_research/auto_research_weekly_summary.csv`: last-7-days daily aggregate health metrics for orchestrator runs
+- `audit/auto_research/auto_research_weekly_summary.md`: weekly health dashboard (failure rate/stop reasons/averages)
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
