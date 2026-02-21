@@ -1,10 +1,10 @@
 """
-Combo Strategy v2.1 - Institutional Research Baseline
+Combo Strategy v2.1 - Production Research Baseline
 Core combination: value_v2 + momentum_v2
 """
 
 STRATEGY_VERSION = "2.1"
-STRATEGY_NAME = "COMBO_TOP3_V2_1_INST"
+STRATEGY_NAME = "COMBO_TOP3_V2_1_PROD"
 
 # Combination weights (can be updated by research script)
 COMBO_WEIGHTS = {
@@ -70,7 +70,7 @@ QUALITY_COMPONENT_MIN_COUNT = 3
 QUALITY_COMPONENT_MISSING_POLICY = "drop"
 FUNDAMENTALS_DIR = "../data/fmp/ratios/quality"
 
-# Stage2 institutional defaults
+# Stage2 production defaults
 SIGNAL_ZSCORE = True
 SIGNAL_RANK = False
 SIGNAL_WINSOR_PCT_LOW = 0.01

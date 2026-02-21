@@ -12,7 +12,7 @@ WORKFLOW_TO_SCRIPT = {
     "train_test": ROOT / "scripts" / "run_with_config.py",
     "segmented": ROOT / "scripts" / "run_segmented_factors.py",
     "walk_forward": ROOT / "scripts" / "run_walk_forward.py",
-    "institutional_gates": ROOT / "scripts" / "run_institutional_gates.py",
+    "production_gates": ROOT / "scripts" / "run_production_gates.py",
     "statistical_gates": ROOT / "scripts" / "run_statistical_gates.py",
 }
 
@@ -25,7 +25,7 @@ def main() -> None:
         "--workflow",
         required=True,
         choices=sorted(WORKFLOW_TO_SCRIPT.keys()),
-        help="Workflow type: train_test / segmented / walk_forward",
+        help="Workflow type: train_test / segmented / walk_forward / production_gates / statistical_gates",
     )
     parser.add_argument(
         "workflow_args",

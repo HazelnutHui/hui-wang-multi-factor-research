@@ -1,0 +1,36 @@
+# Session Bootstrap (For New Codex)
+
+Last updated: 2026-02-21
+
+Use this exact read order for new sessions focused on production workflow.
+
+## Mandatory read order
+
+1. `CODEX_SESSION_GUIDE.md`
+2. `RUNBOOK.md`
+3. `STATUS.md`
+4. `DOCS_INDEX.md`
+5. `docs/production_research/README.md`
+6. `docs/production_research/GATE_SPEC.md`
+7. `docs/production_research/OPS_PLAYBOOK.md`
+8. `docs/production_research/WORKSTATION_PRIMARY_MODE.md`
+9. latest `gate_results/production_gates_*/production_gates_report.json`
+10. `gate_results/gate_registry.csv`
+11. `docs/production_research/TERMINOLOGY_POLICY.md`
+12. `docs/production_research/RENAMING_AUDIT_2026-02-21.md`
+
+## Mandatory checks before editing/running
+
+1. Confirm whether run is local or workstation official run.
+2. Confirm freeze file path and whether it already exists.
+3. Confirm no skip flags for official runs:
+   - `--skip-guardrails`
+   - `--skip-risk-diagnostics`
+   - `--skip-statistical-gates`
+4. Confirm output root and artifact retention path.
+
+## Minimal new-session prompt
+
+```text
+Start with docs/production_research/SESSION_BOOTSTRAP.md and continue production gate workflow in workstation-primary mode.
+```

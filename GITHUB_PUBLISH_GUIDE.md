@@ -100,7 +100,7 @@ Then push again and enter correct username + new PAT.
 ## 9) GitHub Profile / Repo Presentation
 Recommended repository About description:
 
-`Bias-aware, reproducible daily-frequency multi-factor alpha research platform with PIT controls, segmented IC validation, and institutional robustness workflow.`
+`Bias-aware, reproducible daily-frequency multi-factor alpha research platform with PIT controls, segmented IC validation, and production robustness workflow.`
 
 Recommended topics:
 - `quant`

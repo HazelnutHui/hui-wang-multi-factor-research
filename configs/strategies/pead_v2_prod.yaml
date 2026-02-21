@@ -1,6 +1,6 @@
 strategy:
   id: "pead_v2_inst"
-  name: "PEAD_SUE_MAINSTREAM_BASELINE_INST"
+  name: "PEAD_SUE_MAINSTREAM_BASELINE_PROD"
   version: "2.1"
   output_dir: "strategies/pead_v2_inst"
 

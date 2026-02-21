@@ -98,7 +98,7 @@ def _summarize_wf(path: Path) -> dict:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Institutional hard-gate runner (cost + stress + pass/fail).")
+    p = argparse.ArgumentParser(description="Production-grade hard-gate runner (cost + stress + pass/fail).")
     p.add_argument("--strategy", required=True, help="Strategy yaml for fixed train/test runs")
     p.add_argument("--protocol", default=str(ROOT / "configs" / "protocol.yaml"))
     p.add_argument("--factor", default="combo_v2", help="Factor name for walk-forward stress run")
@@ -139,7 +139,7 @@ def main() -> None:
     args = p.parse_args()
 
     ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    out_root = (ROOT / args.out_dir / f"institutional_gates_{ts}").resolve()
+    out_root = (ROOT / args.out_dir / f"production_gates_{ts}").resolve()
     out_root.mkdir(parents=True, exist_ok=True)
     protocol_path = Path(args.protocol).resolve()
     strategy_path = Path(args.strategy).resolve()
@@ -364,12 +364,12 @@ def main() -> None:
         "statistical_gates": stat_stats,
         "gates": gate,
     }
-    report_json = out_root / "institutional_gates_report.json"
+    report_json = out_root / "production_gates_report.json"
     report_json.write_text(json.dumps(report, indent=2, ensure_ascii=True))
 
-    md = out_root / "institutional_gates_report.md"
+    md = out_root / "production_gates_report.md"
     lines = [
-        "# Institutional Gates Report",
+        "# Production Gates Report",
         "",
         f"- generated_at: {report['generated_at']}",
         f"- overall_pass: {gate.get('overall_pass')}",

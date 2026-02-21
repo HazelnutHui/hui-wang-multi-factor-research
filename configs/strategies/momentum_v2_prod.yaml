@@ -1,6 +1,6 @@
 strategy:
   id: "momentum_v2_inst"
-  name: "MOMENTUM_6_1_MAINSTREAM_INST"
+  name: "MOMENTUM_6_1_MAINSTREAM_PROD"
   version: "2.1"
   output_dir: "strategies/momentum_v2_inst"
 

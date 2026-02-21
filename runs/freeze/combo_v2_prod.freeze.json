@@ -1,0 +1,12 @@
+{
+  "frozen_at": "2026-02-20T20:35:19.932145",
+  "runner": "run_with_config",
+  "git_commit": "7cf44f417fac654669eddd0dea76fea45c5c9293",
+  "config_hash": "a84632220097d227ad95e97c6563007d2ceecc77acc8baadb52bd7158ee7b5cc",
+  "run_scope": {
+    "strategy_id": "combo_v2_prod",
+    "strategy_name": "COMBO_TOP3_V2_1_PROD",
+    "strategy_version": "2.1"
+  },
+  "notes": "Created by research governance freeze flow."
+}

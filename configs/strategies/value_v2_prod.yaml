@@ -1,6 +1,6 @@
 strategy:
   id: "value_v2_inst"
-  name: "VALUE_MAINSTREAM_EY_FCF_EVEBITDA_INST"
+  name: "VALUE_MAINSTREAM_EY_FCF_EVEBITDA_PROD"
   version: "2.1"
   output_dir: "strategies/value_v2_inst"
 

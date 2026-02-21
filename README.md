@@ -10,7 +10,7 @@ This project focuses on turning factor ideas into decision-grade research output
 ## What This Project Does
 - Builds rebalance-date-driven backtests for factor strategies
 - Evaluates factors with segmented IC, fixed train/test, and walk-forward
-- Supports Stage 1/Stage 2 signal processing for baseline vs institutional robustness
+- Supports Stage 1/Stage 2 signal processing for baseline vs production robustness
 - Adds point-in-time (PIT) controls for fundamentals timing
 - Handles delisted data paths to reduce survivorship bias
 - Produces structured diagnostics (rolling IC, quantiles, turnover, cost sensitivity)
@@ -27,10 +27,10 @@ If a factor fails step 1, it does not move forward.
 ## Current Research Snapshot (Updated 2026-02-17 UTC)
 Current status under updated single-factor formula logic:
 - `v1` Stage 1 completed and kept as baseline reference
-- `v2` has been overwritten to `v2.1` (institutional baseline upgrade, nontrivial formula changes)
+- `v2` has been overwritten to `v2.1` (production baseline upgrade, nontrivial formula changes)
 - `v2.1` Stage 1 segmented validation completed (6 factors x 9 segments)
 - `v2.1` Stage 1 ranking by `ic_mean`: `value_v2` > `momentum_v2` > `quality_v2` > `low_vol_v2` > `reversal_v2` > `pead_v2`
-- Stage2 strict institutional rerun profile added: `v2026_02_16b` (`value_v2,momentum_v2,quality_v2`, 6-core parallel)
+- Stage2 strict production rerun profile added: `v2026_02_16b` (`value_v2,momentum_v2,quality_v2`, 6-core parallel)
 - Stage2 strict + cache core-pair run completed: `v2026_02_16c_vm` (`value_v2,momentum_v2`, 18/18)
 - Stage2 signal cache layer is now implemented and verified (`395` cache files on workstation run)
 
@@ -64,7 +64,7 @@ Strict Stage2 runner:
 - Default command (resume-safe): `bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3`
 
 ## Combination Layer
-- `combo_v2` is implemented as institutional research baseline.
+- `combo_v2` is implemented as production research baseline.
 - Current core decision: `value + momentum` as main production-candidate pair, `quality` held out for rework.
 - Weight-grid integrity note:
   - Early batch `combo_weight_grid_2026_02_17_p6` is not valid for final weight decision.
@@ -75,7 +75,7 @@ Strict Stage2 runner:
   - Linear winner: `value=0.90`, `momentum=0.10`
   - `value_momentum_gated` and `value_momentum_two_stage` both underperformed the linear winner under identical Stage2 strict constraints.
 - Final locked combo validation:
-  - Layer2 fixed train/test (`configs/strategies/combo_v2_inst.yaml`):
+  - Layer2 fixed train/test (`configs/strategies/combo_v2_prod.yaml`):
     - Train IC (overall): `0.080637`
     - Test IC (overall): `0.053038`
   - Layer3 walk-forward (`REBALANCE_MODE=None`, test years 2013-2025):
@@ -88,7 +88,7 @@ Strict Stage2 runner:
 - Strategy files:
   - `strategies/combo_v2/config.py`
   - `strategies/combo_v2/run.py`
-  - `configs/strategies/combo_v2_inst.yaml`
+  - `configs/strategies/combo_v2_prod.yaml`
 - Weight derivation helper:
   - `scripts/derive_combo_weights.py`
 
@@ -154,7 +154,7 @@ python -m pytest tests
   - `live_trading/reports/daily/en/<run_id>/daily_report_en.pdf`
   - `live_trading/reports/daily/zh/<run_id>/daily_report_zh.pdf`
 
-Core metrics (institution-style, daily):
+Core metrics (production-style, daily):
 - IC: Pearson and Spearman
 - Top/Bottom bucket mean return and spread
 - Top/Bottom win rate
@@ -172,7 +172,7 @@ Current first live day archive:
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
 - `docs/hui_dashboard/README.md`: Hui dashboard deployment/runtime notes and operations guide
 - `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight experiments and final selection log
-- `POST_WF_INSTITUTIONAL_CHECKLIST.md`: post walk-forward institutional validation gates before paper/live
+- `POST_WF_PRODUCTION_CHECKLIST.md`: post walk-forward production validation gates before paper/live
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `FACTOR_NOTES.md`: implementation notes and caveats per factor
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)
@@ -180,7 +180,7 @@ Current first live day archive:
 - `SYSTEM_OVERVIEW_CN.md`: Chinese system overview
 
 ## Interview-Ready Summary
-Designed and implemented a modular, PIT-aware multi-factor research platform that standardizes factor validation and distinguishes robust alpha signals from unstable ones under institutional-style checks.
+Designed and implemented a modular, PIT-aware multi-factor research platform that standardizes factor validation and distinguishes robust alpha signals from unstable ones under production-style checks.
 
 ## Additional Public Summary
 - `PROJECT_SUMMARY.md`: one-page interview-friendly project summary

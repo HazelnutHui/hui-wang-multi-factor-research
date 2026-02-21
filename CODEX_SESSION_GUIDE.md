@@ -1,15 +1,15 @@
 # CODEX Session Guide
 
-Last updated: 2026-02-20
+Last updated: 2026-02-21
 
 This is the single handoff file for new Codex sessions in this repo.
 
 ## 1) Session Goal
-- Primary track: institutionalized research + gate workflow for `combo_v2`, in workstation-primary mode.
+- Primary track: production-grade research + gate workflow for `combo_v2`, in workstation-primary mode.
 - Deliverables:
   - governed run manifests + freeze consistency
   - universe filter audit outputs
-  - institutional gate reports (`cost + WF stress + risk + statistical`)
+  - production gate reports (`cost + WF stress + risk + statistical`)
   - append-only gate registry update
   - docs sync + git push + workstation pull
 
@@ -18,14 +18,16 @@ This is the single handoff file for new Codex sessions in this repo.
 2. `RUNBOOK.md`
 3. `STATUS.md`
 4. `DOCS_INDEX.md`
-5. `docs/institutional/README.md`
-6. `docs/institutional/GATE_SPEC.md`
-7. `docs/institutional/OPS_PLAYBOOK.md`
-8. `docs/institutional/WORKSTATION_PRIMARY_MODE.md`
-9. `docs/institutional/SESSION_BOOTSTRAP.md`
-10. `docs/institutional/AUDIT_ARTIFACTS.md`
-11. `WEBSITE_HANDOFF.md`
-12. `live_trading/reports/README.md`
+5. `docs/production_research/README.md`
+6. `docs/production_research/GATE_SPEC.md`
+7. `docs/production_research/OPS_PLAYBOOK.md`
+8. `docs/production_research/WORKSTATION_PRIMARY_MODE.md`
+9. `docs/production_research/SESSION_BOOTSTRAP.md`
+10. `docs/production_research/AUDIT_ARTIFACTS.md`
+11. `docs/production_research/TERMINOLOGY_POLICY.md`
+12. `docs/production_research/RENAMING_AUDIT_2026-02-21.md`
+13. `WEBSITE_HANDOFF.md`
+14. `live_trading/reports/README.md`
 
 If the task is specifically about daily validation quality, also read:
 1. `live_trading/accuracy/metrics_panel.csv`
@@ -37,7 +39,7 @@ If the task is specifically about daily validation quality, also read:
 - Run ID format:
   - `trade_YYYY-MM-DD_from_signal_YYYY-MM-DD`
 
-## 3b) Institutional Run Integrity (Must Keep Consistent)
+## 3b) Production Run Integrity (Must Keep Consistent)
 - Official heavy runs default to workstation (8C/64G).
 - Official runs must use freeze and must not use skip flags:
   - do not use `--skip-guardrails`
@@ -91,7 +93,7 @@ python scripts/generate_daily_live_report.py --run-id <run_id>
 
 ## 7b) Workstation Rule For Heavy Runs
 - Use workstation for:
-  - `run_institutional_gates.py`
+  - `run_production_gates.py`
   - heavy `run_walk_forward.py`
   - large segmented stress runs
 - Use local machine for:
@@ -103,7 +105,7 @@ python scripts/generate_daily_live_report.py --run-id <run_id>
 Use this prompt in a new session:
 
 ```text
-Please start from docs/institutional/SESSION_BOOTSTRAP.md and continue institutional gate workflow in workstation-primary mode.
+Please start from docs/production_research/SESSION_BOOTSTRAP.md and continue production gate workflow in workstation-primary mode.
 ```
 
 ## 9) Current Run Pointers

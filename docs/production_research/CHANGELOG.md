@@ -1,0 +1,54 @@
+# Production Research Layer Changelog
+
+## 2026-02-21
+
+### Renamed
+- governance namespace:
+  - `docs/institutional/` -> `docs/production_research/`
+- gate runner:
+  - `scripts/run_institutional_gates.py` -> `scripts/run_production_gates.py`
+- checklist:
+  - `POST_WF_INSTITUTIONAL_CHECKLIST.md` -> `POST_WF_PRODUCTION_CHECKLIST.md`
+- production profile:
+  - `configs/strategies/combo_v2_inst.yaml` -> `configs/strategies/combo_v2_prod.yaml`
+  - `runs/freeze/combo_v2_inst.freeze.json` -> `runs/freeze/combo_v2_prod.freeze.json`
+- gate artifact naming:
+  - `institutional_gates_*` -> `production_gates_*`
+  - `institutional_gates_report.*` -> `production_gates_report.*`
+
+### Added
+- terminology governance:
+  - `docs/production_research/TERMINOLOGY_POLICY.md`
+- migration evidence:
+  - `docs/production_research/RENAMING_AUDIT_2026-02-21.md`
+
+### Policy impact
+- `production` is now the only approved governance term in active workflows.
+
+## 2026-02-20
+
+### Added
+- governed manifest/freeze utilities:
+  - `scripts/research_governance.py`
+- unified governed dispatcher:
+  - `scripts/run_research_workflow.py`
+- freeze + manifest support for:
+  - `scripts/run_with_config.py`
+  - `scripts/run_segmented_factors.py`
+  - `scripts/run_walk_forward.py`
+- universe filter audit plumbing:
+  - `backtest/universe_builder.py`
+  - `backtest/backtest_engine.py`
+  - runner-level audit csv outputs
+- PIT/lag guardrails in all core runners (default enabled)
+- production hard-gate runner:
+  - `scripts/run_production_gates.py`
+- risk diagnostics integrated into hard-gate pass/fail
+- production research docs folder:
+  - `docs/production_research/README.md`
+  - `docs/production_research/GATE_SPEC.md`
+  - `docs/production_research/OPS_PLAYBOOK.md`
+
+### Policy impact
+- Core research now supports formal promotion gates and decision audit trail.
+- Official runs should not use skip flags (`--skip-guardrails`, `--skip-risk-diagnostics`).

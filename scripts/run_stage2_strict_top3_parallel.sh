@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Institutional-style Stage2 strict runner (top3 factors).
+# Production-style Stage2 strict runner (top3 factors).
 # Usage:
 #   bash scripts/run_stage2_strict_top3_parallel.sh [JOBS] [OUT_ROOT] [FORCE] [CACHE_ROOT] [REFRESH_CACHE]
 # Example:

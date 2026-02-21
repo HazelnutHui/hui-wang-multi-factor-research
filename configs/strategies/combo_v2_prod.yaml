@@ -1,6 +1,6 @@
 strategy:
-  id: "combo_v2_inst"
-  name: "COMBO_TOP3_V2_1_INST"
+  id: "combo_v2_prod"
+  name: "COMBO_TOP3_V2_1_PROD"
   version: "2.1"
   output_dir: "strategies/combo_v2"
 

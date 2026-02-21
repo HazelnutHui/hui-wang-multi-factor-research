@@ -34,7 +34,7 @@ Fill this once per new factor. This is the “module spec” that drives executi
 14. **Execution**: (delay, entry/exit price)  
 15. **Holding period**:  
 16. **Costs**:  
-17. **Stage**: (Stage 1 baseline / Stage 2 institutional)  
+17. **Stage**: (Stage 1 baseline / Stage 2 production)  
 
 ---
 
@@ -61,7 +61,7 @@ Outputs:
 - `segment_results/<timestamp>/<factor>/segment_summary.csv`
 
 ### Step 3. Stage 2 segmented backtest (robustness)
-Goal: institutional-style robustness check.
+Goal: production-style robustness check.
 
 Command template:
 ```bash

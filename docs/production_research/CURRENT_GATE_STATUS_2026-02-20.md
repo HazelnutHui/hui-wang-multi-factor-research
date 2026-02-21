@@ -1,6 +1,6 @@
 # Current Gate Status Snapshot (2026-02-20)
 
-This file records observed gate behavior during the current institutionalization cycle.
+This file records observed gate behavior during the current production-grade governance cycle.
 
 ## 1) What is stable
 

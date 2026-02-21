@@ -1,4 +1,4 @@
-# Post-WF Institutional Checklist (Combo Strategy)
+# Post-WF Production Checklist (Combo Strategy)
 
 Last updated: 2026-02-17 (stress run completed and passed)
 
@@ -21,9 +21,9 @@ git rev-parse --short HEAD
 Run same strategy config with multiple cost multipliers.
 
 ```bash
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 1.0 |& tee logs/combo_postwf_cost_x1.0.log
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 1.5 |& tee logs/combo_postwf_cost_x1.5.log
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml --cost-multiplier 2.0 |& tee logs/combo_postwf_cost_x2.0.log
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml --cost-multiplier 1.0 |& tee logs/combo_postwf_cost_x1.0.log
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml --cost-multiplier 1.5 |& tee logs/combo_postwf_cost_x1.5.log
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml --cost-multiplier 2.0 |& tee logs/combo_postwf_cost_x2.0.log
 ```
 
 Minimum expectation:

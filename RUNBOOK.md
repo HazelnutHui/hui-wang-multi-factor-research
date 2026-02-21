@@ -35,9 +35,9 @@ python scripts/run_with_config.py --strategy configs/strategies/momentum_v1.yaml
 python scripts/run_walk_forward.py --factors momentum --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
 ```
 
-### 2.5 Combo baseline (institutional top3)
+### 2.5 Combo baseline (production top3)
 ```bash
-python scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml
+python scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml
 python scripts/run_segmented_factors.py --factors combo_v2 --years 2
 python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
 ```
@@ -45,7 +45,7 @@ python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-yea
 ### 2.5b Combo final locked run (recommended)
 ```bash
 # Layer2 fixed train/test
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_inst.yaml
+python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml
 
 # Layer3 walk-forward (important: REBALANCE_MODE=None)
 python3 scripts/run_walk_forward.py \
@@ -98,7 +98,7 @@ python scripts/generate_factor_report.py --strategy configs/strategies/momentum_
 python -m pytest tests
 ```
 
-### 2.9 Stage2 strict top3 (institutional segmented, 6-core)
+### 2.9 Stage2 strict top3 (production segmented, 6-core)
 ```bash
 chmod +x scripts/run_stage2_strict_top3_parallel.sh
 bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3
@@ -111,9 +111,9 @@ Resume-safe behavior:
 bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 1
 ```
 
-### 2.10 Post-WF institutional gates (must-pass before paper/live)
+### 2.10 Post-WF production gates (must-pass before paper/live)
 Use:
-- `POST_WF_INSTITUTIONAL_CHECKLIST.md`
+- `POST_WF_PRODUCTION_CHECKLIST.md`
 
 Includes:
 - cost stress (`--cost-multiplier`)
@@ -221,11 +221,11 @@ First live-day archive (2026-02-18 trading):
   - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
   - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
 
-### 2.13 Governed unified entry + freeze (institutional)
+### 2.13 Governed unified entry + freeze (production-grade)
 Single entrypoint:
 ```bash
 python scripts/run_research_workflow.py --workflow train_test -- \
-  --strategy configs/strategies/combo_v2_inst.yaml
+  --strategy configs/strategies/combo_v2_prod.yaml
 python scripts/run_research_workflow.py --workflow segmented -- \
   --factors combo_v2 --years 2
 python scripts/run_research_workflow.py --workflow walk_forward -- \
@@ -236,14 +236,14 @@ Freeze controls (supported in all three workflow scripts):
 ```bash
 # first run: create freeze file
 python scripts/run_with_config.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --strategy configs/strategies/combo_v2_prod.yaml \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --write-freeze
 
 # later runs: enforce same frozen config hash (+ commit when available)
 python scripts/run_with_config.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json
+  --strategy configs/strategies/combo_v2_prod.yaml \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json
 ```
 
 Run-manifest outputs:
@@ -262,11 +262,11 @@ Universe filter audit outputs:
 - `run_segmented_factors`: `<out_dir>/<factor>/universe_filter_audit.csv`
 - `run_walk_forward`: `<out_dir>/<factor>/universe_filter_audit.csv`
 
-### 2.14 Institutional hard gates (cost + stress + pass/fail)
+### 2.14 Production hard gates (cost + stress + pass/fail)
 One-shot gate runner:
 ```bash
-python scripts/run_institutional_gates.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
+python scripts/run_production_gates.py \
+  --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
   --cost-multipliers 1.0,1.5,2.0 \
   --wf-train-years 3 --wf-test-years 1 --wf-start-year 2010 --wf-end-year 2025 \
@@ -278,9 +278,9 @@ python scripts/run_institutional_gates.py \
 ```
 
 Outputs:
-- `gate_results/institutional_gates_<ts>/cost_stress_results.csv`
-- `gate_results/institutional_gates_<ts>/institutional_gates_report.json`
-- `gate_results/institutional_gates_<ts>/institutional_gates_report.md`
+- `gate_results/production_gates_<ts>/cost_stress_results.csv`
+- `gate_results/production_gates_<ts>/production_gates_report.json`
+- `gate_results/production_gates_<ts>/production_gates_report.md`
 - `gate_results/gate_registry.csv` (append-only decision ledger; disable with `--no-registry`)
 
 Gate defaults:
@@ -315,10 +315,10 @@ ssh hui@100.66.103.44
 cd ~/projects/hui-wang-multi-factor-research
 export PYTHONPATH=$(pwd)
 
-python scripts/run_institutional_gates.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
+python scripts/run_production_gates.py \
+  --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --stress-market-cap-dir data/fmp/market_cap_history \
   --decision-tag committee_ws_official \
   --owner hui \

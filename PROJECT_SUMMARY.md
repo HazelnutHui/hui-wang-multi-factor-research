@@ -1,7 +1,7 @@
 # Project Summary (Interview Version)
 
 ## One-Line Positioning
-Built a reproducible, bias-aware daily-factor research platform that distinguishes robust alpha signals from unstable ones under institutional-style validation.
+Built a reproducible, bias-aware daily-factor research platform that distinguishes robust alpha signals from unstable ones under production-style validation.
 
 ## What I Implemented
 - Modular backtest architecture for daily, rebalance-driven factor research
@@ -27,7 +27,7 @@ Factors that fail segmented stability are filtered out early.
   5. `reversal_v2` (`0.005704`)
   6. `pead_v2` (`0.000766`)
 - Stage 2 priority for this cycle: `value_v2`, `momentum_v2`, `quality_v2`.
-- `v2` has been overwritten to `v2.1` for institutional-style formula upgrades:
+- `v2` has been overwritten to `v2.1` for production-style formula upgrades:
   - residual momentum branch
   - residual downside low-vol baseline
   - reversal gap/liquidity filters

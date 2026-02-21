@@ -1,4 +1,4 @@
-# Institutional Gate Specification
+# Production Gate Specification
 
 Last updated: 2026-02-20
 
@@ -13,7 +13,7 @@ This document defines hard gates for promotion decisions (`research -> paper -> 
 ## 2) Cost stress gates
 
 Runner:
-- `scripts/run_institutional_gates.py`
+- `scripts/run_production_gates.py`
 
 Default multipliers:
 - `1.0, 1.5, 2.0`
@@ -77,15 +77,15 @@ Factor-level pass defaults:
 2. `pos_ratio >= 0.60`
 3. `ic_mean > 0.0`
 
-In integrated institutional gates:
+In integrated production gates:
 - `stat_gate_factor_pass=True` is required unless `--skip-statistical-gates` is explicitly set.
 
 ## 7) Outputs and audit
 
 Per gate run:
 - `cost_stress_results.csv`
-- `institutional_gates_report.json`
-- `institutional_gates_report.md`
+- `production_gates_report.json`
+- `production_gates_report.md`
 - registry append entry in `gate_results/gate_registry.csv` (if enabled)
 
 ## 8) Promotion policy

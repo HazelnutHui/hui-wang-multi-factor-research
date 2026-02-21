@@ -1,4 +1,4 @@
-# Institutional Ops Playbook
+# Production Ops Playbook
 
 Last updated: 2026-02-20
 
@@ -13,37 +13,37 @@ export PYTHONPATH=$(pwd)
 
 ```bash
 python scripts/run_with_config.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --strategy configs/strategies/combo_v2_prod.yaml \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --write-freeze
 ```
 
-## 3) Run institutional hard gates
+## 3) Run production hard gates
 
 ```bash
-python scripts/run_institutional_gates.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
+python scripts/run_production_gates.py \
+  --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --out-dir gate_results
 ```
 
 ## 4) Unified entry alternative
 
 ```bash
-python scripts/run_research_workflow.py --workflow institutional_gates -- \
-  --strategy configs/strategies/combo_v2_inst.yaml \
+python scripts/run_research_workflow.py --workflow production_gates -- \
+  --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --out-dir gate_results
 ```
 
 ## 5) Read outputs
 
 1. Open latest:
-   - `gate_results/institutional_gates_<ts>/institutional_gates_report.md`
+   - `gate_results/production_gates_<ts>/production_gates_report.md`
 2. Verify machine-readable:
-   - `gate_results/institutional_gates_<ts>/institutional_gates_report.json`
+   - `gate_results/production_gates_<ts>/production_gates_report.json`
 3. Check registry:
    - `gate_results/gate_registry.csv`
 

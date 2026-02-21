@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-18
+Last updated: 2026-02-21
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
@@ -8,21 +8,23 @@ Last updated: 2026-02-18
 - `STATUS.md`: current progress and roadmap snapshot
 - `WEBSITE_HANDOFF.md`: website migration handoff (current state, fixes, next tasks, run/deploy notes)
 - `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight research log and selection record
-- `POST_WF_INSTITUTIONAL_CHECKLIST.md`: post walk-forward institutional validation gates (stress + risk + pass/fail)
+- `POST_WF_PRODUCTION_CHECKLIST.md`: post walk-forward production validation gates (stress + risk + pass/fail)
 - `SINGLE_FACTOR_BASELINE.md`: single-factor validation checklist
 - `FACTOR_NOTES.md`: factor implementation notes
 - `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template
 
 ## Additional References
 - `CODEX_SESSION_GUIDE.md`: single-file Codex handoff guide (recommended first read)
-- `docs/institutional/README.md`: institutional governance docs index
-- `docs/institutional/GATE_SPEC.md`: formal hard-gate specification
-- `docs/institutional/OPS_PLAYBOOK.md`: institutional run operations playbook
-- `docs/institutional/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
-- `docs/institutional/SESSION_BOOTSTRAP.md`: strict read order for new Codex sessions
-- `docs/institutional/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
-- `docs/institutional/CURRENT_GATE_STATUS_2026-02-20.md`: current institutional gate state snapshot and rerun checklist
-- `docs/institutional/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
+- `docs/production_research/README.md`: production governance docs index
+- `docs/production_research/GATE_SPEC.md`: formal hard-gate specification
+- `docs/production_research/OPS_PLAYBOOK.md`: production run operations playbook
+- `docs/production_research/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
+- `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new Codex sessions
+- `docs/production_research/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
+- `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: current production gate state snapshot and rerun checklist
+- `docs/production_research/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
+- `docs/production_research/TERMINOLOGY_POLICY.md`: canonical production naming policy
+- `docs/production_research/RENAMING_AUDIT_2026-02-21.md`: full renaming audit trail
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets

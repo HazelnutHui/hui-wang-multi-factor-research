@@ -52,7 +52,7 @@ Purpose: summarize current implementation logic and practical caveats for major 
 - Notes: strict event-date alignment and execution timing assumptions are critical.
 
 ## Combo_v2 (new)
-- Implementation: institutional baseline combination now using core pair `value + momentum` (quality held out after Stage2).
+- Implementation: production baseline combination now using core pair `value + momentum` (quality held out after Stage2).
 - Default static baseline weights (current): `value=0.90`, `momentum=0.10`, `quality=0.00`.
 - Formula comparison result (segmented Stage2 strict):
   - Linear `0.90/0.10`: `ic_mean=0.066149`, `ic_std=0.047273`, `pos_ratio=0.857143`, `valid_n=7/9`.

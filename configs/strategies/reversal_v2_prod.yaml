@@ -1,6 +1,6 @@
 strategy:
   id: "reversal_v2_inst"
-  name: "SHORT_TERM_REVERSAL_5D_MAINSTREAM_INST"
+  name: "SHORT_TERM_REVERSAL_5D_MAINSTREAM_PROD"
   version: "2.1"
   output_dir: "strategies/reversal_v2_inst"
 

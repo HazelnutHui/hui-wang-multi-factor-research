@@ -2,7 +2,7 @@
 
 Last updated: 2026-02-20
 
-This file defines mandatory artifact classes for institutional auditability.
+This file defines mandatory artifact classes for production-grade auditability.
 
 ## 1) Run identity
 
@@ -37,7 +37,7 @@ Examples:
 - `segment_results/<run_id>/<factor>/universe_filter_audit.csv`
 - `walk_forward_results/<run_id>/<factor>/universe_filter_audit.csv`
 
-## 4) Institutional gate decisions
+## 4) Production gate decisions
 
 Required:
 - gate report json/md
@@ -45,9 +45,9 @@ Required:
 - registry append row
 
 Examples:
-- `gate_results/institutional_gates_<ts>/institutional_gates_report.json`
-- `gate_results/institutional_gates_<ts>/institutional_gates_report.md`
-- `gate_results/institutional_gates_<ts>/cost_stress_results.csv`
+- `gate_results/production_gates_<ts>/production_gates_report.json`
+- `gate_results/production_gates_<ts>/production_gates_report.md`
+- `gate_results/production_gates_<ts>/cost_stress_results.csv`
 - `gate_results/gate_registry.csv`
 
 ## 5) Diagnostics + statistical controls
@@ -58,8 +58,8 @@ Required:
 
 Examples:
 - `strategies/<strategy>/reports/diagnostics_*.json`
-- `gate_results/institutional_gates_<ts>/statistical/*/statistical_gates_table.csv`
-- `gate_results/institutional_gates_<ts>/statistical/*/statistical_gates_report.json`
+- `gate_results/production_gates_<ts>/statistical/*/statistical_gates_table.csv`
+- `gate_results/production_gates_<ts>/statistical/*/statistical_gates_report.json`
 
 ## 6) Retention policy (recommended)
 

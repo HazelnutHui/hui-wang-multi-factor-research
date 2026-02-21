@@ -2,16 +2,16 @@
 
 Last updated: 2026-02-19 (live snapshot, T->T+1 archive, and web sync completed)
 
-Institutional governance update (2026-02-20):
+Production governance update (2026-02-20):
 - Governance layer added: freeze + run manifest + guardrails + universe audit + hard gates + gate registry.
-- Workstation-primary policy added for official heavy runs (see `docs/institutional/WORKSTATION_PRIMARY_MODE.md`).
-- New-session strict read order added (see `docs/institutional/SESSION_BOOTSTRAP.md`).
+- Workstation-primary policy added for official heavy runs (see `docs/production_research/WORKSTATION_PRIMARY_MODE.md`).
+- New-session strict read order added (see `docs/production_research/SESSION_BOOTSTRAP.md`).
 
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
 - Stage policy:
   - Stage 1 = baseline screening (winsor + rank)
-  - Stage 2 = institutional robustness (industry + size/beta neutralization + zscore)
+  - Stage 2 = production robustness (industry + size/beta neutralization + zscore)
 - Current runtime status:
   - `v1` Stage 1 rerun completed for six target factors
   - `v2` upgraded in-place to `v2.1`
@@ -53,7 +53,7 @@ Institutional governance update (2026-02-20):
   - `combo_v2` strategy/config/tooling implemented
   - Full three-layer validation completed (`segmented`, `run_with_config`, `walk-forward`)
   - Stage2 top3 conclusion: keep `value_v2` + `momentum_v2`, hold `quality_v2` for rework
-  - Stage2 strict rerun profile added: `v2026_02_16b` (institutional stricter universe + neutralization config)
+  - Stage2 strict rerun profile added: `v2026_02_16b` (production stricter universe + neutralization config)
   - Weight-grid note:
     - Previous `combo_weight_grid_2026_02_17_p6` batch is invalid for final selection due to segmented-runner hardcoded combo weights.
     - Corrected batch `combo_weight_grid_2026_02_17_fix` completed.

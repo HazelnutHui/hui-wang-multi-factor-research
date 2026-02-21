@@ -80,7 +80,7 @@ Formula comparison outcome:
 - Decision: keep linear formula.
 
 ## 9) Layer2/Layer3 Confirmation (Locked Combo)
-- Layer2 fixed train/test (`configs/strategies/combo_v2_inst.yaml`):
+- Layer2 fixed train/test (`configs/strategies/combo_v2_prod.yaml`):
   - Train IC (overall): `0.080637`
   - Test IC (overall): `0.053038`
 - Layer3 walk-forward (test years 2013-2025, `REBALANCE_MODE=None`):

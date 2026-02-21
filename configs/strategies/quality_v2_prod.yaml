@@ -1,6 +1,6 @@
 strategy:
   id: "quality_v2_inst"
-  name: "QUALITY_MAINSTREAM_COMPOSITE_INST"
+  name: "QUALITY_MAINSTREAM_COMPOSITE_PROD"
   version: "2.1"
   output_dir: "strategies/quality_v2_inst"
 

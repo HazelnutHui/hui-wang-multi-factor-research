@@ -62,7 +62,7 @@ INDUSTRY_MAP_PATH = "../data/company_profiles.csv"
 SIGNAL_SMOOTH_WINDOW = None
 SIGNAL_SMOOTH_METHOD = "sma"
 
-# Optional risk neutralization (institutional mode)
+# Optional risk neutralization (production mode)
 SIGNAL_NEUTRALIZE_SIZE = False
 SIGNAL_NEUTRALIZE_BETA = False
 SIGNAL_NEUTRALIZE_COLS = None

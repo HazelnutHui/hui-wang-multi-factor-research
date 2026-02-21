@@ -45,7 +45,7 @@ Purpose: standardize how we assess new factors so results are comparable and dec
 - **Execution**: (delay, entry/exit price)
 - **Holding period**:
 - **Costs**:
-- **Stage**: (Stage 1 baseline / Stage 2 institutional)
+- **Stage**: (Stage 1 baseline / Stage 2 production)
 - **Train/Test**:
 
 ---

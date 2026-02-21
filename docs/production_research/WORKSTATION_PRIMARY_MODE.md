@@ -16,7 +16,7 @@ Local (`/Users/hui/quant_score/v4`):
 Workstation (`~/projects/hui-wang-multi-factor-research`):
 - official long runs:
   - `run_walk_forward.py`
-  - `run_institutional_gates.py`
+  - `run_production_gates.py`
   - heavy segmented batches
 - official gate reports and registry generation
 
@@ -44,10 +44,10 @@ Data/results/logs:
 cd ~/projects/hui-wang-multi-factor-research
 export PYTHONPATH=$(pwd)
 
-python scripts/run_institutional_gates.py \
-  --strategy configs/strategies/combo_v2_inst.yaml \
+python scripts/run_production_gates.py \
+  --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \
-  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --freeze-file runs/freeze/combo_v2_prod.freeze.json \
   --stress-market-cap-dir data/fmp/market_cap_history \
   --decision-tag committee_ws_official \
   --owner hui \
@@ -71,8 +71,8 @@ rsync -avh --progress \
 ## 6) Promotion decision files (mandatory)
 
 Must exist before committee decision:
-1. `gate_results/institutional_gates_<ts>/institutional_gates_report.json`
-2. `gate_results/institutional_gates_<ts>/institutional_gates_report.md`
+1. `gate_results/production_gates_<ts>/production_gates_report.json`
+2. `gate_results/production_gates_<ts>/production_gates_report.md`
 3. `gate_results/gate_registry.csv`
 4. freeze file used in the run
 5. corresponding run manifests

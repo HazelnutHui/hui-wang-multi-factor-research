@@ -1,6 +1,6 @@
 strategy:
   id: "low_vol_v2_inst"
-  name: "LOW_VOL_60D_MAINSTREAM_INST"
+  name: "LOW_VOL_60D_MAINSTREAM_PROD"
   version: "2.1"
   output_dir: "strategies/low_vol_v2_inst"
 
