@@ -47,6 +47,7 @@ Last updated: 2026-02-21
 - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
 - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
 - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`: standard for unattended orchestrator scheduling with lock/heartbeat/alerts
+- `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`: standard for workstation systemd deployment and service operations
 - `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
 - `docs/production_research/SESSION_HANDOFF_READINESS.md`: standard for validating new-session handoff traceability
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
@@ -75,6 +76,8 @@ Last updated: 2026-02-21
 - `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
 - `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
 - `scripts/auto_research_scheduler.py`: run orchestrator by cadence with singleton lock, heartbeat, and scheduler ledger
+- `scripts/install_auto_research_scheduler_service.sh`: install user-level systemd service for scheduler with env file template
+- `scripts/manage_auto_research_scheduler_service.sh`: operate scheduler service (status/start/stop/restart/logs)
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
 - `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)

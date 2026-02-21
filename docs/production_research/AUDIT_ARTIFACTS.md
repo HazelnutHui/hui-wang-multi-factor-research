@@ -115,3 +115,6 @@ Examples:
 - `audit/auto_research/auto_research_scheduler_alert_state.json`
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`
+- deployment service files (workstation):
+  - `~/.config/systemd/user/auto-research-scheduler.service`
+  - `~/.config/auto-research-scheduler/auto-research-scheduler.env`

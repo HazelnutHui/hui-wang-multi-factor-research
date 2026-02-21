@@ -68,8 +68,11 @@
 - auto research orchestration:
   - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
   - `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
+  - `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`
   - `scripts/auto_research_orchestrator.py`
   - `scripts/auto_research_scheduler.py`
+  - `scripts/install_auto_research_scheduler_service.sh`
+  - `scripts/manage_auto_research_scheduler_service.sh`
   - `configs/research/auto_research_policy.json`
   - `configs/research/auto_research_scheduler_policy.json`
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`

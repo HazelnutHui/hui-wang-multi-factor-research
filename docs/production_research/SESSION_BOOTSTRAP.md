@@ -35,6 +35,7 @@ Use this exact read order for new sessions focused on production workflow.
 27. `docs/production_research/SESSION_HANDOFF_READINESS.md`
 28. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
 29. `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`
+30. `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`
 
 ## Mandatory checks before editing/running
 

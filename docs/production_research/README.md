@@ -46,6 +46,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `AUTO_RESEARCH_ORCHESTRATION.md`: multi-round automated research orchestration standard
 - `AUTO_RESEARCH_SCHEDULER.md`: unattended scheduler standard for orchestrator cadence/heartbeat/alerts
+- `AUTO_RESEARCH_DEPLOYMENT.md`: workstation deployment standard for scheduler service operations
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
 - `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new Codex continuity
 
@@ -74,6 +75,8 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/auto_research_orchestrator.py`
 - `scripts/auto_research_scheduler.py`
+- `scripts/install_auto_research_scheduler_service.sh`
+- `scripts/manage_auto_research_scheduler_service.sh`
 - `scripts/update_failure_pattern_db.py`
 - `scripts/check_session_handoff_readiness.py`
 - `scripts/research_governance.py`
