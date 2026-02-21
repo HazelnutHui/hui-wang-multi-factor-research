@@ -45,6 +45,7 @@ What this does:
 8. update factor experiment registry (`scripts/update_factor_experiment_registry.py`)
 9. refresh factor candidate queue (`scripts/generate_candidate_queue.py`)
 10. generate next-run execution plan (`scripts/generate_next_run_plan.py`)
+11. update failure pattern database (`scripts/update_failure_pattern_db.py`)
 
 ## Explicit-path mode
 
@@ -80,7 +81,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 9. next-run plan artifacts updated:
 - `audit/factor_registry/next_run_plan.json`
 - `audit/factor_registry/next_run_plan.md`
-10. if needed, commit governance/docs updates and push.
+10. failure pattern artifacts updated:
+- `audit/failure_patterns/failure_patterns.csv`
+- `audit/failure_patterns/failure_pattern_summary.md`
+11. if needed, commit governance/docs updates and push.
 
 ## Notes
 

@@ -120,6 +120,14 @@ Next-run plan generation (auto-invoked in post-run sync flow):
 python scripts/generate_next_run_plan.py
 ```
 
+Failure pattern DB update (auto-invoked in post-run sync flow):
+
+```bash
+python scripts/update_failure_pattern_db.py \
+  --remediation-json audit/workstation_runs/<...>/governance_remediation_plan.json \
+  --audit-json audit/workstation_runs/<...>/governance_audit_check.json
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.

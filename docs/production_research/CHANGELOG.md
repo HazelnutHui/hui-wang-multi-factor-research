@@ -54,6 +54,10 @@
   - `docs/production_research/NEXT_RUN_PLANNING.md`
   - `scripts/generate_next_run_plan.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
+- failure pattern database:
+  - `docs/production_research/FAILURE_PATTERN_DB.md`
+  - `scripts/update_failure_pattern_db.py`
+  - `scripts/post_run_sync_and_finalize.sh` now auto-updates failure pattern DB + summary
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
   - `scripts/workstation_official_run.sh` now auto-injects `--decision-tag/--owner/--notes` when missing in workflow args

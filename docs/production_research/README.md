@@ -43,6 +43,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `FACTOR_EXPERIMENT_REGISTRY.md`: central experiment registry and scoring/ranking standard
 - `CANDIDATE_QUEUE_POLICY.md`: auto-prioritized next-run candidate queue policy
 - `NEXT_RUN_PLANNING.md`: generation standard for rerun command/hypothesis plan
+- `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
 
 ## Core scripts
 
@@ -65,6 +66,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/update_factor_experiment_registry.py`
 - `scripts/generate_candidate_queue.py`
 - `scripts/generate_next_run_plan.py`
+- `scripts/update_failure_pattern_db.py`
 - `scripts/research_governance.py`
 
 ## Related config

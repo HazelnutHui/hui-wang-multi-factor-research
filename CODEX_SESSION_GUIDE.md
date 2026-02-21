@@ -63,6 +63,7 @@ Completion check after reading:
 7. identify latest factor candidate queue output and top candidate
 8. identify active candidate queue policy config (`configs/research/candidate_queue_policy.json`)
 9. identify latest `audit/factor_registry/next_run_plan.md` and planned command set
+10. identify latest failure pattern summary status (`audit/failure_patterns/failure_pattern_summary.md`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 

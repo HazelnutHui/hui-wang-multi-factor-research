@@ -30,6 +30,7 @@ Behavior:
 7) update factor experiment registry + leaderboard
 8) refresh factor candidate queue
 9) generate next-run execution plan
+10) update failure pattern database and summary
 USAGE
 }
 
@@ -128,6 +129,9 @@ fi
     --run-dir "$LOCAL_RUN_DIR"
   "$PYTHON_BIN" scripts/generate_candidate_queue.py
   "$PYTHON_BIN" scripts/generate_next_run_plan.py
+  "$PYTHON_BIN" scripts/update_failure_pattern_db.py \
+    --remediation-json "$LOCAL_RUN_DIR/governance_remediation_plan.json" \
+    --audit-json "$LOCAL_RUN_DIR/governance_audit_check.json"
   if [ "$GOV_RC" -ne 0 ]; then
     echo "governance audit check failed (exit=$GOV_RC). See remediation plan under $LOCAL_RUN_DIR" >&2
     exit "$GOV_RC"
