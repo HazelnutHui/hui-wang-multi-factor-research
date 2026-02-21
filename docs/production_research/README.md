@@ -58,6 +58,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/data_quality_gate.py`
 - `scripts/governance_audit_checker.py`
 - `scripts/governance_remediation_plan.py`
+- `scripts/generate_run_review.py`
 - `scripts/research_governance.py`
 
 ## Related outputs

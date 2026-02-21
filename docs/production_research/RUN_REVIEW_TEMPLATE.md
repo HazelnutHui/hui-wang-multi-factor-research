@@ -4,6 +4,14 @@ Last updated: 2026-02-21
 
 Use this template to produce a standardized committee-ready run review after official run closure.
 
+Auto-generation helper:
+
+```bash
+python scripts/generate_run_review.py \
+  --run-dir audit/workstation_runs/<ts>_production_gates_<decision_tag> \
+  --report-json gate_results/production_gates_<ts>/production_gates_report.json
+```
+
 ## Header
 
 - decision_tag:
