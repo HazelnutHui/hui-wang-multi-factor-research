@@ -57,3 +57,10 @@ Override options (only for exceptional cases):
 python scripts/execute_next_run_plan.py --rank 1 --dry-run --allow-placeholder-dq
 python scripts/execute_next_run_plan.py --rank 1 --skip-validation
 ```
+
+## Path Repair (Recommended Before Execute)
+
+```bash
+python scripts/repair_next_run_plan_paths.py --allow-missing-dq
+python scripts/execute_next_run_plan.py --plan-json audit/factor_registry/next_run_plan_fixed.json --rank 1 --dry-run --skip-validation
+```

@@ -54,6 +54,7 @@
   - `docs/production_research/NEXT_RUN_PLANNING.md`
   - `scripts/generate_next_run_plan.py`
   - `scripts/execute_next_run_plan.py`
+  - `scripts/repair_next_run_plan_paths.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
   - `scripts/execute_next_run_plan.py` now includes pre-execution safety validation (tag/freeze/dq/workflow checks)
 - failure pattern database:
