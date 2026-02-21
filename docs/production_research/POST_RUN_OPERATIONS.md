@@ -46,6 +46,7 @@ Post-run sync/finalize actions:
 9. refresh factor candidate queue (`scripts/generate_candidate_queue.py`)
 10. generate next-run execution plan (`scripts/generate_next_run_plan.py`)
 11. update failure pattern database (`scripts/update_failure_pattern_db.py`)
+12. generate session handoff readiness audit (`scripts/check_session_handoff_readiness.py`)
 
 ## Explicit-path mode
 
@@ -84,7 +85,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 10. failure pattern artifacts updated:
 - `audit/failure_patterns/failure_patterns.csv`
 - `audit/failure_patterns/failure_pattern_summary.md`
-11. if needed, commit governance/docs updates and push.
+11. handoff readiness artifacts updated:
+- `audit/session_handoff/handoff_readiness.json`
+- `audit/session_handoff/handoff_readiness.md`
+12. if needed, commit governance/docs updates and push.
 
 ## Notes
 

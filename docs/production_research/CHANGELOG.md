@@ -41,6 +41,7 @@
   - `docs/production_research/SESSION_HANDOFF_READINESS.md`
   - `scripts/check_session_handoff_readiness.py`
   - `CODEX_SESSION_GUIDE.md` and `SESSION_BOOTSTRAP.md` read sequence extended with handoff readiness standard
+  - `scripts/post_run_sync_and_finalize.sh` now auto-runs handoff readiness checker and emits `audit/session_handoff/*`
 - review generator:
   - `scripts/generate_run_review.py`
 - post-run flow extension:
