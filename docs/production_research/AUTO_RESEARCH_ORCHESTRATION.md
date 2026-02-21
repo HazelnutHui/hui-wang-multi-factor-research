@@ -32,6 +32,8 @@ Default policy is safe mode:
 2. hard pre-execution validation required
 3. stop on validation failure
 4. stop on empty plan
+5. retry only pre-execution generation stages (`candidate_queue`, `next_run_plan`, `repair_plan`)
+6. stop when configured no-improvement streak is reached
 
 ## Standard Usage
 
@@ -68,8 +70,10 @@ Each round includes:
 - `execute_enabled`
 - `stop_on_validation_failure`
 - `stop_on_empty_plan`
+- `stop_on_no_improvement_rounds`
 - `sleep_seconds_between_rounds`
 - `dq_input_csv`
+- `retry.*`
 - `candidate_queue.*`
 - `next_run_plan.*`
 
@@ -78,3 +82,4 @@ Each round includes:
 1. For unattended mode, use explicit budget (`max_rounds`, `max_executions`).
 2. Keep `execute_enabled=false` unless current dataset/freeze path are verified.
 3. Treat non-zero orchestrator exit as governance event; inspect round-level logs in report json.
+4. Use `stop_on_no_improvement_rounds` to prevent budget burn when top candidate priority score does not improve.

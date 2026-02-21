@@ -30,8 +30,15 @@ def _default_policy() -> dict[str, Any]:
         "execute_enabled": False,
         "stop_on_validation_failure": True,
         "stop_on_empty_plan": True,
+        "stop_on_no_improvement_rounds": 0,
         "sleep_seconds_between_rounds": 0,
         "dq_input_csv": "data/your_input.csv",
+        "retry": {
+            "max_attempts": 1,
+            "backoff_seconds": 0,
+            "backoff_multiplier": 2.0,
+            "stages": ["candidate_queue", "next_run_plan", "repair_plan"],
+        },
         "candidate_queue": {
             "policy_json": "configs/research/candidate_queue_policy.json",
             "out_csv": "audit/factor_registry/factor_candidate_queue.csv",
@@ -55,7 +62,7 @@ def _load_policy(path: Path | None) -> dict[str, Any]:
         if not isinstance(loaded, dict):
             return out
         out.update({k: v for k, v in loaded.items() if k in out and not isinstance(out[k], dict)})
-        for k in ["candidate_queue", "next_run_plan"]:
+        for k in ["retry", "candidate_queue", "next_run_plan"]:
             if isinstance(loaded.get(k), dict):
                 out[k].update(loaded[k])
     except Exception:
@@ -71,6 +78,40 @@ def _run(cmd: list[str], cwd: Path) -> dict[str, Any]:
         "stdout": proc.stdout.strip(),
         "stderr": proc.stderr.strip(),
     }
+
+
+def _run_with_retry(
+    *,
+    cmd: list[str],
+    cwd: Path,
+    stage: str,
+    max_attempts: int,
+    backoff_seconds: int,
+    backoff_multiplier: float,
+) -> dict[str, Any]:
+    attempts = max(1, int(max_attempts))
+    logs: list[dict[str, Any]] = []
+    sleep_s = max(0, int(backoff_seconds))
+    out = {"cmd": cmd, "rc": 1, "stdout": "", "stderr": ""}
+    for i in range(1, attempts + 1):
+        out = _run(cmd, cwd)
+        logs.append(
+            {
+                "attempt": i,
+                "rc": out["rc"],
+                "stdout": out["stdout"],
+                "stderr": out["stderr"],
+            }
+        )
+        if out["rc"] == 0:
+            break
+        if i < attempts and sleep_s > 0:
+            time.sleep(sleep_s)
+            sleep_s = max(0, int(sleep_s * float(backoff_multiplier)))
+    out["stage"] = stage
+    out["attempt_count"] = len(logs)
+    out["attempts"] = logs
+    return out
 
 
 def _parse_plan_commands(path: Path) -> list[dict[str, Any]]:
@@ -131,8 +172,14 @@ def main() -> None:
     execute_rank = int(policy.get("execute_rank", 1))
     stop_on_validation_failure = bool(policy.get("stop_on_validation_failure", True))
     stop_on_empty_plan = bool(policy.get("stop_on_empty_plan", True))
+    stop_on_no_improvement_rounds = int(policy.get("stop_on_no_improvement_rounds", 0))
     sleep_secs = int(policy.get("sleep_seconds_between_rounds", 0))
     dq_input_csv = str(policy.get("dq_input_csv", "data/your_input.csv"))
+    retry = policy.get("retry") or {}
+    retry_max_attempts = int(retry.get("max_attempts", 1))
+    retry_backoff_seconds = int(retry.get("backoff_seconds", 0))
+    retry_backoff_multiplier = float(retry.get("backoff_multiplier", 2.0))
+    retry_stages = {str(x) for x in list(retry.get("stages", []))}
     cqp = policy.get("candidate_queue") or {}
     npp = policy.get("next_run_plan") or {}
 
@@ -143,6 +190,8 @@ def main() -> None:
     rounds: list[dict[str, Any]] = []
     executions_done = 0
     stopped_reason = "max_rounds_reached"
+    best_priority_score: float | None = None
+    no_improve_streak = 0
 
     for r in range(1, max_rounds + 1):
         rr: dict[str, Any] = {"round": r}
@@ -157,10 +206,19 @@ def main() -> None:
             "--out-md",
             str(cqp.get("out_md", "audit/factor_registry/factor_candidate_queue.md")),
         ]
-        q = _run(queue_cmd, root)
+        q = _run_with_retry(
+            cmd=queue_cmd,
+            cwd=root,
+            stage="candidate_queue",
+            max_attempts=(retry_max_attempts if "candidate_queue" in retry_stages else 1),
+            backoff_seconds=retry_backoff_seconds,
+            backoff_multiplier=retry_backoff_multiplier,
+        )
         rr["queue_rc"] = q["rc"]
         rr["queue_stdout"] = q["stdout"]
         rr["queue_stderr"] = q["stderr"]
+        rr["queue_attempt_count"] = q.get("attempt_count", 1)
+        rr["queue_attempts"] = q.get("attempts", [])
         if q["rc"] != 0:
             stopped_reason = "candidate_queue_failed"
             rounds.append(rr)
@@ -176,10 +234,19 @@ def main() -> None:
             "--out-md",
             str(npp.get("out_md", "audit/factor_registry/next_run_plan.md")),
         ]
-        gp = _run(plan_cmd, root)
+        gp = _run_with_retry(
+            cmd=plan_cmd,
+            cwd=root,
+            stage="next_run_plan",
+            max_attempts=(retry_max_attempts if "next_run_plan" in retry_stages else 1),
+            backoff_seconds=retry_backoff_seconds,
+            backoff_multiplier=retry_backoff_multiplier,
+        )
         rr["plan_rc"] = gp["rc"]
         rr["plan_stdout"] = gp["stdout"]
         rr["plan_stderr"] = gp["stderr"]
+        rr["plan_attempt_count"] = gp.get("attempt_count", 1)
+        rr["plan_attempts"] = gp.get("attempts", [])
         if gp["rc"] != 0:
             stopped_reason = "next_run_plan_failed"
             rounds.append(rr)
@@ -197,10 +264,19 @@ def main() -> None:
             "--dq-input-csv",
             dq_input_csv,
         ]
-        rp = _run(repair_cmd, root)
+        rp = _run_with_retry(
+            cmd=repair_cmd,
+            cwd=root,
+            stage="repair_plan",
+            max_attempts=(retry_max_attempts if "repair_plan" in retry_stages else 1),
+            backoff_seconds=retry_backoff_seconds,
+            backoff_multiplier=retry_backoff_multiplier,
+        )
         rr["repair_rc"] = rp["rc"]
         rr["repair_stdout"] = rp["stdout"]
         rr["repair_stderr"] = rp["stderr"]
+        rr["repair_attempt_count"] = rp.get("attempt_count", 1)
+        rr["repair_attempts"] = rp.get("attempts", [])
         if rp["rc"] != 0:
             stopped_reason = "repair_plan_failed"
             rounds.append(rr)
@@ -220,6 +296,10 @@ def main() -> None:
         selected = commands[rank - 1]
         rr["selected_factor"] = str(selected.get("factor", ""))
         rr["selected_tag"] = str(selected.get("proposed_decision_tag", ""))
+        try:
+            rr["selected_priority_score"] = float(selected.get("priority_score", 0.0))
+        except Exception:
+            rr["selected_priority_score"] = 0.0
 
         validate_cmd = [
             sys.executable,
@@ -230,10 +310,19 @@ def main() -> None:
             str(rank),
             "--dry-run",
         ]
-        vd = _run(validate_cmd, root)
+        vd = _run_with_retry(
+            cmd=validate_cmd,
+            cwd=root,
+            stage="validate",
+            max_attempts=1,
+            backoff_seconds=0,
+            backoff_multiplier=1.0,
+        )
         rr["validate_rc"] = vd["rc"]
         rr["validate_stdout"] = vd["stdout"]
         rr["validate_stderr"] = vd["stderr"]
+        rr["validate_attempt_count"] = vd.get("attempt_count", 1)
+        rr["validate_attempts"] = vd.get("attempts", [])
         if vd["rc"] != 0:
             rr["execute_rc"] = -1
             rounds.append(rr)
@@ -251,10 +340,19 @@ def main() -> None:
                 "--rank",
                 str(rank),
             ]
-            ex = _run(exe_cmd, root)
+            ex = _run_with_retry(
+                cmd=exe_cmd,
+                cwd=root,
+                stage="execute",
+                max_attempts=1,
+                backoff_seconds=0,
+                backoff_multiplier=1.0,
+            )
             rr["execute_rc"] = ex["rc"]
             rr["execute_stdout"] = ex["stdout"]
             rr["execute_stderr"] = ex["stderr"]
+            rr["execute_attempt_count"] = ex.get("attempt_count", 1)
+            rr["execute_attempts"] = ex.get("attempts", [])
             executions_done += 1
             if ex["rc"] != 0:
                 stopped_reason = "execution_failed"
@@ -265,7 +363,21 @@ def main() -> None:
             rr["execute_stdout"] = "execution skipped (safe mode)"
             rr["execute_stderr"] = ""
 
+        cur_score = float(rr.get("selected_priority_score", 0.0))
+        if best_priority_score is None or cur_score > best_priority_score:
+            best_priority_score = cur_score
+            rr["improved_vs_best"] = True
+            no_improve_streak = 0
+        else:
+            rr["improved_vs_best"] = False
+            no_improve_streak += 1
+        rr["best_priority_score_so_far"] = best_priority_score
+        rr["no_improve_streak"] = no_improve_streak
+
         rounds.append(rr)
+        if stop_on_no_improvement_rounds > 0 and no_improve_streak >= stop_on_no_improvement_rounds:
+            stopped_reason = "no_improvement_stop"
+            break
         if executions_done >= max_executions and execute_enabled:
             stopped_reason = "execution_budget_reached"
             break
@@ -279,8 +391,16 @@ def main() -> None:
         "execute_enabled": execute_enabled,
         "max_rounds": max_rounds,
         "max_executions": max_executions,
+        "stop_on_no_improvement_rounds": stop_on_no_improvement_rounds,
+        "retry": {
+            "max_attempts": retry_max_attempts,
+            "backoff_seconds": retry_backoff_seconds,
+            "backoff_multiplier": retry_backoff_multiplier,
+            "stages": sorted(list(retry_stages)),
+        },
         "rounds_completed": len(rounds),
         "executions_done": executions_done,
+        "best_priority_score": best_priority_score,
         "stopped_reason": stopped_reason,
         "rounds": rounds,
     }
