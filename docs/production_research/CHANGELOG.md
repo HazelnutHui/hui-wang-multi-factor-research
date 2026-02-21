@@ -75,7 +75,7 @@
   - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
   - orchestration loop now appends run-level ledger outputs (`audit/auto_research/auto_research_ledger.csv/.md`)
   - orchestration loop now updates rolling health summary (`audit/auto_research/auto_research_weekly_summary.csv/.md`)
-  - scheduler mode now supports singleton lock, heartbeat, scheduler ledger, and optional failure alert command
+  - scheduler mode now supports singleton lock, heartbeat, scheduler ledger, webhook/command alerts, and alert dedupe window
   - orchestrator now supports retry/backoff for pre-execution generation stages
   - orchestrator now supports multi-metric stagnation stop (`priority_score`, `gate_failure_count`, `high_remediation_count`)
 - failure pattern database:

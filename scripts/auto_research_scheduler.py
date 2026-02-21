@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,10 @@ def _default_policy() -> dict[str, Any]:
         "ledger_csv": "audit/auto_research/auto_research_scheduler_ledger.csv",
         "ledger_md": "audit/auto_research/auto_research_scheduler_ledger.md",
         "alert_on_failure": False,
+        "alert_state_json": "audit/auto_research/auto_research_scheduler_alert_state.json",
+        "alert_dedupe_window_seconds": 1800,
+        "alert_webhook_url": "",
+        "alert_webhook_timeout_seconds": 10,
         "alert_command": "",
     }
 
@@ -126,15 +131,59 @@ def _run_orchestrator(root: Path, orchestrator_policy_json: str, execute: bool) 
     }
 
 
-def _maybe_alert(policy: dict[str, Any], msg: str, root: Path) -> None:
+def _maybe_alert(policy: dict[str, Any], msg: str, root: Path, dedupe_key: str = "") -> None:
     if not bool(policy.get("alert_on_failure", False)):
         return
-    cmd = str(policy.get("alert_command", "")).strip()
-    if not cmd:
+    state_path = (root / str(policy.get("alert_state_json", "audit/auto_research/auto_research_scheduler_alert_state.json"))).resolve()
+    dedupe_window = max(0, int(policy.get("alert_dedupe_window_seconds", 1800)))
+    now = int(time.time())
+    alert_key = dedupe_key.strip() if dedupe_key.strip() else msg
+    state: dict[str, Any] = {}
+    if state_path.exists():
+        try:
+            state = json.loads(state_path.read_text())
+        except Exception:
+            state = {}
+    key_map = state.get("keys") if isinstance(state.get("keys"), dict) else {}
+    last_ts = int(key_map.get(alert_key, 0)) if str(key_map.get(alert_key, "")).strip() else 0
+    if dedupe_window > 0 and (now - last_ts) < dedupe_window:
         return
-    env = os.environ.copy()
-    env["AUTO_RESEARCH_ALERT_MSG"] = msg
-    subprocess.run(cmd, cwd=str(root), env=env, shell=True, check=False)
+
+    sent_any = False
+    webhook_url = str(policy.get("alert_webhook_url", "")).strip()
+    if webhook_url:
+        payload = {
+            "timestamp": dt.datetime.now().isoformat(),
+            "source": "auto_research_scheduler",
+            "message": msg,
+            "dedupe_window_seconds": dedupe_window,
+        }
+        body = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            webhook_url,
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            timeout = max(1, int(policy.get("alert_webhook_timeout_seconds", 10)))
+            with urllib.request.urlopen(req, timeout=timeout):
+                pass
+            sent_any = True
+        except Exception:
+            sent_any = False
+
+    cmd = str(policy.get("alert_command", "")).strip()
+    if cmd:
+        env = os.environ.copy()
+        env["AUTO_RESEARCH_ALERT_MSG"] = msg
+        rc = subprocess.run(cmd, cwd=str(root), env=env, shell=True, check=False).returncode
+        sent_any = sent_any or (rc == 0)
+
+    if sent_any:
+        key_map[alert_key] = now
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(json.dumps({"updated_at": dt.datetime.now().isoformat(), "keys": key_map}, indent=2, ensure_ascii=True))
 
 
 def main() -> None:
@@ -213,7 +262,15 @@ def main() -> None:
             print(f"[cycle] {cycle} rc={res['rc']} run_dir={res['run_dir']} stopped_reason={res['stopped_reason']}")
             if int(res["rc"]) != 0:
                 stop_reason = "orchestrator_failure"
-                _maybe_alert(policy, f"auto research scheduler cycle failed (cycle={cycle}, rc={res['rc']})", root)
+                _maybe_alert(
+                    policy,
+                    (
+                        "auto research scheduler cycle failed "
+                        f"(cycle={cycle}, rc={res['rc']}, stopped_reason={res['stopped_reason']})"
+                    ),
+                    root,
+                    dedupe_key=f"orchestrator_failure:rc={res['rc']}:reason={res['stopped_reason']}",
+                )
                 if stop_on_fail:
                     break
             if max_cycles > 0 and cycle >= max_cycles:

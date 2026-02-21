@@ -9,5 +9,9 @@
   "ledger_csv": "audit/auto_research/auto_research_scheduler_ledger.csv",
   "ledger_md": "audit/auto_research/auto_research_scheduler_ledger.md",
   "alert_on_failure": false,
+  "alert_state_json": "audit/auto_research/auto_research_scheduler_alert_state.json",
+  "alert_dedupe_window_seconds": 1800,
+  "alert_webhook_url": "",
+  "alert_webhook_timeout_seconds": 10,
   "alert_command": ""
 }

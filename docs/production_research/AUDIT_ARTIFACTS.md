@@ -112,5 +112,6 @@ Examples:
 - `audit/auto_research/auto_research_scheduler_heartbeat.json`
 - `audit/auto_research/auto_research_scheduler_ledger.csv`
 - `audit/auto_research/auto_research_scheduler_ledger.md`
+- `audit/auto_research/auto_research_scheduler_alert_state.json`
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`

@@ -4,7 +4,7 @@ Last updated: 2026-02-21
 
 Purpose:
 - run `auto_research_orchestrator` continuously by policy schedule;
-- provide lock/heartbeat/ledger and optional failure alert;
+- provide lock/heartbeat/ledger and failure alert controls;
 - support unattended operations with deterministic audit trace.
 
 ## Components
@@ -29,13 +29,15 @@ python scripts/auto_research_scheduler.py
 1. lock file prevents concurrent scheduler instances
 2. heartbeat json records running/stopped status
 3. optional stop on orchestrator failure
-4. optional external alert command on failure
+4. optional webhook + command alert channels on failure
+5. alert dedupe window prevents repeated noisy alerts for same failure pattern
 
 ## Outputs
 
 - `audit/auto_research/auto_research_scheduler_heartbeat.json`
 - `audit/auto_research/auto_research_scheduler_ledger.csv`
 - `audit/auto_research/auto_research_scheduler_ledger.md`
+- `audit/auto_research/auto_research_scheduler_alert_state.json`
 
 ## Policy Keys
 
@@ -49,4 +51,8 @@ python scripts/auto_research_scheduler.py
 - `ledger_csv`
 - `ledger_md`
 - `alert_on_failure`
+- `alert_state_json`
+- `alert_dedupe_window_seconds`
+- `alert_webhook_url`
+- `alert_webhook_timeout_seconds`
 - `alert_command`

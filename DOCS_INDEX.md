@@ -88,6 +88,7 @@ Last updated: 2026-02-21
 - `audit/auto_research/auto_research_scheduler_heartbeat.json`: scheduler liveness status and last cycle metadata
 - `audit/auto_research/auto_research_scheduler_ledger.csv`: append-only scheduler cycle ledger
 - `audit/auto_research/auto_research_scheduler_ledger.md`: human-readable scheduler cycle ledger snapshot
+- `audit/auto_research/auto_research_scheduler_alert_state.json`: scheduler alert dedupe state (last sent keys/timestamps)
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
