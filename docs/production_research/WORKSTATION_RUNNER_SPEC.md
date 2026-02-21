@@ -17,6 +17,7 @@ Standardize heavy-run execution on workstation with auditable wrapper scripts.
 - wraps `scripts/run_research_workflow.py`;
 - enforces preflight before execution;
 - enforces data quality gate before `production_gates` execution (unless explicitly skipped with audit trace);
+- auto-injects `--decision-tag/--owner/--notes` into workflow args when absent, to preserve report-level traceability;
 - stores command/context/log/result under:
   - `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`
 

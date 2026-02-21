@@ -33,6 +33,7 @@
   - `scripts/governance_remediation_plan.py`
 - monitor-and-close helper:
   - `scripts/monitor_then_finalize.sh`
+  - fixed WF process counting to avoid counting monitor shell itself
 - review/run templates:
   - `docs/production_research/OFFICIAL_RUN_TEMPLATE.md`
   - `docs/production_research/RUN_REVIEW_TEMPLATE.md`
@@ -51,6 +52,7 @@
   - `configs/research/candidate_queue_policy.json` added for versioned mixed-mode scheduling (`3 robust + 1 exploration`)
 - runner hardening:
   - `scripts/workstation_official_run.sh` now supports and records mandatory DQ pre-check (`--dq-input-csv`)
+  - `scripts/workstation_official_run.sh` now auto-injects `--decision-tag/--owner/--notes` when missing in workflow args
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically
   - `scripts/post_run_sync_and_finalize.sh` now generates remediation plan even when governance check fails
 - playbook/bootstrap updates:

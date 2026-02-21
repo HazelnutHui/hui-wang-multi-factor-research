@@ -32,7 +32,12 @@ def _append_stage_log(stage_log: Path, row_cells: list[str]) -> None:
         ])
     entry = "| " + " | ".join(row_cells) + " |"
     if entry not in lines:
-        lines.append(entry)
+        insert_idx = len(lines)
+        for i, ln in enumerate(lines):
+            if ln.strip().startswith("## Update Rule"):
+                insert_idx = i
+                break
+        lines.insert(insert_idx, entry)
     stage_log.write_text("\n".join(lines) + "\n")
 
 

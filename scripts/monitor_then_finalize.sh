@@ -65,16 +65,17 @@ if [ -z \"\$RUN_DIR\" ]; then echo STATUS=run_dir_not_found; exit 0; fi; \
 echo RUN_DIR=\$RUN_DIR; \
 if [ -f \"\$RUN_DIR/result.json\" ]; then echo HAS_RESULT=1; else echo HAS_RESULT=0; fi; \
 if pgrep -af \"$WF_PATTERN\" >/tmp/monitor_then_finalize_pids.$$ 2>/dev/null; then \
-  CNT=\$(wc -l </tmp/monitor_then_finalize_pids.$$ | tr -d ' '); \
+  grep -v -E 'monitor_then_finalize|bash -c cd .*RUN_DIR=.*monitor_then_finalize_pids' /tmp/monitor_then_finalize_pids.$$ >/tmp/monitor_then_finalize_pids_filtered.$$ || true; \
+  CNT=\$(wc -l </tmp/monitor_then_finalize_pids_filtered.$$ | tr -d ' '); \
   echo WF_COUNT=\$CNT; \
-  cat /tmp/monitor_then_finalize_pids.$$; \
+  cat /tmp/monitor_then_finalize_pids_filtered.$$; \
 else \
   echo WF_COUNT=0; \
 fi; \
 echo LOG_TAIL_BEGIN; \
 tail -n 20 \"\$RUN_DIR/run.log\" 2>/dev/null || true; \
 echo LOG_TAIL_END; \
-rm -f /tmp/monitor_then_finalize_pids.$$" || true)"
+rm -f /tmp/monitor_then_finalize_pids.$$ /tmp/monitor_then_finalize_pids_filtered.$$" || true)"
 
   printf '%s\n' "$OUT"
 

@@ -170,7 +170,29 @@ if [ "$SKIP_DATA_QUALITY_CHECK" -ne 1 ]; then
   fi
 fi
 
-CMD=("$PYTHON_BIN" scripts/run_research_workflow.py --workflow "$WORKFLOW" -- "$@")
+RUN_ARGS=("$@")
+has_flag_arg() {
+  local needle="$1"
+  shift || true
+  for x in "$@"; do
+    if [ "$x" = "$needle" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! has_flag_arg "--decision-tag" "${RUN_ARGS[@]}"; then
+  RUN_ARGS+=("--decision-tag" "$TAG")
+fi
+if [ -n "$OWNER" ] && ! has_flag_arg "--owner" "${RUN_ARGS[@]}"; then
+  RUN_ARGS+=("--owner" "$OWNER")
+fi
+if [ -n "$NOTES" ] && ! has_flag_arg "--notes" "${RUN_ARGS[@]}"; then
+  RUN_ARGS+=("--notes" "$NOTES")
+fi
+
+CMD=("$PYTHON_BIN" scripts/run_research_workflow.py --workflow "$WORKFLOW" -- "${RUN_ARGS[@]}")
 printf '%q ' "${CMD[@]}" > "$AUDIT_DIR/command.sh"
 printf '\n' >> "$AUDIT_DIR/command.sh"
 
