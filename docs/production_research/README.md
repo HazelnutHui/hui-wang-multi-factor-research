@@ -32,6 +32,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: verified performance bottlenecks and prioritized optimization backlog
 - `POST_RUN_OPERATIONS.md`: standardized sync/finalize procedure after official run completion
 - `GOVERNANCE_AUDIT_CHECKER.md`: post-run governance completeness checks and pass criteria
+- `GOVERNANCE_REMEDIATION_PLAN.md`: failed governance checks to fix-action mapping standard
 - `DATA_QUALITY_POLICY.md`: pre-gate data quality hard-check policy and thresholds
 - `RISK_REGISTER.md`: active risk inventory with owners, mitigations, and review cadence
 - `MODEL_CHANGE_CONTROL.md`: model/factor change classification, evidence requirements, and approvals
@@ -53,6 +54,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/post_run_sync_and_finalize.sh`
 - `scripts/data_quality_gate.py`
 - `scripts/governance_audit_checker.py`
+- `scripts/governance_remediation_plan.py`
 - `scripts/research_governance.py`
 
 ## Related outputs

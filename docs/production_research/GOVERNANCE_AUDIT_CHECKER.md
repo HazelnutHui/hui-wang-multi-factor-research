@@ -46,6 +46,8 @@ Written to run dir:
 
 - `governance_audit_check.json`
 - `governance_audit_check.md`
+- `governance_remediation_plan.json` (when remediation script is run)
+- `governance_remediation_plan.md` (when remediation script is run)
 
 Exit code:
 
@@ -65,3 +67,4 @@ python scripts/governance_audit_checker.py \
 
 - Included in `scripts/post_run_sync_and_finalize.sh` after finalization.
 - Serves as a final quality gate for audit completeness before governance commit/push.
+- If audit fails, `scripts/governance_remediation_plan.py` is run to produce structured fix actions.

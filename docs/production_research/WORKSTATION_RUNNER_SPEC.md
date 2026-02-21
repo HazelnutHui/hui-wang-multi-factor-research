@@ -78,6 +78,13 @@ python scripts/governance_audit_checker.py \
   --require-final-summary
 ```
 
+Remediation plan (auto-invoked after governance check):
+
+```bash
+python scripts/governance_remediation_plan.py \
+  --audit-json audit/workstation_runs/<...>/governance_audit_check.json
+```
+
 ## Governance Notes
 
 - Use `--require-clean` when committee requires clean working tree enforcement.

@@ -25,6 +25,7 @@ Behavior:
 2) rsync run_dir + gate_results folder to local
 3) run local finalize script to update stage ledger and summary
 4) run local governance audit checker
+5) generate remediation plan from governance audit output
 USAGE
 }
 
@@ -106,10 +107,19 @@ fi
 (
   cd "$LOCAL_ROOT"
   bash scripts/finalize_gate_run.sh --run-dir "$LOCAL_RUN_DIR" --report-json "$LOCAL_REPORT_JSON"
+  set +e
   "$PYTHON_BIN" scripts/governance_audit_checker.py \
     --run-dir "$LOCAL_RUN_DIR" \
     --report-json "$LOCAL_REPORT_JSON" \
     --require-final-summary
+  GOV_RC="$?"
+  set -e
+  "$PYTHON_BIN" scripts/governance_remediation_plan.py \
+    --audit-json "$LOCAL_RUN_DIR/governance_audit_check.json"
+  if [ "$GOV_RC" -ne 0 ]; then
+    echo "governance audit check failed (exit=$GOV_RC). See remediation plan under $LOCAL_RUN_DIR" >&2
+    exit "$GOV_RC"
+  fi
 )
 
 echo "done: synced + finalized"

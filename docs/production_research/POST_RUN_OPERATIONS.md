@@ -27,6 +27,7 @@ What this does:
    - `docs/production_research/STAGE_AUDIT_LOG.md`
    - `production_gates_final_summary.md`
 5. run local governance completeness check (`scripts/governance_audit_checker.py`)
+6. generate remediation plan (`scripts/governance_remediation_plan.py`)
 
 ## Explicit-path mode
 
@@ -48,7 +49,10 @@ bash scripts/post_run_sync_and_finalize.sh \
 4. governance check outputs exist and pass:
 - `audit/workstation_runs/<...>/governance_audit_check.json`
 - `audit/workstation_runs/<...>/governance_audit_check.md`
-5. if needed, commit governance/docs updates and push.
+5. remediation plan exists (especially if check failed):
+- `audit/workstation_runs/<...>/governance_remediation_plan.json`
+- `audit/workstation_runs/<...>/governance_remediation_plan.md`
+6. if needed, commit governance/docs updates and push.
 
 ## Notes
 

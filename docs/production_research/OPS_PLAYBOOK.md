@@ -100,3 +100,10 @@ python scripts/governance_audit_checker.py \
   --report-json gate_results/production_gates_<ts>/production_gates_report.json \
   --require-final-summary
 ```
+
+If governance check fails, generate remediation actions:
+
+```bash
+python scripts/governance_remediation_plan.py \
+  --audit-json audit/workstation_runs/<ts>_production_gates_<decision_tag>/governance_audit_check.json
+```

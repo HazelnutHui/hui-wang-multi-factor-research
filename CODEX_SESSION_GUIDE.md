@@ -47,7 +47,9 @@ Read in order:
 19. `docs/production_research/MODEL_CHANGE_CONTROL.md`
 20. `docs/production_research/INCIDENT_RESPONSE.md`
 21. `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`
-22. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+22. `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`
+23. `docs/production_research/GOVERNANCE_REMEDIATION_PLAN.md`
+24. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -171,7 +173,10 @@ python scripts/governance_audit_checker.py \
 ```
 4. confirm stage ledger row updated:
    - `docs/production_research/STAGE_AUDIT_LOG.md`
-5. if failed, keep failed trail and create new rerun with new tag
+5. if governance check failed, inspect remediation outputs:
+   - `audit/workstation_runs/<...>/governance_remediation_plan.json`
+   - `audit/workstation_runs/<...>/governance_remediation_plan.md`
+6. if failed, keep failed trail and create new rerun with new tag
 
 ## 10) Commit/Sync Rule
 
