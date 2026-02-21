@@ -78,6 +78,7 @@ Required after official sync/finalization:
 - standardized run review markdown
 - factor experiment registry row + leaderboard refresh
 - factor candidate queue refresh
+- handoff readiness report json/md (for session continuity)
 
 Examples:
 - `audit/workstation_runs/<ts>_production_gates_<tag>/governance_audit_check.json`
@@ -89,3 +90,5 @@ Examples:
 - `audit/factor_registry/factor_experiment_leaderboard.md`
 - `audit/factor_registry/factor_candidate_queue.csv`
 - `audit/factor_registry/factor_candidate_queue.md`
+- `audit/session_handoff/handoff_readiness.json`
+- `audit/session_handoff/handoff_readiness.md`

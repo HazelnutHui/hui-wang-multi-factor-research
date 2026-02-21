@@ -37,6 +37,10 @@
 - review/run templates:
   - `docs/production_research/OFFICIAL_RUN_TEMPLATE.md`
   - `docs/production_research/RUN_REVIEW_TEMPLATE.md`
+- session handoff readiness:
+  - `docs/production_research/SESSION_HANDOFF_READINESS.md`
+  - `scripts/check_session_handoff_readiness.py`
+  - `CODEX_SESSION_GUIDE.md` and `SESSION_BOOTSTRAP.md` read sequence extended with handoff readiness standard
 - review generator:
   - `scripts/generate_run_review.py`
 - post-run flow extension:

@@ -32,6 +32,7 @@ Use this exact read order for new sessions focused on production workflow.
 24. `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
 25. `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
 26. `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`
+27. `docs/production_research/SESSION_HANDOFF_READINESS.md`
 
 ## Mandatory checks before editing/running
 

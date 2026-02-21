@@ -45,6 +45,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_PLANNING.md`: generation standard for rerun command/hypothesis plan
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
+- `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new Codex continuity
 
 ## Core scripts
 
@@ -70,6 +71,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/execute_next_run_plan.py`
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/update_failure_pattern_db.py`
+- `scripts/check_session_handoff_readiness.py`
 - `scripts/research_governance.py`
 
 ## Related config

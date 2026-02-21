@@ -52,7 +52,8 @@ Read in order:
 24. `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`
 25. `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
 26. `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`
-27. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+27. `docs/production_research/SESSION_HANDOFF_READINESS.md`
+28. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -204,6 +205,10 @@ Preferred flow:
 1. local `git commit`
 2. local `git push`
 3. workstation `git pull --ff-only`
+4. run handoff readiness checker after doc/protocol updates:
+```bash
+python scripts/check_session_handoff_readiness.py
+```
 
 Do not include unrelated local modifications in official governance commits.
 

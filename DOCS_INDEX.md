@@ -46,6 +46,7 @@ Last updated: 2026-02-21
 - `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
 - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
 - `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
+- `docs/production_research/SESSION_HANDOFF_READINESS.md`: standard for validating new-session handoff traceability
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets
@@ -71,6 +72,7 @@ Last updated: 2026-02-21
 - `scripts/execute_next_run_plan.py`: execute ranked command from next_run_plan.json (supports dry-run)
 - `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
+- `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
