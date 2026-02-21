@@ -45,6 +45,7 @@ Last updated: 2026-02-21
 - `docs/production_research/CANDIDATE_QUEUE_POLICY.md`: candidate queue generation and prioritization policy
 - `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
 - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
+- `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
 - `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
 - `docs/production_research/SESSION_HANDOFF_READINESS.md`: standard for validating new-session handoff traceability
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
@@ -71,10 +72,12 @@ Last updated: 2026-02-21
 - `scripts/generate_next_run_plan.py`: generate next-run command/hypothesis plan from queue + remediation + latest report
 - `scripts/execute_next_run_plan.py`: execute ranked command from next_run_plan.json (supports dry-run)
 - `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
+- `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
 - `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
+- `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback

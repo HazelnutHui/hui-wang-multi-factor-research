@@ -92,3 +92,14 @@ Examples:
 - `audit/factor_registry/factor_candidate_queue.md`
 - `audit/session_handoff/handoff_readiness.json`
 - `audit/session_handoff/handoff_readiness.md`
+
+## 8) Auto research orchestration
+
+Required when automated multi-round orchestration is used:
+- orchestrator report json/md per cycle
+- policy config snapshot reference in report metadata
+
+Examples:
+- `audit/auto_research/<ts>_orchestrator/auto_research_orchestrator_report.json`
+- `audit/auto_research/<ts>_orchestrator/auto_research_orchestrator_report.md`
+- `configs/research/auto_research_policy.json`

@@ -1,0 +1,21 @@
+{
+  "max_rounds": 3,
+  "max_executions": 1,
+  "execute_rank": 1,
+  "execute_enabled": false,
+  "stop_on_validation_failure": true,
+  "stop_on_empty_plan": true,
+  "sleep_seconds_between_rounds": 0,
+  "dq_input_csv": "data/your_input.csv",
+  "candidate_queue": {
+    "policy_json": "configs/research/candidate_queue_policy.json",
+    "out_csv": "audit/factor_registry/factor_candidate_queue.csv",
+    "out_md": "audit/factor_registry/factor_candidate_queue.md"
+  },
+  "next_run_plan": {
+    "out_json": "audit/factor_registry/next_run_plan.json",
+    "out_md": "audit/factor_registry/next_run_plan.md",
+    "fixed_out_json": "audit/factor_registry/next_run_plan_fixed.json",
+    "fixed_out_md": "audit/factor_registry/next_run_plan_fixed.md"
+  }
+}

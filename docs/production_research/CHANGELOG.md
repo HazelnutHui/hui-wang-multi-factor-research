@@ -65,6 +65,11 @@
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
   - `scripts/execute_next_run_plan.py` now includes pre-execution safety validation (tag/freeze/dq/workflow checks)
   - `scripts/repair_next_run_plan_paths.py` now supports decision-tag normalization (`committee_YYYY-MM-DD_runN`) with collision avoidance
+- auto research orchestration:
+  - `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
+  - `scripts/auto_research_orchestrator.py`
+  - `configs/research/auto_research_policy.json`
+  - orchestration loop now emits per-cycle audit reports under `audit/auto_research/`
 - failure pattern database:
   - `docs/production_research/FAILURE_PATTERN_DB.md`
   - `scripts/update_failure_pattern_db.py`

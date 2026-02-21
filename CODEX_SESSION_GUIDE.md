@@ -53,7 +53,8 @@ Read in order:
 25. `docs/production_research/CANDIDATE_QUEUE_POLICY.md`
 26. `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`
 27. `docs/production_research/SESSION_HANDOFF_READINESS.md`
-28. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
+28. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
+29. `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`
 
 Completion check after reading:
 1. identify active `decision_tag`
@@ -67,6 +68,7 @@ Completion check after reading:
 9. identify latest `audit/factor_registry/next_run_plan.md` and planned command set
 10. identify latest `audit/factor_registry/next_run_plan_fixed.md` and whether tags were normalized
 11. identify latest failure pattern summary status (`audit/failure_patterns/failure_pattern_summary.md`)
+12. identify active auto-research policy config (`configs/research/auto_research_policy.json`)
 
 ## 4) SSOT Priority (Conflict Resolution)
 
