@@ -44,6 +44,7 @@ Last updated: 2026-02-21
 - `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`: centralized experiment registry and scoring/ranking standard
 - `docs/production_research/CANDIDATE_QUEUE_POLICY.md`: candidate queue generation and prioritization policy
 - `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
+- `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
 - `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）

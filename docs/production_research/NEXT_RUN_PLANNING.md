@@ -61,6 +61,16 @@ python scripts/execute_next_run_plan.py --rank 1 --skip-validation
 ## Path Repair (Recommended Before Execute)
 
 ```bash
-python scripts/repair_next_run_plan_paths.py --allow-missing-dq
-python scripts/execute_next_run_plan.py --plan-json audit/factor_registry/next_run_plan_fixed.json --rank 1 --dry-run --skip-validation
+python scripts/repair_next_run_plan_paths.py \
+  --plan-json audit/factor_registry/next_run_plan.json \
+  --out-json audit/factor_registry/next_run_plan_fixed.json \
+  --out-md audit/factor_registry/next_run_plan_fixed.md \
+  --dq-input-csv data/your_input.csv
+python scripts/execute_next_run_plan.py --plan-json audit/factor_registry/next_run_plan_fixed.json --rank 1 --dry-run
 ```
+
+Default repair behavior:
+1. normalize `--tag` to `committee_YYYY-MM-DD_runN`
+2. auto-increment `runN` to avoid collisions with existing run directories
+3. repair missing/invalid `--freeze-file`
+4. repair placeholder `--dq-input-csv` when canonical path is provided

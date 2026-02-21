@@ -53,11 +53,13 @@
   - `scripts/generate_candidate_queue.py` now auto-avoids decision_tag collisions via incremental suffixing
 - next-run plan automation:
   - `docs/production_research/NEXT_RUN_PLANNING.md`
+  - `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`
   - `scripts/generate_next_run_plan.py`
   - `scripts/execute_next_run_plan.py`
   - `scripts/repair_next_run_plan_paths.py`
   - `scripts/post_run_sync_and_finalize.sh` now auto-generates rerun command/hypothesis plan
   - `scripts/execute_next_run_plan.py` now includes pre-execution safety validation (tag/freeze/dq/workflow checks)
+  - `scripts/repair_next_run_plan_paths.py` now supports decision-tag normalization (`committee_YYYY-MM-DD_runN`) with collision avoidance
 - failure pattern database:
   - `docs/production_research/FAILURE_PATTERN_DB.md`
   - `scripts/update_failure_pattern_db.py`

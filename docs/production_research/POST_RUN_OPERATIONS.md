@@ -32,7 +32,7 @@ What this does:
 3. verify no active WF process remains
 4. auto-call `scripts/post_run_sync_and_finalize.sh`
 
-What this does:
+Post-run sync/finalize actions:
 1. detect remote `run_dir` by `decision_tag`
 2. detect latest remote `production_gates_report.json`
 3. rsync remote gate folder + run audit folder to local

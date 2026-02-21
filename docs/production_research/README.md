@@ -43,6 +43,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `FACTOR_EXPERIMENT_REGISTRY.md`: central experiment registry and scoring/ranking standard
 - `CANDIDATE_QUEUE_POLICY.md`: auto-prioritized next-run candidate queue policy
 - `NEXT_RUN_PLANNING.md`: generation standard for rerun command/hypothesis plan
+- `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
 
 ## Core scripts

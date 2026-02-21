@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import glob
 import json
+import re
 import shlex
 from pathlib import Path
 from typing import Any
@@ -72,6 +73,46 @@ def _replace_or_add(tokens: list[str], flag: str, value: str) -> list[str]:
     return out
 
 
+def _existing_run_names() -> list[str]:
+    base = Path("audit/workstation_runs")
+    if not base.exists():
+        return []
+    return [p.name for p in base.glob("*") if p.is_dir()]
+
+
+def _tag_exists(tag: str, run_names: list[str], reserved: set[str]) -> bool:
+    if tag in reserved:
+        return True
+    needle = f"_{tag}"
+    return any(needle in n for n in run_names)
+
+
+def _next_standard_tag(*, run_names: list[str], reserved: set[str], tag_prefix: str, tag_date: str) -> str:
+    pat = re.compile(rf"{re.escape(tag_prefix)}_{re.escape(tag_date)}_run(\d+)$")
+    max_n = 0
+    for n in run_names:
+        m = pat.search(n)
+        if m:
+            try:
+                max_n = max(max_n, int(m.group(1)))
+            except Exception:
+                pass
+    for t in reserved:
+        m = pat.search(t)
+        if m:
+            try:
+                max_n = max(max_n, int(m.group(1)))
+            except Exception:
+                pass
+    n = max_n + 1
+    while True:
+        cand = f"{tag_prefix}_{tag_date}_run{n}"
+        if not _tag_exists(cand, run_names, reserved):
+            reserved.add(cand)
+            return cand
+        n += 1
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Repair next_run_plan command paths.")
     p.add_argument("--plan-json", default="audit/factor_registry/next_run_plan.json")
@@ -79,6 +120,9 @@ def main() -> None:
     p.add_argument("--out-md", default="audit/factor_registry/next_run_plan_fixed.md")
     p.add_argument("--dq-input-csv", default="", help="Canonical DQ input CSV path to inject.")
     p.add_argument("--allow-missing-dq", action="store_true")
+    p.add_argument("--normalize-tag", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--tag-prefix", default="committee")
+    p.add_argument("--tag-date", default=dt.date.today().isoformat())
     args = p.parse_args()
 
     plan_json = Path(args.plan_json).resolve()
@@ -90,6 +134,9 @@ def main() -> None:
     fixed_cmds = []
     issues: list[str] = []
     fixed_count = 0
+    tag_fixed_count = 0
+    run_names = _existing_run_names()
+    reserved_tags: set[str] = set()
     for row in commands:
         cmd = str(row.get("command") or "").strip()
         if not cmd:
@@ -124,6 +171,19 @@ def main() -> None:
             else:
                 issues.append(f"no freeze file candidate found for factor={factor} strategy={strategy}")
 
+        # Standardize and deconflict decision tag.
+        if args.normalize_tag:
+            new_tag = _next_standard_tag(
+                run_names=run_names,
+                reserved=reserved_tags,
+                tag_prefix=str(args.tag_prefix),
+                tag_date=str(args.tag_date),
+            )
+            tokens = _replace_or_add(tokens, "--tag", new_tag)
+            row["proposed_decision_tag"] = new_tag
+            fixed_count += 1
+            tag_fixed_count += 1
+
         # Repair dq path.
         dqi = _find_flag(tokens, "--dq-input-csv")
         dq_value = ""
@@ -150,6 +210,7 @@ def main() -> None:
     out["commands"] = fixed_cmds
     out["repair_summary"] = {
         "fixed_count": fixed_count,
+        "tag_fixed_count": tag_fixed_count,
         "issue_count": len(issues),
         "issues": issues,
     }
@@ -164,6 +225,7 @@ def main() -> None:
         f"- generated_at: {out['generated_at']}",
         f"- source_plan_json: `{plan_json}`",
         f"- fixed_count: {fixed_count}",
+        f"- tag_fixed_count: {tag_fixed_count}",
         f"- issue_count: {len(issues)}",
         "",
         "## Issues",
