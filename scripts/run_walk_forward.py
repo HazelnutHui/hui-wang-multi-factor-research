@@ -15,6 +15,14 @@ from backtest.backtest_engine import BacktestEngine
 from backtest.performance_analyzer import PerformanceAnalyzer
 from backtest.walk_forward_validator import WalkForwardValidator
 import backtest.config as core
+from scripts.research_governance import (
+    build_manifest,
+    check_non_negative_int,
+    check_path_exists,
+    enforce_freeze,
+    stable_hash,
+    write_json,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -264,6 +272,7 @@ def run_factor(factor: str, cfg, weights: dict, windows, args, out_dir: Path):
             existing = None
 
     rows = []
+    audit_rows = []
     for w in windows:
         key = (w["train_start"], w["train_end"], w["test_start"], w["test_end"])
         if key in done_keys:
@@ -322,6 +331,29 @@ def run_factor(factor: str, cfg, weights: dict, windows, args, out_dir: Path):
         }
         rows.append(row)
 
+        train_aud = train.get("universe_audit")
+        if train_aud is not None and len(train_aud) > 0:
+            tdf = train_aud.copy()
+            tdf["factor"] = factor
+            tdf["window_train_start"] = w["train_start"]
+            tdf["window_train_end"] = w["train_end"]
+            tdf["window_test_start"] = w["test_start"]
+            tdf["window_test_end"] = w["test_end"]
+            tdf["window_test_year"] = w.get("test_year")
+            tdf["phase"] = "train"
+            audit_rows.extend(tdf.to_dict(orient="records"))
+        test_aud = test.get("universe_audit")
+        if test_aud is not None and len(test_aud) > 0:
+            sdf = test_aud.copy()
+            sdf["factor"] = factor
+            sdf["window_train_start"] = w["train_start"]
+            sdf["window_train_end"] = w["train_end"]
+            sdf["window_test_start"] = w["test_start"]
+            sdf["window_test_end"] = w["test_end"]
+            sdf["window_test_year"] = w.get("test_year")
+            sdf["phase"] = "test"
+            audit_rows.extend(sdf.to_dict(orient="records"))
+
         if args.save_raw:
             tag = f"{w['train_start'].replace('-', '')}_{w['test_end'].replace('-', '')}"
             train["signals"].to_csv(factor_dir / f"train_signals_{tag}.csv", index=False)
@@ -363,6 +395,23 @@ def run_factor(factor: str, cfg, weights: dict, windows, args, out_dir: Path):
     with open(factor_dir / "run_meta.json", "w") as f:
         json.dump(meta, f, indent=2)
 
+    audit_path = factor_dir / "universe_filter_audit.csv"
+    if len(audit_rows) > 0:
+        aud = pd.DataFrame(audit_rows)
+        if args.resume and audit_path.exists():
+            try:
+                old_aud = pd.read_csv(audit_path)
+                aud = pd.concat([old_aud, aud], ignore_index=True)
+                aud = aud.drop_duplicates(
+                    subset=["factor", "phase", "window_train_start", "window_test_end", "rebalance_date"],
+                    keep="last",
+                )
+            except Exception:
+                pass
+        aud.to_csv(audit_path, index=False)
+    elif not audit_path.exists():
+        pd.DataFrame().to_csv(audit_path, index=False)
+
     return df
 
 
@@ -381,6 +430,9 @@ def main():
     parser.add_argument("--only-years", type=str, default="")
     parser.add_argument("--out-dir", type=str, default="")
     parser.add_argument("--set", action="append", default=[], help="Override config: KEY=VALUE (repeatable)")
+    parser.add_argument("--freeze-file", type=str, default="", help="Path to freeze json (enforce if exists)")
+    parser.add_argument("--write-freeze", action="store_true", help="Create freeze file if missing")
+    parser.add_argument("--skip-guardrails", action="store_true", help="Skip PIT/lag guardrails (not recommended)")
     args = parser.parse_args()
 
     factor_list = [f.strip().lower() for f in args.factors.split(",") if f.strip()]
@@ -410,7 +462,7 @@ def main():
         out_dir = PROJECT_ROOT / "walk_forward_results" / ts
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    all_rows = []
+    run_plan = []
     for factor in factor_list:
         spec = FACTOR_SPECS[factor]
         cfg = _load_cfg(spec["config_path"])
@@ -418,6 +470,106 @@ def main():
         weights = dict(spec["weights"])
         if factor == "combo_v2" and hasattr(cfg, "COMBO_WEIGHTS"):
             weights = dict(getattr(cfg, "COMBO_WEIGHTS"))
+        cfg_snapshot = {
+            k: getattr(cfg, k)
+            for k in dir(cfg)
+            if k.isupper() and not k.startswith("__")
+        }
+        run_plan.append(
+            {
+                "factor": factor,
+                "config_path": str(spec["config_path"]),
+                "weights": weights,
+                "cfg_snapshot": cfg_snapshot,
+                "cfg_obj": cfg,
+            }
+        )
+
+    governance_payload = {
+        "windows": windows,
+        "factors": [
+            {
+                "factor": p["factor"],
+                "config_path": p["config_path"],
+                "weights": p["weights"],
+                "cfg_snapshot": p["cfg_snapshot"],
+            }
+            for p in run_plan
+        ],
+        "runtime": {
+            "train_years": args.train_years,
+            "test_years": args.test_years,
+            "start_year": args.start_year,
+            "end_year": args.end_year,
+            "only_years": args.only_years,
+            "max_windows": args.max_windows,
+            "long_pct": args.long_pct,
+            "short_pct": args.short_pct,
+            "set_overrides": args.set,
+            "resume": bool(args.resume),
+        },
+    }
+    if not args.skip_guardrails:
+        guard_errors = []
+        for p in run_plan:
+            factor = p["factor"]
+            cfg = p["cfg_obj"]
+            weights = p["weights"]
+            active = {k for k, v in weights.items() if v is not None and float(v) != 0.0}
+            prefix = f"{factor}"
+            check_non_negative_int(f"{prefix}.FACTOR_LAG_DAYS", getattr(cfg, "FACTOR_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.MOMENTUM_LAG_DAYS", getattr(cfg, "MOMENTUM_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.REVERSAL_LAG_DAYS", getattr(cfg, "REVERSAL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.LOW_VOL_LAG_DAYS", getattr(cfg, "LOW_VOL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.BETA_LAG_DAYS", getattr(cfg, "BETA_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.PEAD_LAG_DAYS", getattr(cfg, "PEAD_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.QUALITY_LAG_DAYS", getattr(cfg, "QUALITY_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.VALUE_LAG_DAYS", getattr(cfg, "VALUE_LAG_DAYS", 0), guard_errors)
+
+            if "quality" in active:
+                q_dir = getattr(cfg, "FUNDAMENTALS_DIR", str(PROJECT_ROOT / "data" / "fmp" / "ratios" / "quality"))
+                check_path_exists(f"{prefix}.FUNDAMENTALS_DIR", _resolve_path(q_dir), guard_errors)
+            if "value" in active:
+                v_dir = getattr(cfg, "VALUE_DIR", str(PROJECT_ROOT / "data" / "fmp" / "ratios" / "value"))
+                check_path_exists(f"{prefix}.VALUE_DIR", _resolve_path(v_dir), guard_errors)
+            if "pead" in active:
+                price_active = _resolve_path(core.PRICE_DIR_ACTIVE)
+                e_dir = getattr(cfg, "EARNINGS_DIR", str(Path(price_active).resolve().parent / "Owner_Earnings"))
+                check_path_exists(f"{prefix}.EARNINGS_DIR", _resolve_path(e_dir), guard_errors)
+            mc = getattr(cfg, "MIN_MARKET_CAP", None)
+            mc_strict = bool(getattr(cfg, "MARKET_CAP_STRICT", True))
+            if mc is not None and mc_strict:
+                mc_dir = getattr(cfg, "MARKET_CAP_DIR", None)
+                if mc_dir is None:
+                    guard_errors.append(f"{prefix}.MARKET_CAP_DIR is required when MIN_MARKET_CAP is set and strict mode is enabled")
+                else:
+                    check_path_exists(f"{prefix}.MARKET_CAP_DIR", _resolve_path(mc_dir), guard_errors)
+        if guard_errors:
+            raise SystemExit("Guardrails failed:\n- " + "\n- ".join(guard_errors))
+
+    manifest = build_manifest(
+        root=PROJECT_ROOT,
+        runner="run_walk_forward",
+        config_hash=stable_hash(governance_payload),
+        run_scope={
+            "factors": factor_list,
+            "window_count": len(windows),
+        },
+        cli_args=vars(args),
+        output_root=out_dir,
+    )
+    enforce_freeze(
+        freeze_file=(args.freeze_file or None),
+        manifest=manifest,
+        write_freeze=bool(args.write_freeze),
+    )
+    write_json(out_dir / "run_manifest.json", manifest)
+
+    all_rows = []
+    for p in run_plan:
+        factor = p["factor"]
+        cfg = p["cfg_obj"]
+        weights = p["weights"]
         df = run_factor(factor, cfg, weights, windows, args, out_dir)
         all_rows.append(df)
 
@@ -435,6 +587,7 @@ def main():
                 pass
         new_all.to_csv(combined_path, index=False)
 
+    write_json(out_dir / "run_manifest_latest.json", manifest)
     print(f"Saved results to: {out_dir}")
 
 

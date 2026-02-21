@@ -241,9 +241,16 @@ class BacktestEngine:
         all_signals = []
         all_positions = []
         signal_history = {}
+        universe_audit_rows = []
 
         for d in rebalance_dates:
             signals_df = self._compute_signals_cached(d, factor_weights)
+            audit = self.universe_builder.get_last_audit()
+            if audit:
+                audit_row = dict(audit)
+                audit_row["rebalance_date"] = d
+                audit_row["n_signals"] = int(len(signals_df)) if signals_df is not None else 0
+                universe_audit_rows.append(audit_row)
             if signals_df is None or len(signals_df) == 0:
                 continue
             signals_df = self._smooth_signals(signals_df, signal_history)
@@ -369,7 +376,8 @@ class BacktestEngine:
             'forward_returns_raw': forward_returns_raw_df,
             'analysis': analysis,
             'rebalance_dates': rebalance_dates,
-            'filter_stats': filter_stats
+            'filter_stats': filter_stats,
+            'universe_audit': pd.DataFrame(universe_audit_rows) if len(universe_audit_rows) > 0 else pd.DataFrame(),
         }
 
     def run_out_of_sample_test(self, train_start, train_end, test_start, test_end,

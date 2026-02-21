@@ -221,6 +221,122 @@ First live-day archive (2026-02-18 trading):
   - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
   - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
 
+### 2.13 Governed unified entry + freeze (institutional)
+Single entrypoint:
+```bash
+python scripts/run_research_workflow.py --workflow train_test -- \
+  --strategy configs/strategies/combo_v2_inst.yaml
+python scripts/run_research_workflow.py --workflow segmented -- \
+  --factors combo_v2 --years 2
+python scripts/run_research_workflow.py --workflow walk_forward -- \
+  --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2025
+```
+
+Freeze controls (supported in all three workflow scripts):
+```bash
+# first run: create freeze file
+python scripts/run_with_config.py \
+  --strategy configs/strategies/combo_v2_inst.yaml \
+  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --write-freeze
+
+# later runs: enforce same frozen config hash (+ commit when available)
+python scripts/run_with_config.py \
+  --strategy configs/strategies/combo_v2_inst.yaml \
+  --freeze-file runs/freeze/combo_v2_inst.freeze.json
+```
+
+Run-manifest outputs:
+- `run_with_config`: `strategies/<strategy>/runs/<timestamp>.manifest.json` + `run_manifest_latest.json`
+- `run_segmented_factors`: `<out_dir>/run_manifest.json` + `run_manifest_latest.json`
+- `run_walk_forward`: `<out_dir>/run_manifest.json` + `run_manifest_latest.json`
+
+PIT/lag guardrails:
+- Default: enabled (lag non-negative checks + required PIT data-dir checks by active factors)
+- Emergency bypass: add `--skip-guardrails` (not recommended for official runs)
+
+Universe filter audit outputs:
+- `run_with_config`:
+  - `strategies/<strategy>/results/train_universe_audit_<ts>.csv`
+  - `strategies/<strategy>/results/test_universe_audit_<ts>.csv`
+- `run_segmented_factors`: `<out_dir>/<factor>/universe_filter_audit.csv`
+- `run_walk_forward`: `<out_dir>/<factor>/universe_filter_audit.csv`
+
+### 2.14 Institutional hard gates (cost + stress + pass/fail)
+One-shot gate runner:
+```bash
+python scripts/run_institutional_gates.py \
+  --strategy configs/strategies/combo_v2_inst.yaml \
+  --factor combo_v2 \
+  --cost-multipliers 1.0,1.5,2.0 \
+  --wf-train-years 3 --wf-test-years 1 --wf-start-year 2010 --wf-end-year 2025 \
+  --stress-cost-multiplier 1.5 \
+  --stress-min-market-cap 2000000000 \
+  --stress-min-dollar-volume 5000000 \
+  --stress-market-cap-dir data/fmp/market_cap_history \
+  --out-dir gate_results
+```
+
+Outputs:
+- `gate_results/institutional_gates_<ts>/cost_stress_results.csv`
+- `gate_results/institutional_gates_<ts>/institutional_gates_report.json`
+- `gate_results/institutional_gates_<ts>/institutional_gates_report.md`
+- `gate_results/gate_registry.csv` (append-only decision ledger; disable with `--no-registry`)
+
+Gate defaults:
+- cost gate: `test_ic > 0` under `x1.5` and `x2.0`
+- walk-forward stress gate:
+  - `test_ic mean > 0`
+  - `test_ic pos_ratio >= 0.70`
+- risk diagnostics gate (from `posthoc_factor_diagnostics.py`):
+  - `abs(beta_vs_spy) <= 0.50`
+  - `turnover_top_pct_overlap >= 0.20`
+  - `abs(size_signal_corr_log_mcap) <= 0.30`
+  - `industry_coverage >= 0.70`
+
+Optional:
+- skip risk diagnostics in emergency runs: `--skip-risk-diagnostics`
+- skip statistical gates in emergency runs: `--skip-statistical-gates`
+
+Standalone statistical gates:
+```bash
+python scripts/run_statistical_gates.py \
+  --factor combo_v2 \
+  --alpha 0.10 \
+  --min-pos-ratio 0.60 \
+  --min-ic-mean 0.0 \
+  --out-dir gate_results/statistical
+```
+
+### 2.15 Workstation-primary operation (official)
+Use workstation for official heavy runs:
+```bash
+ssh hui@100.66.103.44
+cd ~/projects/hui-wang-multi-factor-research
+export PYTHONPATH=$(pwd)
+
+python scripts/run_institutional_gates.py \
+  --strategy configs/strategies/combo_v2_inst.yaml \
+  --factor combo_v2 \
+  --freeze-file runs/freeze/combo_v2_inst.freeze.json \
+  --stress-market-cap-dir data/fmp/market_cap_history \
+  --decision-tag committee_ws_official \
+  --owner hui \
+  --notes "workstation official run" \
+  --out-dir gate_results
+```
+
+Pull artifacts back to local:
+```bash
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/gate_results/ \
+  /Users/hui/quant_score/v4/gate_results/
+
+rsync -avh --progress \
+  hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/runs/freeze/ \
+  /Users/hui/quant_score/v4/runs/freeze/
+```
+
 ## 3) Where Outputs Go
 - Segmented runs: `segment_results/<timestamp>/`
 - Walk-forward runs: `walk_forward_results/<timestamp>/`

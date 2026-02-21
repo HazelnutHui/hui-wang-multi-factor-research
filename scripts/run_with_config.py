@@ -8,6 +8,7 @@ from typing import Any, Dict
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+import pandas as pd
 
 try:
     import yaml
@@ -15,6 +16,14 @@ except Exception as exc:
     raise SystemExit("Missing dependency: PyYAML. Install with `pip install pyyaml`.") from exc
 
 from backtest.backtest_engine import BacktestEngine
+from scripts.research_governance import (
+    build_manifest,
+    check_non_negative_int,
+    check_path_exists,
+    enforce_freeze,
+    stable_hash,
+    write_json,
+)
 
 
 def _json_safe(obj: Any) -> Any:
@@ -261,6 +270,9 @@ def main() -> None:
     parser.add_argument("--long-pct", type=float, default=None)
     parser.add_argument("--short-pct", type=float, default=None)
     parser.add_argument("--cost-multiplier", type=float, default=None)
+    parser.add_argument("--freeze-file", type=str, default="", help="Path to freeze json (enforce if exists)")
+    parser.add_argument("--write-freeze", action="store_true", help="Create freeze file if missing")
+    parser.add_argument("--skip-guardrails", action="store_true", help="Skip PIT/lag guardrails (not recommended)")
     args = parser.parse_args()
 
     protocol_path = Path(args.protocol).resolve()
@@ -284,9 +296,75 @@ def main() -> None:
     periods = merged.get("backtest_periods", {})
 
     weights = _validate_weights(merged.get("factors", {}).get("weights", {}))
+    active_factors = {k for k, v in weights.items() if v is not None and float(v) != 0.0}
+
+    if not args.skip_guardrails:
+        lag_errors = []
+        factors = merged.get("factors", {})
+        check_non_negative_int("factors.lag_days", factors.get("lag_days"), lag_errors)
+        check_non_negative_int("factors.momentum.lag_days", factors.get("momentum", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.reversal.lag_days", factors.get("reversal", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.low_vol.lag_days", factors.get("low_vol", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.beta.lag_days", factors.get("beta", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.pead.lag_days", factors.get("pead", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.quality.lag_days", factors.get("quality", {}).get("lag_days"), lag_errors)
+        check_non_negative_int("factors.value.lag_days", factors.get("value", {}).get("lag_days"), lag_errors)
+
+        paths = merged.get("paths", {})
+        if "quality" in active_factors:
+            check_path_exists("paths.fundamentals_dir", _resolve_path(base_dir, paths.get("fundamentals_dir")), lag_errors)
+        if "value" in active_factors:
+            check_path_exists("paths.value_dir", _resolve_path(base_dir, paths.get("value_dir")), lag_errors)
+        if "pead" in active_factors:
+            check_path_exists("paths.earnings_dir", _resolve_path(base_dir, paths.get("earnings_dir")), lag_errors)
+        min_mc = merged.get("universe", {}).get("min_market_cap")
+        mc_strict = bool(merged.get("universe", {}).get("market_cap_strict"))
+        if min_mc is not None and mc_strict:
+            check_path_exists("paths.market_cap_dir", _resolve_path(base_dir, paths.get("market_cap_dir")), lag_errors)
+        if lag_errors:
+            raise SystemExit("Guardrails failed:\n- " + "\n- ".join(lag_errors))
+
+    strategy_meta = merged.get("strategy", {})
+    output_dir = strategy_meta.get("output_dir", "strategies/run_with_config")
+    out_root = (ROOT / output_dir).resolve()
+    results_dir = out_root / "results"
+    runs_dir = out_root / "runs"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    runs_dir.mkdir(parents=True, exist_ok=True)
+
+    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+
+    governance_payload = {
+        "protocol_yaml": str(protocol_path),
+        "strategy_yaml": str(strategy_path),
+        "merged_config": merged,
+        "runtime": {
+            "long_pct": long_pct,
+            "short_pct": short_pct,
+            "rebalance_freq": rebalance_freq,
+            "holding_period": holding_period,
+            "weights": weights,
+        },
+    }
+    manifest = build_manifest(
+        root=ROOT,
+        runner="run_with_config",
+        config_hash=stable_hash(governance_payload),
+        run_scope={
+            "strategy_id": strategy_meta.get("id"),
+            "strategy_name": strategy_meta.get("name"),
+            "strategy_version": strategy_meta.get("version"),
+        },
+        cli_args=vars(args),
+        output_root=out_root,
+    )
+    enforce_freeze(
+        freeze_file=(args.freeze_file or None),
+        manifest=manifest,
+        write_freeze=bool(args.write_freeze),
+    )
 
     engine = BacktestEngine(engine_cfg)
-
     results = engine.run_out_of_sample_test(
         train_start=periods.get("train_start"),
         train_end=periods.get("train_end"),
@@ -299,26 +377,30 @@ def main() -> None:
         short_pct=short_pct,
     )
 
-    strategy_meta = merged.get("strategy", {})
-    output_dir = strategy_meta.get("output_dir", "strategies/run_with_config")
-    out_root = (ROOT / output_dir).resolve()
-    results_dir = out_root / "results"
-    runs_dir = out_root / "runs"
-    results_dir.mkdir(parents=True, exist_ok=True)
-    runs_dir.mkdir(parents=True, exist_ok=True)
-
-    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-
     # CSV outputs
     train_sig_path = results_dir / f"train_signals_{ts}.csv"
     train_ret_path = results_dir / f"train_returns_{ts}.csv"
     test_sig_path = results_dir / f"test_signals_{ts}.csv"
     test_ret_path = results_dir / f"test_returns_{ts}.csv"
+    train_uni_audit_path = results_dir / f"train_universe_audit_{ts}.csv"
+    test_uni_audit_path = results_dir / f"test_universe_audit_{ts}.csv"
 
     results["train"]["signals"].to_csv(train_sig_path, index=False)
     results["train"]["returns"].to_csv(train_ret_path, index=False)
     results["test"]["signals"].to_csv(test_sig_path, index=False)
     results["test"]["returns"].to_csv(test_ret_path, index=False)
+    train_uni_audit = results["train"].get("universe_audit")
+    test_uni_audit = results["test"].get("universe_audit")
+    if train_uni_audit is not None and len(train_uni_audit) > 0:
+        train_uni_audit.to_csv(train_uni_audit_path, index=False)
+        train_uni_audit.to_csv(results_dir / "train_universe_audit_latest.csv", index=False)
+    else:
+        pd.DataFrame().to_csv(train_uni_audit_path, index=False)
+    if test_uni_audit is not None and len(test_uni_audit) > 0:
+        test_uni_audit.to_csv(test_uni_audit_path, index=False)
+        test_uni_audit.to_csv(results_dir / "test_universe_audit_latest.csv", index=False)
+    else:
+        pd.DataFrame().to_csv(test_uni_audit_path, index=False)
 
     results["train"]["signals"].to_csv(results_dir / "train_signals_latest.csv", index=False)
     results["train"]["returns"].to_csv(results_dir / "train_returns_latest.csv", index=False)
@@ -345,6 +427,8 @@ def main() -> None:
                 "train_returns": str(train_ret_path.relative_to(out_root)),
                 "test_signals": str(test_sig_path.relative_to(out_root)),
                 "test_returns": str(test_ret_path.relative_to(out_root)),
+                "train_universe_audit": str(train_uni_audit_path.relative_to(out_root)),
+                "test_universe_audit": str(test_uni_audit_path.relative_to(out_root)),
             },
             "latest_files": {
                 "train_signals": "results/train_signals_latest.csv",
@@ -360,6 +444,8 @@ def main() -> None:
     run_path = runs_dir / f"{ts}.json"
     with open(run_path, "w") as f:
         json.dump(report, f, indent=2)
+    write_json(runs_dir / f"{ts}.manifest.json", manifest)
+    write_json(runs_dir / "run_manifest_latest.json", manifest)
 
     print("=" * 70)
     print(f"{strategy_meta.get('name')} v{strategy_meta.get('version')}")

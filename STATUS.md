@@ -2,6 +2,11 @@
 
 Last updated: 2026-02-19 (live snapshot, T->T+1 archive, and web sync completed)
 
+Institutional governance update (2026-02-20):
+- Governance layer added: freeze + run manifest + guardrails + universe audit + hard gates + gate registry.
+- Workstation-primary policy added for official heavy runs (see `docs/institutional/WORKSTATION_PRIMARY_MODE.md`).
+- New-session strict read order added (see `docs/institutional/SESSION_BOOTSTRAP.md`).
+
 ## 1) Current Position
 - Project focus: daily-frequency factor research and scoring
 - Stage policy:

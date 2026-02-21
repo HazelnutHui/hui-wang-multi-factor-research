@@ -15,6 +15,14 @@ Last updated: 2026-02-18
 
 ## Additional References
 - `CODEX_SESSION_GUIDE.md`: single-file Codex handoff guide (recommended first read)
+- `docs/institutional/README.md`: institutional governance docs index
+- `docs/institutional/GATE_SPEC.md`: formal hard-gate specification
+- `docs/institutional/OPS_PLAYBOOK.md`: institutional run operations playbook
+- `docs/institutional/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
+- `docs/institutional/SESSION_BOOTSTRAP.md`: strict read order for new Codex sessions
+- `docs/institutional/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
+- `docs/institutional/CURRENT_GATE_STATUS_2026-02-20.md`: current institutional gate state snapshot and rerun checklist
+- `docs/institutional/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
 - `iterm_commands.txt`: convenience command snippets

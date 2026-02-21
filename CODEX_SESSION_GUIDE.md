@@ -1,24 +1,31 @@
 # CODEX Session Guide
 
-Last updated: 2026-02-19
+Last updated: 2026-02-20
 
 This is the single handoff file for new Codex sessions in this repo.
 
 ## 1) Session Goal
-- Primary track: daily live-trading validation for `combo_v2` using T->T+1 protocol.
-- Deliverables each day:
-  - score archive
-  - accuracy archive
-  - bilingual readable PDF reports
-  - docs sync + git push
+- Primary track: institutionalized research + gate workflow for `combo_v2`, in workstation-primary mode.
+- Deliverables:
+  - governed run manifests + freeze consistency
+  - universe filter audit outputs
+  - institutional gate reports (`cost + WF stress + risk + statistical`)
+  - append-only gate registry update
+  - docs sync + git push + workstation pull
 
 ## 2) Mandatory Read Order
 1. `README.md`
 2. `RUNBOOK.md`
 3. `STATUS.md`
 4. `DOCS_INDEX.md`
-5. `WEBSITE_HANDOFF.md`
-6. `live_trading/reports/README.md`
+5. `docs/institutional/README.md`
+6. `docs/institutional/GATE_SPEC.md`
+7. `docs/institutional/OPS_PLAYBOOK.md`
+8. `docs/institutional/WORKSTATION_PRIMARY_MODE.md`
+9. `docs/institutional/SESSION_BOOTSTRAP.md`
+10. `docs/institutional/AUDIT_ARTIFACTS.md`
+11. `WEBSITE_HANDOFF.md`
+12. `live_trading/reports/README.md`
 
 If the task is specifically about daily validation quality, also read:
 1. `live_trading/accuracy/metrics_panel.csv`
@@ -29,6 +36,18 @@ If the task is specifically about daily validation quality, also read:
 - `trade_date = T+1` (next trading day used for realized return)
 - Run ID format:
   - `trade_YYYY-MM-DD_from_signal_YYYY-MM-DD`
+
+## 3b) Institutional Run Integrity (Must Keep Consistent)
+- Official heavy runs default to workstation (8C/64G).
+- Official runs must use freeze and must not use skip flags:
+  - do not use `--skip-guardrails`
+  - do not use `--skip-risk-diagnostics`
+  - do not use `--skip-statistical-gates`
+- Every official run must generate:
+  - run manifest(s)
+  - universe audit csv
+  - gate report json/md
+  - gate registry row
 
 ## 4) Daily Execution Commands
 - Daily eval (score + realized return):
@@ -70,11 +89,21 @@ python scripts/generate_daily_live_report.py --run-id <run_id>
   2. local `git push`
   3. workstation `git pull --ff-only`
 
+## 7b) Workstation Rule For Heavy Runs
+- Use workstation for:
+  - `run_institutional_gates.py`
+  - heavy `run_walk_forward.py`
+  - large segmented stress runs
+- Use local machine for:
+  - code edits
+  - docs updates
+  - lightweight smoke checks
+
 ## 8) Minimal Prompt For New Codex
 Use this prompt in a new session:
 
 ```text
-Please start from CODEX_SESSION_GUIDE.md and continue today’s live_trading workflow only.
+Please start from docs/institutional/SESSION_BOOTSTRAP.md and continue institutional gate workflow in workstation-primary mode.
 ```
 
 ## 9) Current Run Pointers

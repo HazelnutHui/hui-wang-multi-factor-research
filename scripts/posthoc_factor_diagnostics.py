@@ -24,7 +24,13 @@ def _find_latest_run_json(strategy_dir: Path) -> Path | None:
     runs = strategy_dir / "runs"
     if not runs.exists():
         return None
-    files = sorted(runs.glob("*.json"))
+    files = []
+    for p in runs.glob("*.json"):
+        n = p.name
+        if n.endswith(".manifest.json") or n == "run_manifest_latest.json":
+            continue
+        files.append(p)
+    files = sorted(files)
     return files[-1] if files else None
 
 
