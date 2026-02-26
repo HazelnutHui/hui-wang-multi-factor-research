@@ -1,6 +1,6 @@
 # Production Research Governance Docs
 
-Last updated: 2026-02-21
+Last updated: 2026-02-26 (next100 de-duplicated queue running)
 
 This folder documents the production-grade governance layer added on top of V4 research workflows.
 
@@ -16,11 +16,13 @@ This folder documents the production-grade governance layer added on top of V4 r
 
 - `GATE_SPEC.md`: formal gate definitions, thresholds, pass/fail logic
 - `OPS_PLAYBOOK.md`: practical run commands and interpretation flow
+- `COMMAND_SURFACE.md`: primary/internal command boundary and deprecation policy
+- `DAILY_DEV_RESEARCH_FLOW.md`: daily dual-track dev/research SOP with anti-loop data-boundary expansion rules
 - `CHANGELOG.md`: governance-layer change log
 - `WORKSTATION_PRIMARY_MODE.md`: workstation-first execution policy
 - `SESSION_BOOTSTRAP.md`: mandatory read order for new sessions
 - `AUDIT_ARTIFACTS.md`: required artifact classes for audit/compliance
-- `CURRENT_GATE_STATUS_2026-02-20.md`: current gate-state snapshot and rerun checklist
+- `CURRENT_GATE_STATUS_2026-02-20.md`: historical gate-state snapshot and rerun checklist
 - `AUDIT_SNAPSHOT_2026-02-20.md`: path-level audit snapshot for handoff/reference
 - `TERMINOLOGY_POLICY.md`: canonical naming policy for production governance terms
 - `RENAMING_AUDIT_2026-02-21.md`: full migration audit record for legacy-term cleanup
@@ -28,7 +30,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `STAGE_AUDIT_LOG.md`: append-only stage-level audit ledger
 - `WORKSTATION_RUNNER_SPEC.md`: wrapper-script specification for workstation official runs
 - `ARTIFACT_RETENTION_AND_CLEANUP.md`: retention boundary and safe cleanup policy for audit vs temporary outputs
-- `CURRENT_GATE_STATUS_2026-02-21.md`: active rerun status snapshot with verified execution context
+- `CURRENT_GATE_STATUS_2026-02-21.md`: historical rerun status snapshot with verified execution context
 - `PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: verified performance bottlenecks and prioritized optimization backlog
 - `POST_RUN_OPERATIONS.md`: standardized sync/finalize procedure after official run completion
 - `GOVERNANCE_AUDIT_CHECKER.md`: post-run governance completeness checks and pass criteria
@@ -46,6 +48,20 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `NEXT_RUN_EXECUTION_STANDARD.md`: standard sequence from next-run plan repair to safe execution
 - `AUTO_RESEARCH_ORCHESTRATION.md`: multi-round automated research orchestration standard
 - `AUTO_RESEARCH_SEARCH_V1.md`: parameter-search trial planning/execution standard for combo_v2
+- `FACTOR_FACTORY_STANDARD.md`: batch new-factor factory standard (candidate build/execute/rank)
+- `CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized execution-profile decision
+- `FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked end-to-end factor pipeline and stage terminology
+- `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: factor-factory continuity snapshot (retained clean 16-candidate dataset + active de-duplicated next100 run state)
+- `FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use boundary (core vs research-only vs hold)
+- `FMP_INTERFACE_PROBE_STANDARD.md`: small-sample FMP endpoint probe standard and ambiguity log
+- `FMP_ENDPOINT_CATALOG_2026-02-23.md`: probed endpoint availability/status snapshot and ingestion boundary
+- `FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: full recheck of batch1/batch2 failed endpoints with doc-aligned replacements
+- `FMP_API_CALLABILITY_SUMMARY_2026-02-23.md`: full stable endpoint callability coverage summary (156 endpoints)
+- `FMP_ENDPOINT_FIELD_DICTIONARY_STATUS_2026-02-23.md`: endpoint-field dictionary status and remaining semantic gap
+- `FMP_FACTOR_FACTORY_DATA_CONSTRAINTS_2026-02-23.md`: enforceable allowlist/blocklist constraints for factor factory
+- `FMP_CATEGORY_PLAYBOOK_2026-02-23.md`: per-category practical usage guide for factor factory data sources
+- `FMP_FIELD_SEMANTIC_CATALOG_2026-02-23.md`: field-level semantic catalog status (`824` fields, `751` default-allow)
+- `FMP_MEANINGFUL_DATA_INVENTORY_2026-02-23.md`: practical field-level meaningful data counts and theme pools
 - `SYSTEM_OVERVIEW_EN.md`: end-to-end English white paper (architecture, validation flow, governance, and audit)
 - `SYSTEM_OVERVIEW_ZH.md`: end-to-end Chinese system overview (architecture, gates, audit, operations)
 - `NOTION_SYSTEM_OVERVIEW_ZH.md`: Notion-ready Chinese summary for project communication
@@ -57,8 +73,21 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `FAILURE_PATTERN_DB.md`: searchable failure-pattern database standard
 - `SESSION_HANDOFF_READINESS.md`: pre-handoff readiness check standard for new session continuity
 
+Active-flow note:
+- historical snapshots are retained for audit, but current execution mode is defined by:
+  - `FACTOR_PIPELINE_FREEZE_2026-02-25.md`
+  - `FACTOR_FACTORY_STANDARD.md`
+
 ## Core scripts
 
+- Primary unified entrypoint:
+  - `scripts/ops_entry.sh` (`daily` / `fast` / `factory` / `status` / `official` / `check` / `cleanup` / `hygiene`)
+- Daily pipeline internals:
+  - `scripts/daily_research_run.sh`
+  - `scripts/generate_daily_research_brief.py`
+  - `scripts/prepare_dq_input.py`
+  - `scripts/data_quality_gate.py`
+  - `scripts/fast_research_run.sh`
 - `scripts/run_research_workflow.py`
 - `scripts/run_with_config.py`
 - `scripts/run_segmented_factors.py`
@@ -71,7 +100,6 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/finalize_gate_run.py`
 - `scripts/finalize_gate_run.sh`
 - `scripts/post_run_sync_and_finalize.sh`
-- `scripts/data_quality_gate.py`
 - `scripts/governance_audit_checker.py`
 - `scripts/governance_remediation_plan.py`
 - `scripts/generate_run_review.py`
@@ -82,6 +110,8 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/repair_next_run_plan_paths.py`
 - `scripts/auto_research_orchestrator.py`
 - `scripts/build_search_v1_trials.py`
+- `scripts/run_factor_factory_batch.py`
+- `scripts/fmp_interface_probe.py`
 - `scripts/auto_research_scheduler.py`
 - `scripts/test_scheduler_alert_channels.py`
 - `scripts/switch_auto_research_mode.sh`
@@ -90,6 +120,9 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `scripts/manage_auto_research_scheduler_service.sh`
 - `scripts/update_failure_pattern_db.py`
 - `scripts/check_session_handoff_readiness.py`
+- `scripts/check_command_surface.py`
+- `scripts/check_script_surface.py`
+- `scripts/safe_artifact_cleanup.py`
 - `scripts/research_governance.py`
 
 ## Related config
@@ -97,6 +130,7 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `configs/research/candidate_queue_policy.json`
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_search_v1_policy.json`
+- `configs/research/factor_factory_policy.json`
 - `configs/research/auto_research_scheduler_policy.json`
 - `configs/research/auto_research_scheduler_policy.low_network.json`
 

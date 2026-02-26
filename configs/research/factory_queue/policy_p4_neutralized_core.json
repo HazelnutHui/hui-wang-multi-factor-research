@@ -1,0 +1,73 @@
+{
+  "batch_name": "p4_neutralized_core",
+  "mode": "grid",
+  "years": 2,
+  "default_set": [
+    "MARKET_CAP_DIR=data/fmp/market_cap_history",
+    "MARKET_CAP_STRICT=True",
+    "REBALANCE_FREQ=5",
+    "HOLDING_PERIOD=3",
+    "REBALANCE_MODE=None",
+    "EXECUTION_USE_TRADING_DAYS=True",
+    "SIGNAL_ZSCORE=True",
+    "SIGNAL_RANK=False",
+    "INDUSTRY_NEUTRAL=True",
+    "INDUSTRY_MIN_GROUP=5",
+    "SIGNAL_NEUTRALIZE_SIZE=True",
+    "SIGNAL_NEUTRALIZE_BETA=True"
+  ],
+  "families": [
+    {
+      "name": "momentum_v2_neutralized",
+      "factor": "momentum_v2",
+      "max_candidates": 4,
+      "grid": {
+        "MOMENTUM_USE_RESIDUAL": [false],
+        "MOMENTUM_LOOKBACK": [42, 63],
+        "MOMENTUM_SKIP": [5, 10],
+        "MOMENTUM_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "quality_v2_neutralized",
+      "factor": "quality_v2",
+      "max_candidates": 4,
+      "grid": {
+        "QUALITY_COMPONENT_INDUSTRY_ZSCORE": [true, false],
+        "QUALITY_COMPONENT_MIN_COUNT": [2, 3],
+        "QUALITY_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "value_v2_neutralized",
+      "factor": "value_v2",
+      "max_candidates": 4,
+      "grid": {
+        "VALUE_COMPONENT_INDUSTRY_ZSCORE": [true, false],
+        "VALUE_COMPONENT_MIN_COUNT": [2, 3],
+        "VALUE_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "low_vol_v2_neutralized",
+      "factor": "low_vol_v2",
+      "max_candidates": 4,
+      "grid": {
+        "LOW_VOL_WINDOW": [40, 60],
+        "LOW_VOL_USE_RESIDUAL": [false],
+        "LOW_VOL_DOWNSIDE_ONLY": [true, false],
+        "LOW_VOL_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "reversal_v2_neutralized",
+      "factor": "reversal_v2",
+      "max_candidates": 4,
+      "grid": {
+        "REVERSAL_LOOKBACK": [3, 5],
+        "REVERSAL_MAX_GAP_PCT": [0.08, 0.12],
+        "REVERSAL_LAG_DAYS": [1]
+      }
+    }
+  ]
+}

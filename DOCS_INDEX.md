@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-21
+Last updated: 2026-02-26 (next100 de-duplicated queue running)
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
@@ -15,14 +15,33 @@ Last updated: 2026-02-21
 
 ## Additional References
 - `SESSION_CONTINUITY_PROTOCOL.md`: single-file session handoff guide (recommended first read)
+- `docs/production_research/FACTOR_FACTORY_STANDARD.md`: factor factory generation/evaluation/registration standard
+- `docs/production_research/CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized factor-factory execution profile
+- `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked stage definitions and end-to-end factor workflow
+- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: factor-factory continuity snapshot (retained clean 16-candidate dataset + active de-duplicated next100 run state)
+- `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use policy (core vs research-only vs hold)
+- `configs/research/factory_queue/queue_100_fastscreen_v2.json`: default fast-screen queued plan (100 candidates, round-1 low-vol residual disabled)
+- `configs/research/factory_queue/queue_100_v1.json`: legacy queued plan (kept only for historical replay)
+- `docs/production_research/FMP_INTERFACE_PROBE_STANDARD.md`: FMP interface probing and field-semantic mapping standard
+- `docs/production_research/FMP_ENDPOINT_CATALOG_2026-02-23.md`: FMP endpoint callable catalog snapshot
+- `docs/production_research/FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: failed endpoint recheck log and outcomes
+- `docs/production_research/FMP_API_CALLABILITY_SUMMARY_2026-02-23.md`: endpoint callability summary and usable scope
+- `docs/production_research/FMP_ENDPOINT_FIELD_DICTIONARY_STATUS_2026-02-23.md`: endpoint-level field dictionary progress/status
+- `docs/production_research/FMP_FIELD_SEMANTIC_CATALOG_2026-02-23.md`: normalized field semantic catalog
+- `docs/production_research/FMP_FACTOR_FACTORY_DATA_CONSTRAINTS_2026-02-23.md`: data constraints for daily tradable factor generation
+- `docs/production_research/FMP_CATEGORY_PLAYBOOK_2026-02-23.md`: category-level actionable playbook for factor candidates
+- `docs/production_research/FMP_MEANINGFUL_DATA_INVENTORY_2026-02-23.md`: meaningful-data inventory for factory intake
 - `docs/production_research/README.md`: production governance docs index
 - `docs/production_research/GATE_SPEC.md`: formal hard-gate specification
 - `docs/production_research/OPS_PLAYBOOK.md`: production run operations playbook
+- `docs/production_research/COMMAND_SURFACE.md`: primary/internal command boundary (recommended operator entrypoints)
+- `docs/production_research/DAILY_DEV_RESEARCH_FLOW.md`: daily dual-track development/research SOP (anti-loop + data-boundary expansion)
 - `docs/production_research/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
 - `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new sessions
 - `docs/production_research/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
-- `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: current production gate state snapshot and rerun checklist
-- `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`: active rerun4 status snapshot and verified execution context
+- `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: historical production gate snapshot and rerun checklist (2026-02-20)
+- `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`: historical rerun4 status snapshot and verified execution context (2026-02-21)
+- `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`: 2026-02-23 snapshot entry with 2026-02-24 local evidence reconciliation (run5 sync-boundary + factor-factory dry-run status)
 - `docs/production_research/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
 - `docs/production_research/TERMINOLOGY_POLICY.md`: canonical production naming policy
 - `docs/production_research/RENAMING_AUDIT_2026-02-21.md`: full renaming audit trail
@@ -64,6 +83,8 @@ Last updated: 2026-02-21
 - `scripts/daily_run_combo_current.sh`: daily combo run entry (live snapshot by default)
 - `scripts/daily_sync_web.sh`: daily minimal web sync entry
 - `scripts/daily_update_pipeline.sh`: orchestrator (`pull -> run -> sync`)
+- `scripts/ops_entry.sh`: unified operator entry (`daily` / `status` / `official` / `check` / `cleanup` / `hygiene`)
+- `scripts/daily_research_run.sh`: internal daily pipeline entry (compatibility path)
 - `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
 - `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
@@ -73,6 +94,7 @@ Last updated: 2026-02-21
 - `scripts/post_run_sync_and_finalize.sh`: one-command remote sync + local finalization
 - `scripts/finalize_gate_run.py`: core finalization helper used by finalize shell wrapper
 - `scripts/data_quality_gate.py`: pre-gate dataset quality checker (json/md artifact output, non-zero on fail)
+- `scripts/prepare_dq_input.py`: build canonical DQ input (`date,ticker,score`) from latest score snapshot
 - `scripts/governance_audit_checker.py`: post-run governance completeness checker (json/md artifact output, non-zero on fail)
 - `scripts/governance_remediation_plan.py`: post-run remediation plan generator from governance audit output
 - `scripts/generate_run_review.py`: generate standardized committee run review markdown from finalized artifacts
@@ -91,6 +113,10 @@ Last updated: 2026-02-21
 - `scripts/manage_auto_research_scheduler_service.sh`: operate scheduler service (status/start/stop/restart/logs)
 - `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
 - `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
+- `scripts/check_command_surface.py`: detect command-surface drift in docs (old entry commands reappearing)
+- `scripts/check_script_surface.py`: detect likely unreferenced scripts for safe/manual deprecation review
+- `scripts/safe_artifact_cleanup.py`: safe cleanup for non-critical artifacts (dry-run by default; explicit `--apply` required)
+- `scripts/generate_daily_research_brief.py`: internal concise brief generator (`PASS/FAIL + manual decisions only`)
 - `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
 - `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
 - `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
@@ -113,6 +139,12 @@ Last updated: 2026-02-21
 - `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
 - `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
 - `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
+- `audit/fmp_probe_coverage_v1/fmp_interface_probe_latest.json`: latest FMP probe raw coverage artifact
+- `audit/fmp_probe_coverage_v1/fmp_endpoint_semantic_map_2026-02-23.csv`: endpoint-level semantic map for usable fields
+- `audit/fmp_probe_coverage_v1/fmp_factor_factory_allowlist_2026-02-23.csv`: approved low-leakage factor-factory field allowlist
+- `audit/fmp_probe_coverage_v1/fmp_high_leakage_blocklist_2026-02-23.csv`: blocked high-leakage fields list
+- `audit/fmp_probe_coverage_v1/fmp_field_semantic_catalog_2026-02-23.csv`: canonical field semantic catalog for generated factors
+- `audit/fmp_probe_coverage_v1/fmp_meaningful_data_inventory_2026-02-23.json`: meaningful-data inventory with usability tags
 - `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
 - `live_trading/reports/README.md`: report path convention and generation command
 - `strategies/`: strategy-level docs and configs
