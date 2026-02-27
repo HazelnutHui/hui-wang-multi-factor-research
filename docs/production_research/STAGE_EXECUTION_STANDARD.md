@@ -1,6 +1,6 @@
 # Stage Execution Standard (Production Research)
 
-Last updated: 2026-02-21
+Last updated: 2026-02-25
 
 ## Objective
 
@@ -8,20 +8,27 @@ Define a strict, repeatable stage system so every research phase has:
 - clear goal and entry criteria;
 - explicit must-produce artifacts;
 - pass/fail gate and rollback rules;
-- audit-ready explanation for next Codex session handoff.
+- audit-ready explanation for next session handoff.
 
-## Stage Model
+## Governance Stage Model
 
-1. `S0` Scope Freeze
+Naming lock:
+- Governance lifecycle stages use `G0-G4` (formerly `S0-S4` in historical records).
+- Single-factor validation stages use `SF-*` names defined in `FACTOR_PIPELINE_FREEZE_2026-02-25.md`.
+
+1. `G0` Scope Freeze
 - Input: research question, universe constraints, protocol version.
 - Required artifacts:
   - decision note (`decision_tag`, owner, date)
   - freeze file (`runs/freeze/*.freeze.json`)
-  - data contract declaration (required columns/key/date fields)
+- data contract declaration (required columns/key/date fields)
+- Pre-screen extension (factor factory):
+  - `ops_entry.sh factory` leaderboard can be used for candidate ranking at pre-screen stage.
+  - `--dry-run` outputs are planning artifacts only (not valid as `G1` pass evidence).
 - Gate:
   - no run without freeze artifact for official path.
 
-2. `S1` Baseline Validation
+2. `G1` Baseline Validation
 - Input: frozen config, baseline backtest/walk-forward spec.
 - Required artifacts:
   - data quality report (`data_quality_report.json/.md`)
@@ -30,16 +37,16 @@ Define a strict, repeatable stage system so every research phase has:
 - Gate:
   - data quality pass + baseline metrics not violating hard rejection criteria.
 
-3. `S2` Stress and Robustness
-- Input: S1 candidate.
+3. `G2` Stress and Robustness
+- Input: `G1` candidate.
 - Required artifacts:
   - segmented/walk-forward stress outputs
   - risk diagnostics outputs
 - Gate:
   - stress pass + risk pass + no skip flags.
 
-4. `S3` Production Gates (Promotion Candidate)
-- Input: S2 survivor.
+4. `G3` Production Gates (Promotion Candidate)
+- Input: `G2` survivor.
 - Required artifacts:
   - `gate_results/production_gates_<ts>/production_gates_report.json`
   - `gate_results/production_gates_<ts>/production_gates_report.md`
@@ -47,8 +54,8 @@ Define a strict, repeatable stage system so every research phase has:
 - Gate:
   - `overall_pass == true` and registry row present.
 
-5. `S4` Deployment Readiness
-- Input: S3 pass.
+5. `G4` Deployment Readiness
+- Input: `G3` pass.
 - Required artifacts:
   - deployment notes and monitoring checkpoints
   - post-promotion watchlist and rollback trigger definitions
@@ -57,7 +64,7 @@ Define a strict, repeatable stage system so every research phase has:
 
 ## Execution Environment Rule
 
-- Heavy official runs (`S2`/`S3`) must run on workstation.
+- Heavy official runs (`G2`/`G3`) must run on workstation.
 - Use:
   - `scripts/workstation_preflight.sh`
   - `scripts/workstation_official_run.sh`

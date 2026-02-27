@@ -25,23 +25,20 @@ This snapshot records current factor-factory continuity for this cycle. It is no
   - `36` complete candidates
   - signature-level duplicate check: `duplicate_groups=0` (`36/36` unique)
 
-## 2) Non-Usable Lineages (Incomplete / Stale)
+## 2) Non-Usable Lineages (Cleanup Applied)
 
-Do not include these in ranking, promotion, or gate inputs:
+The previously incomplete/stale lineages were removed from workstation storage to avoid accidental mixing:
 
-- `segment_results/factor_factory/2026-02-26_103744_p1_core_short_horizon`
-  - `total=20`, `started=8`, `complete=0`
-- `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon`
-  - `total=20`, `started=8`, `complete=0`
-- `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing`
-  - `total=20`, `started=8`, `complete=0`
+- `segment_results/factor_factory/2026-02-26_103744_p1_core_short_horizon` (removed)
+- `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon` (removed)
+- `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing` (removed)
 
-## 3) Active Queue Runtime (Observed)
+## 3) Runtime State
 
-- queue process:
-  - `scripts/run_factor_factory_queue.py --queue-json configs/research/factory_queue/queue_100_fastscreen_v2.json --jobs 8`
-- active batch process:
-  - `scripts/run_factor_factory_batch.py --policy-json configs/research/factory_queue/policy_p2_quality_value_timing.json --jobs 8 --max-candidates 20`
+- V2 queue is currently stopped by operator decision.
+- Current execution state is `review_required` for next batch planning.
+- Any next queue execution requires explicit approval file update:
+  - `configs/research/factory_queue/run_approval.json`
 
 ## 4) Execution Profile Boundary
 
@@ -55,8 +52,8 @@ Do not include these in ranking, promotion, or gate inputs:
 
 ## 5) Interpretation Boundary
 
-1. Current cycle's usable factor-factory dataset is the merged complete `36` only.
-2. Incomplete/stale lineages are execution traces, not valid research evidence.
+1. Current cycle's usable factor-factory dataset is the merged complete `36` only (V1 frozen baseline).
+2. Next batches (V2/V3/...) are blocked until manual review approval.
 3. Official gate SSOT remains:
    - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
 4. `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md` is retained as historical continuity context, not latest state.

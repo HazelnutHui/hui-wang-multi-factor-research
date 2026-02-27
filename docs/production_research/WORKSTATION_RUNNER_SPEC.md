@@ -24,7 +24,7 @@ Standardize heavy-run execution on workstation with auditable wrapper scripts.
 ## Required Invocation Pattern
 
 ```bash
-bash scripts/workstation_official_run.sh \
+bash scripts/ops_entry.sh official \
   --workflow production_gates \
   --tag committee_YYYY-MM-DD_xxx \
   --owner hui \

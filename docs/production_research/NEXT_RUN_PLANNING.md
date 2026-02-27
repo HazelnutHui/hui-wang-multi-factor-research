@@ -1,6 +1,6 @@
 # Next Run Planning Standard
 
-Last updated: 2026-02-21
+Last updated: 2026-02-22
 
 This standard defines how to produce an actionable rerun plan after each official run closure.
 
@@ -29,7 +29,7 @@ This standard defines how to produce an actionable rerun plan after each officia
 ## Standard Usage
 
 ```bash
-python scripts/generate_next_run_plan.py --dq-input-csv data/your_input.csv
+python scripts/generate_next_run_plan.py --dq-input-csv data/research_inputs/combo_v2_dq_input_latest.csv
 ```
 
 ## Integration
@@ -74,3 +74,10 @@ Default repair behavior:
 2. auto-increment `runN` to avoid collisions with existing run directories
 3. repair missing/invalid `--freeze-file`
 4. repair placeholder `--dq-input-csv` when canonical path is provided
+
+## Anti-Loop Planning Rule
+
+If the same family/parameter branch shows no improvement for 2 consecutive rounds:
+1. mark branch as paused in next-run hypotheses;
+2. include at least one data-boundary expansion hypothesis in the next plan;
+3. avoid continuing local micro-tuning on unchanged data scope.

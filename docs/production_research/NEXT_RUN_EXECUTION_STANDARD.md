@@ -56,6 +56,10 @@ When `scripts/repair_next_run_plan_paths.py` runs with default settings:
 4. `--freeze-file` exists
 5. `--dq-input-csv` is non-placeholder and path exists
 
+Note:
+- human operators may launch official runs through `bash scripts/ops_entry.sh official ...`;
+- plan-generated commands remain validated against `scripts/workstation_official_run.sh` for deterministic policy checks.
+
 ## Audit Artifacts
 
 After step 3-5, retain:

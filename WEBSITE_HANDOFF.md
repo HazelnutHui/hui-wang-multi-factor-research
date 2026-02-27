@@ -1,9 +1,14 @@
 # Website Handoff (Hui Quant Dashboard)
 
-Last updated: 2026-02-17
+Last updated: 2026-02-24
 
 ## 1) Scope
 - Website project path: `/Users/hui/Hui`
+- Status boundary:
+  - this document is for website implementation handoff only.
+  - research/gate truth source must come from:
+    - `STATUS.md`
+    - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
 - Current objective:
   - Keep existing visual style
   - Migrate old content to current V4 quant workflow
@@ -82,13 +87,12 @@ localStorage.removeItem('collapsedCards'); location.reload();
    - restart service
    - clear CDN/service-worker cache
 
-## 7) Suggested Prompt for New Codex Session
+## 7) Suggested Prompt for New Session
 Use these files first:
 1. `WEBSITE_HANDOFF.md`
 2. `STATUS.md`
-3. `PROJECT_SUMMARY.md`
+3. `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
 4. `DOCS_INDEX.md`
 
 Then request:
 - "Continue dashboard work from WEBSITE_HANDOFF.md; implement factor-combo IC matrix and parameter export without changing global visual style."
-

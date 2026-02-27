@@ -1,6 +1,6 @@
 # Public Factor Formula Library and Execution Constraints (V4)
 
-Last updated: 2026-02-16 (US)
+Last updated: 2026-02-22 (US)
 Purpose: provide a decision-grade, implementation-oriented public factor library and audit it against V4.
 
 ## 1) Scope and Evidence Standard
@@ -21,6 +21,43 @@ Primary public sources (checked 2026-02-16):
 - AQR dataset pages (QMJ/BAB)
 - arXiv `101 Formulaic Alphas`
 - Microsoft Qlib `Alpha158/Alpha360` code
+
+Online revalidation (checked 2026-02-22):
+- Ken French library notes that beginning January 2025, U.S. research returns are produced from CRSP's CIZ flat-file format (important for historical comparability versus legacy pipelines).
+- MSCI Momentum methodology reference remains the 2025-04-17 methodology document in active use.
+- AQR dataset pages for QMJ/BAB are active and updated through late 2025 / early 2026 timestamps.
+- Qlib open-source repository remains active for Alpha feature implementation references.
+
+Operational implication for V4:
+1. keep external baseline comparisons date-stamped by source update time;
+2. avoid mixing pre-2025 CRSP-pipeline assumptions with post-2025 library outputs without adjustment notes;
+3. when validating new families, prioritize factor definitions that have both methodology docs and maintainable data endpoints.
+
+## 1A) Information Channels and Update SOP (Batch-Research Ready)
+
+To avoid low-efficiency local over-tuning, factor candidates should be sourced from multiple channels, then converted into small discrete experiment grids.
+
+Channel stack:
+- Channel A (primary): academic and official methodology sources
+  - examples: Ken French library, MSCI methodology docs, AQR datasets, peer-reviewed papers
+- Channel B (implementation): large open-source quant frameworks
+  - examples: Qlib, representative open-source factor implementations
+- Channel C (internal evidence): V4 historical run artifacts
+  - examples: `gate_results/`, `audit/factor_registry/`, `audit/failure_patterns/`
+
+Update cadence:
+- Weekly: review and add new candidate families and constraints.
+- Per cycle: freeze one candidate set before running official gates.
+- Post-run: map failures into `audit/failure_patterns/` and feed back into next candidate generation.
+
+Batch parameter-group generation rule:
+1. one hypothesis family -> at most 2-3 discrete values per key parameter;
+2. avoid continuous micro-tuning in early rounds;
+3. use coarse grid for broad scan, then narrow only on top survivors;
+4. keep decision tags append-only and comparable across rounds.
+
+Default anti-overfitting stop rule:
+- stop a branch if two consecutive iterations show no improvement on core metrics (`wf test_ic_mean`, `wf pos_ratio`, gate-failure count).
 
 ## 2) Formula Conventions (for comparability)
 
@@ -413,6 +450,10 @@ Use this one-page card per factor:
 
 ## 9) Sources (links)
 
+- Ken French Data Library (main):
+  - https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+- Ken French U.S. research returns format note (CRSP CIZ transition):
+  - https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library.html
 - Ken French 5-factor:
   - https://mba.tuck.dartmouth.edu/pages/faculty/Ken.french/Data_Library/f-f_5_factors_2x3.html
 - Ken French momentum:

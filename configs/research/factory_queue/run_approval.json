@@ -1,0 +1,8 @@
+{
+  "approved": false,
+  "approved_queue": "",
+  "approval_id": "",
+  "approved_by": "",
+  "approved_at": "",
+  "notes": "Set approved=true and approved_queue=<queue json path> after manual review."
+}

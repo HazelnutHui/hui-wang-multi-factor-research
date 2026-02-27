@@ -120,6 +120,9 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
     quality = factors.get("quality", {})
     value = factors.get("value", {})
     low_vol = factors.get("low_vol", {})
+    turnover_shock = factors.get("turnover_shock", {})
+    vol_regime = factors.get("vol_regime", {})
+    quality_trend = factors.get("quality_trend", {})
     data_sel = cfg.get("data_selection", {})
 
     use_adj = bool(data_sel.get("use_adj_prices", False))
@@ -210,6 +213,16 @@ def _build_engine_config(cfg: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:
         "LOW_VOL_USE_RESIDUAL": low_vol.get("use_residual"),
         "LOW_VOL_BENCH_SYMBOL": low_vol.get("bench_symbol"),
         "LOW_VOL_DOWNSIDE_ONLY": low_vol.get("downside_only"),
+        "TURNOVER_SHOCK_SHORT": turnover_shock.get("short"),
+        "TURNOVER_SHOCK_LONG": turnover_shock.get("long"),
+        "TURNOVER_SHOCK_MIN_OBS": turnover_shock.get("min_obs"),
+        "TURNOVER_SHOCK_LAG_DAYS": turnover_shock.get("lag_days"),
+        "VOL_REGIME_SHORT": vol_regime.get("short"),
+        "VOL_REGIME_LONG": vol_regime.get("long"),
+        "VOL_REGIME_MIN_OBS": vol_regime.get("min_obs"),
+        "VOL_REGIME_LAG_DAYS": vol_regime.get("lag_days"),
+        "QUALITY_TREND_LOOKBACK_DAYS": quality_trend.get("lookback_days"),
+        "QUALITY_TREND_LAG_DAYS": quality_trend.get("lag_days"),
         "BETA_LOOKBACK": factors.get("beta", {}).get("lookback"),
         "BETA_BENCH_SYMBOL": factors.get("beta", {}).get("bench_symbol"),
         "BETA_USE_LOG_RETURN": factors.get("beta", {}).get("use_log_return"),

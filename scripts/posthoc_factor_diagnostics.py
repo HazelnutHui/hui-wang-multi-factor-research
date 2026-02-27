@@ -59,6 +59,14 @@ def _load_price_series(symbol: str) -> pd.DataFrame | None:
     except Exception:
         return None
     if "date" in df.columns:
+        # Guard against stale/wrong file contents.
+        if "symbol" in df.columns:
+            try:
+                sub = df[df["symbol"] == symbol]
+                if not sub.empty:
+                    df = sub.copy()
+            except Exception:
+                pass
         df["date"] = pd.to_datetime(df["date"])
         df = df.sort_values("date")
         return df
@@ -76,6 +84,10 @@ def _first_bar_on_or_after(df: pd.DataFrame, target_date: pd.Timestamp) -> float
     if idx >= len(df):
         return None
     row = df.iloc[idx]
+    if "adjOpen" in row and not pd.isna(row["adjOpen"]):
+        return float(row["adjOpen"])
+    if "adjClose" in row and not pd.isna(row["adjClose"]):
+        return float(row["adjClose"])
     if "open" in row and not pd.isna(row["open"]):
         return float(row["open"])
     if "close" in row and not pd.isna(row["close"]):
@@ -109,13 +121,13 @@ def _portfolio_return_series(returns_df: pd.DataFrame) -> pd.Series:
     return grouped.sort_index()
 
 
-def _beta(port: pd.Series, mkt: pd.Series) -> float | None:
+def _beta(port: pd.Series, mkt: pd.Series, min_points: int = 5) -> float | None:
     common = port.index.intersection(mkt.index)
-    if len(common) < 20:
+    if len(common) < int(min_points):
         return None
     x = mkt.loc[common].values
     y = port.loc[common].values
-    if np.std(x) == 0:
+    if np.std(x) == 0 or np.std(y) == 0:
         return None
     return float(np.cov(x, y, ddof=1)[0, 1] / np.var(x, ddof=1))
 
@@ -202,6 +214,8 @@ def _size_exposure(signals: pd.DataFrame, market_cap_dir: Path, max_dates=24):
         return df
 
     corrs = []
+    pooled_caps = []
+    pooled_sigs = []
     for d in dates:
         sub = signals[pd.to_datetime(signals["date"]) == d]
         if sub.empty:
@@ -215,17 +229,30 @@ def _size_exposure(signals: pd.DataFrame, market_cap_dir: Path, max_dates=24):
             idx = df["date"].searchsorted(d, side="right") - 1
             if idx < 0:
                 continue
-            cap = df.iloc[idx]["marketCap"]
-            if pd.isna(cap) or cap <= 0:
+            cap = pd.to_numeric(df.iloc[idx]["marketCap"], errors="coerce")
+            if pd.isna(cap) or float(cap) <= 0:
                 continue
-            caps.append(np.log(cap))
-            sigs.append(row["signal"])
+            log_cap = np.log(float(cap))
+            sig = pd.to_numeric(row["signal"], errors="coerce")
+            if pd.isna(sig):
+                continue
+            caps.append(log_cap)
+            sigs.append(float(sig))
+            pooled_caps.append(log_cap)
+            pooled_sigs.append(float(sig))
         if len(caps) < 30:
             continue
-        corrs.append(np.corrcoef(caps, sigs)[0, 1])
-    if not corrs:
-        return None
-    return float(np.nanmean(corrs))
+        c = np.corrcoef(caps, sigs)[0, 1]
+        if np.isfinite(c):
+            corrs.append(float(c))
+    if corrs:
+        return float(np.mean(corrs))
+    # Fallback: pooled correlation across sampled dates.
+    if len(pooled_caps) >= 100:
+        c = np.corrcoef(pooled_caps, pooled_sigs)[0, 1]
+        if np.isfinite(c):
+            return float(c)
+    return None
 
 
 def run_diagnostics(strategy_dir: Path, out_dir: Path, top_pct=0.2):
@@ -246,7 +273,7 @@ def run_diagnostics(strategy_dir: Path, out_dir: Path, top_pct=0.2):
     # Portfolio returns + beta
     port = _portfolio_return_series(returns_df)
     mkt = _market_return_series(port.index, exec_delay, holding, market_symbol="SPY")
-    beta = _beta(port, mkt) if mkt is not None else None
+    beta = _beta(port, mkt, min_points=5) if mkt is not None else None
 
     # Industry exposure
     profiles_path = PROJECT_ROOT / "data" / "company_profiles.csv"

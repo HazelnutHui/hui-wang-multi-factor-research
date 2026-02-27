@@ -1,6 +1,6 @@
 # Single-Factor Baseline (V4)
 
-Last checked: 2026-02-12
+Last checked: 2026-02-25
 
 Purpose: define a complete, modular baseline workflow for a new single factor before combination.
 
@@ -34,34 +34,25 @@ Fill this once per new factor. This is the “module spec” that drives executi
 14. **Execution**: (delay, entry/exit price)  
 15. **Holding period**:  
 16. **Costs**:  
-17. **Stage**: (Stage 1 baseline / Stage 2 production)  
+17. **Validation lane**: (`SF-L1` / `SF-L2` / `SF-L3` / `SF-DIAG`)  
 
 ---
 
 ## 2) Baseline Workflow (Required Steps)
+
+Precondition (required):
+- candidate must come from `S0` factor-factory ranking shortlist (recommended top `20-30`);
+- do not run full single-factor baseline stack on all raw candidates.
 
 ### Step 1. Data + PIT sanity
 Goal: ensure data exists and PIT timing is valid.
 
 1. Verify required data folders exist and are non-empty.  
 2. Verify PIT availability (if fundamentals).  
-3. Note any known risks in `FACTOR_NOTES.md`.  
+3. Note any known risks in `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`.  
 
-### Step 2. Stage 1 segmented backtest (stability)
-Goal: baseline stability using default Stage 1 processing.
-
-Command template:
-```bash
-PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/python3.11 \
-  /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors <factor> --years 2 \
-  |& tee /Users/hui/quant_score/v4/logs/<factor>_segment_stage1_YYYY-MM-DD.log
-```
-
-Outputs:
-- `segment_results/<timestamp>/<factor>/segment_summary.csv`
-
-### Step 3. Stage 2 segmented backtest (robustness)
-Goal: production-style robustness check.
+### Step 2. SF-L1 segmented strict backtest (mandatory)
+Goal: production-style robustness check (primary single-factor segmented gate).
 
 Command template:
 ```bash
@@ -69,13 +60,16 @@ PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/pytho
   /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors <factor> --years 2 \
   --set SIGNAL_ZSCORE=True --set SIGNAL_RANK=False --set INDUSTRY_NEUTRAL=True \
   --set SIGNAL_NEUTRALIZE_SIZE=True --set SIGNAL_NEUTRALIZE_BETA=True \
-  |& tee /Users/hui/quant_score/v4/logs/<factor>_segment_stage2_inst_YYYY-MM-DD.log
+  |& tee /Users/hui/quant_score/v4/logs/<factor>_segment_sf_l1_YYYY-MM-DD.log
 ```
 
-### Step 4. Fixed Train/Test
+Outputs:
+- `segment_results/<timestamp>/<factor>/segment_summary.csv`
+
+### Step 3. SF-L2 Fixed Train/Test (mandatory)
 Goal: check overfit and out-of-sample degradation.
 
-Use unified config runner when possible:
+Command template:
 ```bash
 /Users/hui/miniconda3/envs/qscore/bin/python3.11 /Users/hui/quant_score/v4/scripts/run_with_config.py \
   --strategy /Users/hui/quant_score/v4/configs/strategies/<factor>_v1.yaml
@@ -86,7 +80,25 @@ If not using configs, run the strategy entrypoint directly:
 /Users/hui/miniconda3/envs/qscore/bin/python3.11 -m strategies.<factor>_v1.run
 ```
 
-### Step 5. Professional factor report
+### Step 4. SF-DIAG segmented diagnostics (optional)
+Goal: debug parameter sensitivity or abnormal behavior, non-gating.
+
+Command template:
+```bash
+PYTHONPATH=/Users/hui/quant_score/v4 /Users/hui/miniconda3/envs/qscore/bin/python3.11 \
+  /Users/hui/quant_score/v4/scripts/run_segmented_factors.py --factors <factor> --years 2 \
+  |& tee /Users/hui/quant_score/v4/logs/<factor>_segment_sf_diag_YYYY-MM-DD.log
+```
+
+### Step 5. SF-L3 Walk-forward (shortlist only)
+Goal: deployment-style rolling validation for top candidates only.
+
+```bash
+/Users/hui/miniconda3/envs/qscore/bin/python3.11 /Users/hui/quant_score/v4/scripts/run_walk_forward.py \
+  --factors <factor> --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
+```
+
+### Step 6. Professional factor report
 Goal: quantiles, rolling IC, turnover, cost sensitivity.
 
 ```bash
@@ -103,7 +115,7 @@ Outputs:
 ## 3) Robustness Extensions (Recommended)
 
 ### 3.1 Parameter sensitivity (±20% lookback)
-Re-run Stage 1 with lookback ±20% and compare IC.
+Re-run `SF-DIAG` with lookback ±20% and compare IC.
 
 Example:
 ```bash
@@ -111,7 +123,7 @@ Example:
 ```
 
 ### 3.2 Standardization swap (rank vs zscore)
-Re-run Stage 1 with `SIGNAL_ZSCORE=True` and `SIGNAL_RANK=False`.
+Re-run `SF-DIAG` with rank/zscore variants to inspect sensitivity.
 
 ### 3.3 Sub-universe checks
 At least one of:
@@ -134,6 +146,6 @@ Use this unless you override with your own standards.
 
 ## 5) Record Keeping (Required)
 
-1. Update `STATUS.md` with latest segmented results (Stage 1/Stage 2).  
-2. Update `FACTOR_NOTES.md` with any logic changes or pitfalls.  
+1. Update `STATUS.md` with latest `SF-L1`/`SF-L2` results (`SF-DIAG` only if used).  
+2. Update `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md` (or approved successor baseline doc) with any logic changes or pitfalls.  
 3. Keep report outputs in `strategies/<factor>/reports/`.  

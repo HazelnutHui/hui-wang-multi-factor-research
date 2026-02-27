@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import time
 import json
 import random
+from datetime import date
 from pathlib import Path
 import pandas as pd
 import requests
 
 API_BASE = "https://financialmodelingprep.com/stable/historical-price-eod/dividend-adjusted"
 START_DATE = "2010-01-01"
-END_DATE = "2026-01-28"
+END_DATE = date.today().isoformat()
 
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_SRC = ROOT / "data" / "prices"
@@ -43,11 +45,11 @@ def load_symbols(dir_path: Path):
     return sorted([p.stem for p in dir_path.glob("*.pkl")])
 
 
-def fetch_symbol(symbol: str):
+def fetch_symbol(symbol: str, start_date: str, end_date: str):
     params = {
         "symbol": symbol,
-        "from": START_DATE,
-        "to": END_DATE,
+        "from": start_date,
+        "to": end_date,
         "apikey": API_KEY,
     }
     r = session.get(API_BASE, params=params, timeout=30)
@@ -80,14 +82,33 @@ def save_df(df: pd.DataFrame, out_path: Path):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start-date", default=START_DATE, help="YYYY-MM-DD")
+    parser.add_argument("--end-date", default=END_DATE, help="YYYY-MM-DD")
+    parser.add_argument("--overwrite", action="store_true", help="Overwrite existing files")
+    parser.add_argument(
+        "--scope",
+        choices=["both", "active", "delisted"],
+        default="both",
+        help="Which universe to refresh",
+    )
+    parser.add_argument("--sleep", type=float, default=0.25, help="Sleep between symbols")
+    args = parser.parse_args()
+
     active_syms = load_symbols(ACTIVE_SRC)
     delisted_syms = load_symbols(DELISTED_SRC)
 
     log(f"Active symbols: {len(active_syms)}")
     log(f"Delisted symbols: {len(delisted_syms)}")
+    log(
+        f"Date range: {args.start_date} -> {args.end_date} | overwrite={int(args.overwrite)} | scope={args.scope}"
+    )
 
-    jobs = [(s, ACTIVE_OUT / f"{s}.pkl") for s in active_syms] + \
-           [(s, DELISTED_OUT / f"{s}.pkl") for s in delisted_syms]
+    jobs = []
+    if args.scope in ("both", "active"):
+        jobs.extend([(s, ACTIVE_OUT / f"{s}.pkl") for s in active_syms])
+    if args.scope in ("both", "delisted"):
+        jobs.extend([(s, DELISTED_OUT / f"{s}.pkl") for s in delisted_syms])
 
     random.shuffle(jobs)
 
@@ -97,13 +118,13 @@ def main():
     errors = 0
 
     for i, (sym, out_path) in enumerate(jobs, 1):
-        if out_path.exists():
+        if out_path.exists() and not args.overwrite:
             skipped += 1
             if i % 200 == 0:
                 log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")
             continue
 
-        status, df = fetch_symbol(sym)
+        status, df = fetch_symbol(sym, args.start_date, args.end_date)
         if status == "ok":
             save_df(df, out_path)
             ok += 1
@@ -116,7 +137,7 @@ def main():
             errors += 1
             log(f"Error {status} for {sym}")
 
-        time.sleep(0.25)
+        time.sleep(args.sleep)
 
         if i % 200 == 0:
             log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")

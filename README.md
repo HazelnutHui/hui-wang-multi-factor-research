@@ -5,7 +5,7 @@ A bias-aware, reproducible, daily-frequency factor research system for US equiti
 This project focuses on turning factor ideas into decision-grade research outputs with a consistent validation protocol, not one-off backtest screenshots.
 
 ## Recruiter Quick Link
-- Start here: [`PROJECT_SUMMARY.md`](PROJECT_SUMMARY.md)
+- Start here: [`STATUS.md`](STATUS.md)
 
 ## White Paper
 - English: [`docs/production_research/SYSTEM_OVERVIEW_EN.md`](docs/production_research/SYSTEM_OVERVIEW_EN.md)
@@ -14,7 +14,7 @@ This project focuses on turning factor ideas into decision-grade research output
 ## What This Project Does
 - Builds rebalance-date-driven backtests for factor strategies
 - Evaluates factors with segmented IC, fixed train/test, and walk-forward
-- Supports Stage 1/Stage 2 signal processing for baseline vs production robustness
+- Supports mandatory single-factor strict validation (`SF-L1`) plus optional diagnostics (`SF-DIAG`)
 - Adds point-in-time (PIT) controls for fundamentals timing
 - Handles delisted data paths to reduce survivorship bias
 - Produces structured diagnostics (rolling IC, quantiles, turnover, cost sensitivity)
@@ -22,79 +22,26 @@ This project focuses on turning factor ideas into decision-grade research output
 ## Validation Framework
 Each factor follows the same research gate:
 
-1. Segmented backtest (2-year slices): stability across regimes
+1. Segmented strict backtest (2-year slices): robustness across regimes
 2. Fixed train/test: out-of-sample degradation check
-3. Walk-forward: deployment-style rolling validation
+3. Walk-forward: deployment-style rolling validation (shortlist only)
 
-If a factor fails step 1, it does not move forward.
+Default single-factor path is `SF-L1 -> SF-L2`; `SF-DIAG` is optional and non-gating.
 
-## Current Research Snapshot (Updated 2026-02-17 UTC)
-Current status under updated single-factor formula logic:
-- `v1` Stage 1 completed and kept as baseline reference
-- `v2` has been overwritten to `v2.1` (production baseline upgrade, nontrivial formula changes)
-- `v2.1` Stage 1 segmented validation completed (6 factors x 9 segments)
-- `v2.1` Stage 1 ranking by `ic_mean`: `value_v2` > `momentum_v2` > `quality_v2` > `low_vol_v2` > `reversal_v2` > `pead_v2`
-- Stage2 strict production rerun profile added: `v2026_02_16b` (`value_v2,momentum_v2,quality_v2`, 6-core parallel)
-- Stage2 strict + cache core-pair run completed: `v2026_02_16c_vm` (`value_v2,momentum_v2`, 18/18)
-- Stage2 signal cache layer is now implemented and verified (`395` cache files on workstation run)
-
-Latest `v2.1` Stage 1 metrics:
-- `value_v2`: `ic_mean=0.047520`, `ic_std=0.015569`, `pos_ratio=0.8889`, `valid_n=8/9`
-- `momentum_v2`: `ic_mean=0.012868`, `ic_std=0.022771`, `pos_ratio=0.6667`, `valid_n=8/9`
-- `quality_v2`: `ic_mean=0.009247`, `ic_std=0.011422`, `pos_ratio=0.5556`, `valid_n=8/9`
-- `low_vol_v2`: `ic_mean=0.009101`, `ic_std=0.033835`, `pos_ratio=0.5556`, `valid_n=8/9`
-- `reversal_v2`: `ic_mean=0.005704`, `ic_std=0.004982`, `pos_ratio=0.8889`, `valid_n=9/9`
-- `pead_v2`: `ic_mean=0.000766`, `ic_std=0.030426`, `pos_ratio=0.5556`, `valid_n=9/9`
-
-Current cycle policy:
-- Keep `v1` results as baseline reference
-- Run Stage 2 segmented first on `value_v2,momentum_v2,quality_v2`
-- Then run full Layer2 (fixed train/test) and Layer3 (walk-forward)
-- Use `scripts/compare_v1_v2.py` to decide keep/promote by factor
-- Stage2 top3 result confirmed: `value_v2` and `momentum_v2` pass; `quality_v2` does not pass
-- Promote passing factors into `combo_v2` with current core set `value+momentum`
-
-Latest Stage2 top3 metrics:
-- `value_v2`: `ic_mean=0.055206`, `ic_std=0.021952`, `pos_ratio=0.8889`, `valid_n=8/9`
-- `momentum_v2`: `ic_mean=0.016483`, `ic_std=0.034164`, `pos_ratio=0.6667`, `valid_n=8/9`
-- `quality_v2`: `ic_mean=-0.003500`, `ic_std=0.007554`, `pos_ratio=0.4444`, `valid_n=8/9`
-
-Latest Stage2 strict + cache core-pair metrics:
-- `value_v2`: `ic_mean=0.053457`, `ic_std=0.021938`, `pos_ratio=1.0000`, `valid_n=8/9`
-- `momentum_v2`: `ic_mean=0.014055`, `ic_std=0.026392`, `pos_ratio=0.7500`, `valid_n=8/9`
-
-Strict Stage2 runner:
-- `scripts/run_stage2_strict_top3_parallel.sh`
-- Default command (resume-safe): `bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3`
-
-## Combination Layer
-- `combo_v2` is implemented as production research baseline.
-- Current core decision: `value + momentum` as main production-candidate pair, `quality` held out for rework.
-- Weight-grid integrity note:
-  - Early batch `combo_weight_grid_2026_02_17_p6` is not valid for final weight decision.
-  - Cause: segmented runner previously used hardcoded combo defaults.
-  - Fix applied: `scripts/run_segmented_factors.py` now reads `COMBO_WEIGHTS` from `strategies/combo_v2/config.py` for `combo_v2`.
-  - Corrected rerun batch: `segment_results/combo_weight_grid_2026_02_17_fix`.
-- Final combo selection (after nonlinear comparison):
-  - Linear winner: `value=0.90`, `momentum=0.10`
-  - `value_momentum_gated` and `value_momentum_two_stage` both underperformed the linear winner under identical Stage2 strict constraints.
-- Final locked combo validation:
-  - Layer2 fixed train/test (`configs/strategies/combo_v2_prod.yaml`):
-    - Train IC (overall): `0.080637`
-    - Test IC (overall): `0.053038`
-  - Layer3 walk-forward (`REBALANCE_MODE=None`, test years 2013-2025):
-    - `test_ic`: `mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
-    - `test_ic_overall`: `mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
-- Post-WF stress validation (passed):
-  - Run profile: `COST_MULTIPLIER=1.5`, `MIN_MARKET_CAP=2e9`, `MIN_DOLLAR_VOLUME=5e6`
-  - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
-  - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
-- Strategy files:
-  - `strategies/combo_v2/config.py`
-  - `strategies/combo_v2/run.py`
-  - `configs/strategies/combo_v2_prod.yaml`
-- Weight derivation helper:
-  - `scripts/derive_combo_weights.py`
+## Current Operating Mode (2026-02-27)
+- authoritative pipeline is frozen in:
+  - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
+- factor factory governance:
+  - V1 frozen baseline: `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
+  - all next batches require manual approval before run:
+    - `configs/research/factory_queue/run_approval.json`
+  - fixed comparability profile (for approved runs): `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`
+- round design:
+  1. `S0` large-scale pre-screen
+  2. shortlist `1/3/5` holding-period robustness
+  3. single-factor validation (`SF-L1` mandatory + `SF-L2` mandatory; `SF-DIAG` optional)
+  4. combo Layer1/Layer2/Layer3
+  5. production gates
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration
@@ -144,6 +91,13 @@ python scripts/run_with_config.py --strategy configs/strategies/momentum_v1.yaml
 python -m pytest tests
 ```
 
+### 6) Unified ops entry (recommended for daily work)
+```bash
+bash scripts/ops_entry.sh daily
+# fast status refresh only:
+# bash scripts/ops_entry.sh status
+```
+
 ## Public-Repo Notes
 - Large local datasets, logs, and generated results are intentionally excluded.
 - To reproduce full results, prepare your own data caches and API keys.
@@ -175,10 +129,8 @@ Current first live day archive:
 - `STATUS.md`: current progress and latest run status
 - `WEBSITE_HANDOFF.md`: website dashboard handoff and continuation notes
 - `docs/hui_dashboard/README.md`: Hui dashboard deployment/runtime notes and operations guide
-- `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight experiments and final selection log
 - `POST_WF_PRODUCTION_CHECKLIST.md`: post walk-forward production validation gates before paper/live
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
-- `FACTOR_NOTES.md`: implementation notes and caveats per factor
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式、执行约束与 V4 缺陷审查（中文）
 - `SYSTEM_OVERVIEW_CN.md`: Chinese system overview
@@ -187,4 +139,4 @@ Current first live day archive:
 Designed and implemented a modular, PIT-aware multi-factor research platform that standardizes factor validation and distinguishes robust alpha signals from unstable ones under production-style checks.
 
 ## Additional Public Summary
-- `PROJECT_SUMMARY.md`: one-page interview-friendly project summary
+- `docs/production_research/SYSTEM_OVERVIEW_EN.md`: concise architecture and governance summary

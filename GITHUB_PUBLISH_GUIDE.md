@@ -27,7 +27,7 @@ The public repository should include:
 - Research scripts (`scripts/`)
 - Configs (`configs/`)
 - Tests (`tests/`)
-- Public documentation (`README.md`, `RUNBOOK.md`, `STATUS.md`, `PROJECT_SUMMARY.md`, etc.)
+- Public documentation (`README.md`, `RUNBOOK.md`, `STATUS.md`, `DOCS_INDEX.md`, etc.)
 
 ## 4) What Must Stay Private / Excluded
 The following are intentionally excluded via `.gitignore`:
@@ -112,8 +112,8 @@ Recommended topics:
 
 ## 10) Resume Linking Strategy
 For resume/interview, prioritize this link:
-- One-page summary:
-  - `https://github.com/HazelnutHui/hui-wang-multi-factor-research/blob/main/PROJECT_SUMMARY.md`
+- Status summary:
+  - `https://github.com/HazelnutHui/hui-wang-multi-factor-research/blob/main/STATUS.md`
 
 Optional second link:
 - Repo root:

@@ -4,13 +4,14 @@ import os
 import time
 import json
 import random
+from datetime import date
 from pathlib import Path
 import pandas as pd
 import requests
 
 API_BASE = "https://financialmodelingprep.com/stable"
 START_DATE = "2010-01-01"
-END_DATE = "2026-01-28"
+END_DATE = date.today().isoformat()
 PERIOD = "quarter"
 LIMIT = 400
 
@@ -67,7 +68,7 @@ def fetch_json(endpoint: str, symbol: str):
     return "ok", data
 
 
-def build_quality_frame(symbol: str):
+def build_quality_frame(symbol: str, start_date: str, end_date: str):
     status, ratios = fetch_json("ratios", symbol)
     if status != "ok":
         return status, None
@@ -115,7 +116,7 @@ def build_quality_frame(symbol: str):
 
     # Compute quality metrics
     df = df.sort_values('date').reset_index(drop=True)
-    df = df[(df['date'] >= START_DATE) & (df['date'] <= END_DATE)]
+    df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
     if len(df) == 0:
         return "empty_date_range", None
     df['roe'] = df.get('returnOnEquity')
@@ -154,6 +155,9 @@ def build_quality_frame(symbol: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing files")
+    parser.add_argument("--start-date", default=START_DATE, help="YYYY-MM-DD")
+    parser.add_argument("--end-date", default=END_DATE, help="YYYY-MM-DD")
+    parser.add_argument("--sleep", type=float, default=0.25, help="Sleep between symbols")
     args = parser.parse_args()
 
     active_syms = load_symbols(ACTIVE_SRC)
@@ -162,6 +166,9 @@ def main():
 
     log(f"Active symbols: {len(active_syms)}")
     log(f"Delisted symbols: {len(delisted_syms)}")
+    log(
+        f"Date range: {args.start_date} -> {args.end_date} | overwrite={int(args.overwrite)}"
+    )
 
     random.shuffle(symbols)
 
@@ -178,7 +185,7 @@ def main():
                 log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")
             continue
 
-        status, df = build_quality_frame(sym)
+        status, df = build_quality_frame(sym, args.start_date, args.end_date)
         if status == "ok":
             df.to_pickle(out_path)
             ok += 1
@@ -191,7 +198,7 @@ def main():
             errors += 1
             log(f"Error {status} for {sym}")
 
-        time.sleep(0.25)
+        time.sleep(args.sleep)
 
         if i % 200 == 0:
             log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")

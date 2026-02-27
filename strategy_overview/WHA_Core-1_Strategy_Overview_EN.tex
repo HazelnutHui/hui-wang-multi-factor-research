@@ -1,0 +1,166 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{setspace}
+\setstretch{1.18}
+
+\title{WHA Core-1 (Value-Momentum Daily)\\Strategy Overview}
+\author{}
+\date{February 18, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Core Idea}
+WHA Core-1 is a daily cross-sectional stock scoring strategy with a value-dominant, momentum-assisted structure.
+
+\[
+\mathrm{Score}_{i,t}=0.9\times\mathrm{ValueScore}_{i,t}+0.1\times\mathrm{MomentumScore}_{i,t}
+\]
+
+where:
+\begin{itemize}
+  \item \texttt{ValueScore}: valuation attractiveness (primary driver)
+  \item \texttt{MomentumScore}: medium-term trend strength (secondary driver)
+\end{itemize}
+
+\section{Factor Construction}
+\subsection*{1) Value block}
+Three valuation metrics are used:
+\begin{itemize}
+  \item \texttt{PE} (Price-to-Earnings)
+  \item \texttt{P/FCF} (Price-to-Free-Cash-Flow)
+  \item \texttt{EV/EBITDA} (Enterprise Value / EBITDA)
+\end{itemize}
+
+To align direction (higher = cheaper), multiples are transformed into yield-style variables:
+\[
+\mathrm{earnings\_yield}=\frac{1}{\mathrm{PE}},\quad
+\mathrm{fcf\_yield}=\frac{1}{\mathrm{P/FCF}},\quad
+\mathrm{ev\_ebitda\_yield}=\frac{1}{\mathrm{EV/EBITDA}}
+\]
+
+\subsection*{2) Momentum block}
+\begin{itemize}
+  \item Lookback: 126 trading days (about 6 months)
+  \item Skip window: latest 21 trading days (about 1 month) to reduce short-term reversal noise
+\end{itemize}
+
+\subsection*{3) Post-combination risk controls}
+\begin{itemize}
+  \item Industry neutralization (reduce sector-level systematic drift)
+  \item Size neutralization (reduce large-cap/small-cap style bias)
+  \item Beta neutralization (reduce broad market direction exposure)
+  \item Quantile winsorization (limit outlier dominance)
+\end{itemize}
+
+\section{Single-Factor Backtest Evidence (Core Pair)}
+Backtest window and segmentation:
+\begin{itemize}
+  \item Time range: 2010-01-01 to 2026-01-28
+  \item Segmentation: 2-year slices, 9 slices total
+\end{itemize}
+
+\subsection*{A. Stage 1 (v2.1)}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Factor & IC Mean & IC Std & Positive IC Ratio \\
+\midrule
+Value\_v2 & 0.047520 & 0.015569 & 88.89\% \\
+Momentum\_v2 & 0.012868 & 0.022771 & 66.67\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{B. Stage 2 Strict (core pair)}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Factor & IC Mean & IC Std & Positive IC Ratio \\
+\midrule
+Value\_v2 & 0.053457 & 0.021938 & 100.00\% \\
+Momentum\_v2 & 0.014055 & 0.026392 & 75.00\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Conclusion: Value is the stronger/stabler component; Momentum adds complementary information, leading to the final 0.9/0.1 linear mix.
+
+\section{Three-Layer Combo Validation}
+Locked combo: \texttt{linear}, \texttt{value=0.90}, \texttt{momentum=0.10}.
+
+\subsection*{Layer 1: Segmented validation}
+\begin{itemize}
+  \item Range: 2010-01-01 to 2026-01-28
+  \item Method: 2-year segmentation
+  \item Outcome: linear combo outperformed non-linear candidates (gated / two-stage)
+\end{itemize}
+
+\subsection*{Layer 2: Fixed train/test (run\_with\_config)}
+\begin{itemize}
+  \item Train: 2010-01-04 to 2017-12-31
+  \item Test: 2018-01-01 to 2026-01-28
+  \item Train IC (overall): \texttt{0.080637}
+  \item Test IC (overall): \texttt{0.053038}
+\end{itemize}
+
+\subsection*{Layer 3: Walk-forward validation}
+Settings: \texttt{train=3y, test=1y, REBALANCE\_MODE=None}.
+\begin{itemize}
+  \item Rolling windows: 2013--2025 (n=13)
+  \item Base range: start-year=2010, end-year=2025
+  \item test\_ic: mean=\texttt{0.057578}, std=\texttt{0.033470}, pos\_ratio=\texttt{1.0000}
+  \item test\_ic\_overall: mean=\texttt{0.050814}, std=\texttt{0.032703}, pos\_ratio=\texttt{1.0000}
+\end{itemize}
+
+\section{Final Stress Test (Post-WF)}
+Stress profile:
+\begin{itemize}
+  \item \texttt{COST\_MULTIPLIER=1.5}
+  \item \texttt{MIN\_MARKET\_CAP=2e9}
+  \item \texttt{MIN\_DOLLAR\_VOLUME=5e6}
+\end{itemize}
+
+Results (n=13):
+\begin{itemize}
+  \item test\_ic: mean=\texttt{0.053310}, std=\texttt{0.032486}, pos\_ratio=\texttt{1.0000}
+  \item test\_ic\_overall: mean=\texttt{0.046618}, std=\texttt{0.032058}, pos\_ratio=\texttt{1.0000}
+\end{itemize}
+
+Conclusion: the signal remained positive under stricter cost and liquidity constraints.
+
+\section{Execution Convention and Practical Boundaries}
+\subsection*{1) Data and universe}
+\begin{itemize}
+  \item Price: adjusted daily close (adjClose)
+  \item Valuation: FMP ratio data transformed into yield-style features
+  \item Base investability filters: minimum market cap, minimum dollar volume, minimum price
+\end{itemize}
+
+\subsection*{2) Trading convention}
+\begin{itemize}
+  \item Signal frequency: daily
+  \item Execution delay: signal at T is used for T+1 (execution\_delay=1)
+  \item Default portfolio orientation: long-only ranking
+\end{itemize}
+
+\subsection*{3) Known limitations}
+\begin{itemize}
+  \item Metrics here are research/backtest diagnostics, not full real-money PnL statements
+  \item Live deployment should monitor rolling 20/40/60-day excess stability
+  \item Capacity and impact analysis is required before scaling capital
+\end{itemize}
+
+\section{Current Completion Status (Disclosure-ready)}
+\begin{itemize}
+  \item Completed: single-factor validation, three-layer combo validation, and stress testing (cost multiplier + stricter liquidity constraints)
+  \item Partially completed: cost stress outputs are available, but a full capacity-tier and impact-cost quant table is not yet standardized
+  \item In progress: standardized risk-scenario casebook and live monitoring dashboard (20/40/60-day excess and turnover)
+\end{itemize}
+
+\section{One-line Summary}
+WHA Core-1 is a value-first, momentum-assisted daily ranking strategy with positive evidence across single-factor tests, three-layer combo validation, and final stress testing; it is suitable as a daily signal engine with controlled live-scale rollout.
+
+\end{document}

@@ -1,0 +1,169 @@
+\documentclass[12pt,a4paper,fontset=fandol]{ctexart}
+\usepackage{geometry}
+\geometry{margin=2.1cm}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{setspace}
+\setstretch{1.22}
+
+\title{WHA Core-1（价值-动量日频）策略介绍}
+\author{}
+\date{2026-02-18}
+
+\begin{document}
+\maketitle
+
+\section{策略核心思路}
+WHA Core-1 是一个日频股票横截面打分策略，核心是“估值主导 + 趋势辅助”。
+
+综合评分公式：
+\[
+\mathrm{Score}_{i,t}=0.9\times\mathrm{ValueScore}_{i,t}+0.1\times\mathrm{MomentumScore}_{i,t}
+\]
+
+其中：
+\begin{itemize}
+  \item \texttt{ValueScore}：估值便宜程度（主因子）
+  \item \texttt{MomentumScore}：中期趋势强弱（辅因子）
+\end{itemize}
+
+\section{估值与趋势具体定义}
+\subsection*{1) 估值模块（Value）}
+估值部分使用三项指标（首次出现含中文注释）：
+\begin{itemize}
+  \item \texttt{PE (Price-to-Earnings, 市盈率)}
+  \item \texttt{P/FCF (Price-to-Free-Cash-Flow, 市价/自由现金流)}
+  \item \texttt{EV/EBITDA (Enterprise Value / Earnings Before Interest, Taxes, Depreciation and Amortization, 企业价值/息税折旧摊销前利润)}
+\end{itemize}
+
+先把“倍数”转成“收益率”统一方向（越大越便宜）：
+\[
+\mathrm{earnings\_yield}=\frac{1}{\mathrm{PE}},\quad
+\mathrm{fcf\_yield}=\frac{1}{\mathrm{P/FCF}},\quad
+\mathrm{ev\_ebitda\_yield}=\frac{1}{\mathrm{EV/EBITDA}}
+\]
+
+\subsection*{2) 趋势模块（Momentum）}
+\begin{itemize}
+  \item 回看约 126 个交易日（约 6 个月）
+  \item 跳过最近 21 个交易日（约 1 个月，避免短期反转噪声）
+\end{itemize}
+
+\subsection*{3) 组合后风险处理}
+\begin{itemize}
+  \item 行业中性化（降低行业整体涨跌对排序的系统干扰）
+  \item 规模中性化（降低大盘/小盘风格偏置）
+  \item Beta 中性化（Beta 表示对市场波动敏感度；降低方向暴露）
+  \item 分位去极值（压缩异常值，避免少数样本主导结果）
+\end{itemize}
+
+\section{两大单因子回测结果（核心对比）}
+以下为当前组合所用两大核心因子的阶段结果（2年分段）：
+\begin{itemize}
+  \item 回测区间：2010-01-01 至 2026-01-28
+  \item 分段方式：每段 2 年，共 9 段（有效段数见各因子 valid\_n）
+\end{itemize}
+
+\subsection*{A. Stage 1（v2.1）}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+因子 & IC均值 & IC标准差 & 正IC占比 \\
+\midrule
+Value\_v2 & 0.047520 & 0.015569 & 88.89\% \\
+Momentum\_v2 & 0.012868 & 0.022771 & 66.67\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{B. Stage 2 严格口径（core pair strict）}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+因子 & IC均值 & IC标准差 & 正IC占比 \\
+\midrule
+Value\_v2 & 0.053457 & 0.021938 & 100.00\% \\
+Momentum\_v2 & 0.014055 & 0.026392 & 75.00\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+结论：Value 稳定性更强，Momentum 提供辅助增益，因此最终采用 0.9 / 0.1 线性组合。
+
+\section{组合三层回测结果（最终版本）}
+组合配置：\texttt{linear}, \texttt{value=0.90}, \texttt{momentum=0.10}。
+
+\subsection*{Layer 1：分段回测（Segmented）}
+用于筛选和稳定性验证。
+\begin{itemize}
+  \item 回测区间：2010-01-01 至 2026-01-28
+  \item 分段方式：2 年分段
+  \item 结论：线性组合优于非线性候选（gated/two-stage）
+\end{itemize}
+
+\subsection*{Layer 2：固定训练/测试（run\_with\_config）}
+\begin{itemize}
+  \item 训练区间：2010-01-04 至 2017-12-31
+  \item 测试区间：2018-01-01 至 2026-01-28
+\end{itemize}
+\begin{itemize}
+  \item Train IC (overall): \texttt{0.080637}
+  \item Test IC (overall): \texttt{0.053038}
+\end{itemize}
+
+\subsection*{Layer 3：滚动前瞻验证（Walk-forward）}
+设置：\texttt{train=3年, test=1年, REBALANCE\_MODE=None}。
+\begin{itemize}
+  \item 窗口覆盖：2013--2025（n=13）
+  \item 底层区间：start-year=2010, end-year=2025
+\end{itemize}
+\begin{itemize}
+  \item test\_ic: mean=\texttt{0.057578}, std=\texttt{0.033470}, pos\_ratio=\texttt{1.0000}
+  \item test\_ic\_overall: mean=\texttt{0.050814}, std=\texttt{0.032703}, pos\_ratio=\texttt{1.0000}
+\end{itemize}
+
+\section{最终压力测试（Post-WF Stress）}
+压力配置：\texttt{COST\_MULTIPLIER=1.5}，\texttt{MIN\_MARKET\_CAP=2e9}，\texttt{MIN\_DOLLAR\_VOLUME=5e6}。
+
+结果（n=13）：
+\begin{itemize}
+  \item test\_ic: mean=\texttt{0.053310}, std=\texttt{0.032486}, pos\_ratio=\texttt{1.0000}
+  \item test\_ic\_overall: mean=\texttt{0.046618}, std=\texttt{0.032058}, pos\_ratio=\texttt{1.0000}
+\end{itemize}
+
+结论：在更高成本与更严格可交易约束下仍保持正向，压力测试通过。
+
+\section{执行口径与适用边界}
+\subsection*{1) 数据与股票池口径}
+\begin{itemize}
+  \item 价格：复权日线（adjClose）
+  \item 估值：FMP 比率数据，内部转换为收益率形式后使用
+  \item 基础筛选：最小市值、最小成交额、最小价格（按配置约束）
+\end{itemize}
+
+\subsection*{2) 交易口径}
+\begin{itemize}
+  \item 信号频率：日频更新
+  \item 执行延迟：T 日信号用于 T+1（execution\_delay=1）
+  \item 默认方向：多头排序（long-only）
+\end{itemize}
+
+\subsection*{3) 已知局限与建议}
+\begin{itemize}
+  \item 本文指标以研究回测为主，不等同完整实盘净值
+  \item 实盘前需持续监控近 20/40/60 日超额稳定性
+  \item 建议配套冲击成本与容量评估后再放大资金规模
+\end{itemize}
+
+\section{当前完成度说明（对外披露口径）}
+\begin{itemize}
+  \item 已完成：单因子验证、组合三层回测、压力测试（成本倍数+更严格流动性约束）
+  \item 部分完成：成本压力已有结果，但容量分档与冲击成本量化表尚未形成完整标准模板
+  \item 建设中：关键风险场景案例库、以及 20/40/60 日超额与换手的标准化实盘监控面板
+\end{itemize}
+
+\section{一句话结论}
+WHA Core-1 是“估值为主、趋势为辅”的日频排序模型；单因子和三层组合验证均为正向，且在压力测试下仍保持稳健，可作为日更信号主策略继续跟踪与小规模实盘验证。
+
+\end{document}

@@ -61,7 +61,7 @@ def _load_text(path: Path) -> str:
 
 
 def _check_index_linkage(index_text: str, paths: list[str]) -> dict[str, bool]:
-    exempt = {"DOCS_INDEX.md", "CODEX_SESSION_GUIDE.md"}
+    exempt = {"DOCS_INDEX.md", "SESSION_CONTINUITY_PROTOCOL.md"}
     out: dict[str, bool] = {}
     for p in paths:
         if p in exempt:
@@ -73,7 +73,7 @@ def _check_index_linkage(index_text: str, paths: list[str]) -> dict[str, bool]:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Session handoff readiness checker.")
-    p.add_argument("--guide", default="CODEX_SESSION_GUIDE.md")
+    p.add_argument("--guide", default="SESSION_CONTINUITY_PROTOCOL.md")
     p.add_argument("--docs-index", default="DOCS_INDEX.md")
     p.add_argument("--out-json", default="audit/session_handoff/handoff_readiness.json")
     p.add_argument("--out-md", default="audit/session_handoff/handoff_readiness.md")

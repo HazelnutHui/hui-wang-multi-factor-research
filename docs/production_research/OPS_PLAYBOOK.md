@@ -1,12 +1,74 @@
 # Production Ops Playbook
 
-Last updated: 2026-02-21
+Last updated: 2026-02-24
+
+Related daily operating standard:
+- `docs/production_research/DAILY_DEV_RESEARCH_FLOW.md`
 
 ## 1) One-time setup
 
 ```bash
 cd /Users/hui/quant_score/v4
 export PYTHONPATH=$(pwd)
+```
+
+## 1.1) Unified primary entry (recommended)
+
+```bash
+bash scripts/ops_entry.sh daily
+```
+
+Optional override for remote official-status probing in daily brief:
+
+```bash
+REMOTE_STATUS_HOST=hui@100.66.103.44 \
+REMOTE_STATUS_ROOT=~/projects/hui-wang-multi-factor-research \
+REMOTE_STATUS_TIMEOUT_SEC=5 \
+bash scripts/ops_entry.sh daily
+```
+
+Fast status-only refresh:
+
+```bash
+bash scripts/ops_entry.sh status
+```
+
+Fast research screen (non-official, isolated outputs):
+
+```bash
+bash scripts/ops_entry.sh fast --dry-run
+# bash scripts/ops_entry.sh fast
+```
+
+Factor factory batch (new-factor industrial run):
+
+```bash
+# local planning only:
+bash scripts/ops_entry.sh factory --dry-run --jobs 4
+
+# full batch default: run on workstation with at least 4-way parallel
+# bash scripts/ops_entry.sh factory --jobs 4 --max-candidates 20
+# recommended on workstation when load allows:
+# bash scripts/ops_entry.sh factory --jobs 8 --max-candidates 20
+```
+
+Command-surface drift check:
+
+```bash
+bash scripts/ops_entry.sh check
+```
+
+Safe cleanup preview / apply:
+
+```bash
+bash scripts/ops_entry.sh cleanup
+# bash scripts/ops_entry.sh cleanup --apply
+```
+
+Hygiene routine (check + cleanup preview):
+
+```bash
+bash scripts/ops_entry.sh hygiene
 ```
 
 ## 2) Create freeze (official baseline)
@@ -22,7 +84,7 @@ python scripts/run_with_config.py \
 
 ```bash
 python scripts/data_quality_gate.py \
-  --input-csv data/your_input.csv \
+  --input-csv data/research_inputs/combo_v2_dq_input_latest.csv \
   --required-columns date,ticker,score \
   --numeric-columns score \
   --key-columns date,ticker \
@@ -73,13 +135,13 @@ python scripts/run_research_workflow.py --workflow production_gates -- \
 ## 8) Workstation official wrapper (recommended)
 
 ```bash
-bash scripts/workstation_official_run.sh \
+bash scripts/ops_entry.sh official \
   --workflow production_gates \
   --tag committee_YYYY-MM-DD_runN \
   --owner hui \
   --notes "official workstation gate run" \
   --threads 8 \
-  --dq-input-csv data/your_input.csv \
+  --dq-input-csv data/research_inputs/combo_v2_dq_input_latest.csv \
   -- \
   --strategy configs/strategies/combo_v2_prod.yaml \
   --factor combo_v2 \

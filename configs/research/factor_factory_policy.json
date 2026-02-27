@@ -1,0 +1,66 @@
+{
+  "batch_name": "factor_factory_v1",
+  "mode": "grid",
+  "years": 2,
+  "default_set": [
+    "MARKET_CAP_DIR=data/fmp/market_cap_history",
+    "MARKET_CAP_STRICT=True",
+    "REBALANCE_FREQ=5",
+    "HOLDING_PERIOD=3",
+    "REBALANCE_MODE=None",
+    "EXECUTION_USE_TRADING_DAYS=True"
+  ],
+  "families": [
+    {
+      "name": "turnover_shock",
+      "factor": "turnover_shock",
+      "max_candidates": 4,
+      "grid": {
+        "TURNOVER_SHOCK_SHORT": [10, 20],
+        "TURNOVER_SHOCK_LONG": [60, 120],
+        "TURNOVER_SHOCK_MIN_OBS": [60],
+        "TURNOVER_SHOCK_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "vol_regime",
+      "factor": "vol_regime",
+      "max_candidates": 4,
+      "grid": {
+        "VOL_REGIME_SHORT": [10, 20],
+        "VOL_REGIME_LONG": [60, 120],
+        "VOL_REGIME_MIN_OBS": [60],
+        "VOL_REGIME_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "quality_trend",
+      "factor": "quality_trend",
+      "max_candidates": 4,
+      "grid": {
+        "QUALITY_TREND_LOOKBACK_DAYS": [126, 252, 378, 504],
+        "QUALITY_TREND_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "momentum_v2",
+      "factor": "momentum_v2",
+      "max_candidates": 4,
+      "grid": {
+        "MOMENTUM_LOOKBACK": [63, 126],
+        "MOMENTUM_SKIP": [10, 21],
+        "MOMENTUM_LAG_DAYS": [1]
+      }
+    },
+    {
+      "name": "quality_v2",
+      "factor": "quality_v2",
+      "max_candidates": 4,
+      "grid": {
+        "QUALITY_COMPONENT_MIN_COUNT": [2, 3],
+        "QUALITY_COMPONENT_INDUSTRY_ZSCORE": [true, false],
+        "QUALITY_LAG_DAYS": [1]
+      }
+    }
+  ]
+}

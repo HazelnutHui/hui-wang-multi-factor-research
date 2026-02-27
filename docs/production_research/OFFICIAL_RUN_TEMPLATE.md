@@ -10,7 +10,7 @@ This file provides copy-ready templates for official production gate runs.
 cd ~/projects/hui-wang-multi-factor-research
 export PYTHONPATH=$(pwd)
 
-bash scripts/workstation_official_run.sh \
+bash scripts/ops_entry.sh official \
   --workflow production_gates \
   --tag committee_YYYY-MM-DD_runN \
   --owner hui \

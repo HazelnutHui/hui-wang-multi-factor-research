@@ -114,7 +114,11 @@ def main() -> None:
     p.add_argument("--stress-min-market-cap", type=float, default=2_000_000_000)
     p.add_argument("--stress-min-dollar-volume", type=float, default=5_000_000)
     p.add_argument("--stress-min-price", type=float, default=5.0)
-    p.add_argument("--stress-market-cap-dir", default="", help="Optional MARKET_CAP_DIR override for WF stress")
+    p.add_argument(
+        "--stress-market-cap-dir",
+        default="data/fmp/market_cap_history",
+        help="MARKET_CAP_DIR override for WF stress (default: data/fmp/market_cap_history)",
+    )
     p.add_argument("--stress-market-cap-strict", default="True", help="MARKET_CAP_STRICT override for WF stress")
     p.add_argument("--min-pos-ratio", type=float, default=0.70)
     p.add_argument("--risk-beta-abs-max", type=float, default=0.50)
@@ -290,6 +294,8 @@ def main() -> None:
             diag_files = sorted((strategy_dir / "reports").glob("diagnostics_*.json"), key=lambda p: p.stat().st_mtime)
             if not diag_files:
                 risk_stats = {"ok": False, "reason": "diagnostics json not found", "return_code": diag_code}
+            elif diag_code != 0:
+                risk_stats = {"ok": False, "reason": "diagnostics command failed", "return_code": diag_code}
             else:
                 latest_diag = diag_files[-1]
                 d = json.loads(latest_diag.read_text()).get("diagnostics", {})

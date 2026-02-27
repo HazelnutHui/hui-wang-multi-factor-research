@@ -56,3 +56,4 @@ This is a historical snapshot kept for continuity. It is not the latest state an
    - new-signal implementation and de-dup gate completion.
 5. For current/latest state, use:
    - `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`
+6. Referenced queue/policy config files in this historical snapshot were retired and deleted on 2026-02-27.

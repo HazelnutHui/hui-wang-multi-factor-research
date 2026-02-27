@@ -11,7 +11,7 @@ backtest_periods:
   test_end: "2026-01-28"
 
 execution:
-  rebalance_freq: 21
+  rebalance_freq: 1
   holding_period: 20
 
 calendar:
@@ -76,3 +76,16 @@ factors:
     component_winsor_pct_high: 0.99
     component_min_count: 3
     component_missing_policy: "drop"
+  quality_trend:
+    lookback_days: 252
+    lag_days: 1
+  turnover_shock:
+    short: 20
+    long: 120
+    min_obs: 80
+    lag_days: 1
+  vol_regime:
+    short: 20
+    long: 120
+    min_obs: 80
+    lag_days: 1

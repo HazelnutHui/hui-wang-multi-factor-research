@@ -40,7 +40,7 @@
 - session handoff readiness:
   - `docs/production_research/SESSION_HANDOFF_READINESS.md`
   - `scripts/check_session_handoff_readiness.py`
-  - `CODEX_SESSION_GUIDE.md` and `SESSION_BOOTSTRAP.md` read sequence extended with handoff readiness standard
+  - `SESSION_CONTINUITY_PROTOCOL.md` and `SESSION_BOOTSTRAP.md` read sequence extended with handoff readiness standard
   - `scripts/post_run_sync_and_finalize.sh` now auto-runs handoff readiness checker and emits `audit/session_handoff/*`
 - review generator:
   - `scripts/generate_run_review.py`
@@ -104,7 +104,7 @@
   - `scripts/post_run_sync_and_finalize.sh` now executes governance audit checker automatically
   - `scripts/post_run_sync_and_finalize.sh` now generates remediation plan even when governance check fails
 - playbook/bootstrap updates:
-  - `CODEX_SESSION_GUIDE.md` mandatory sequence extended with new governance controls
+  - `SESSION_CONTINUITY_PROTOCOL.md` mandatory sequence extended with new governance controls
   - `docs/production_research/SESSION_BOOTSTRAP.md` mandatory sequence extended
   - `docs/production_research/OPS_PLAYBOOK.md` includes pre-gate data quality step
 

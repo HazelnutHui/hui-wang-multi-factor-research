@@ -1,6 +1,6 @@
 # Workstation Primary Mode (8C/64G)
 
-Last updated: 2026-02-21
+Last updated: 2026-02-24
 
 Purpose:
 - make workstation the default execution environment for heavy research/gate workloads;
@@ -18,6 +18,7 @@ Workstation (`~/projects/hui-wang-multi-factor-research`):
   - `run_walk_forward.py`
   - `run_production_gates.py`
   - heavy segmented batches
+  - `ops_entry.sh factory` full batch runs (`--jobs >= 4`)
 - official gate reports and registry generation
 
 ## 2) Authoritative execution rule
@@ -29,6 +30,11 @@ For official results:
 4. commit docs/code from local after verification.
 
 Do not treat local long-run output as official if workstation policy is active.
+
+Factor-factory default rule:
+1. run full factory batches on workstation by default;
+2. use at least `--jobs 4`;
+3. local machine may run `--dry-run` only for candidate-plan validation.
 
 ## 3) Standard sync model
 
@@ -90,7 +96,7 @@ If gate run fails:
 Preferred official run entry:
 
 ```bash
-bash scripts/workstation_official_run.sh \
+bash scripts/ops_entry.sh official \
   --workflow production_gates \
   --tag committee_YYYY-MM-DD_runN \
   --owner hui \
@@ -105,3 +111,16 @@ bash scripts/workstation_official_run.sh \
 
 This automatically writes preflight and run audit artifacts under:
 - `audit/workstation_runs/<ts>_<workflow>_<decision_tag>/`
+
+## 9) Workstation Factor-Factory Command (Default)
+
+```bash
+cd ~/projects/hui-wang-multi-factor-research
+export PYTHONPATH=$(pwd)
+
+# default minimum parallelism
+bash scripts/ops_entry.sh factory --jobs 4 --max-candidates 20
+
+# recommended when workstation load allows
+# bash scripts/ops_entry.sh factory --jobs 8 --max-candidates 20
+```

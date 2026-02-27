@@ -241,6 +241,7 @@ def _build_queue(
             f"--workflow production_gates --tag {next_tag} --owner hui "
             '--notes "candidate queue run" --threads 8 --dq-input-csv data/your_input.csv -- '
             f"--strategy {strategy} --factor {factor} --cost-multipliers 1.5,2.0 --wf-shards 4 "
+            "--stress-market-cap-dir data/fmp/market_cap_history "
             f"--freeze-file {freeze_file} --out-dir gate_results"
         )
         item = (
@@ -335,6 +336,7 @@ def _build_queue(
                     f"--workflow production_gates --tag {next_tag} --owner hui "
                     '--notes "candidate queue fallback run" --threads 8 --dq-input-csv data/your_input.csv -- '
                     f"--strategy {strategy} --factor {factor} --cost-multipliers 1.5,2.0 --wf-shards 4 "
+                    "--stress-market-cap-dir data/fmp/market_cap_history "
                     f"--freeze-file {freeze_file} --out-dir gate_results"
                 ),
             }

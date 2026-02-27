@@ -1,18 +1,46 @@
-# 1) 进入项目目录
-cd /Users/hui/quant_score/v4
+(async () => {
+  const keywords = ["earnings", "free cash flow", "ev", "ebitda", "price to"];
+  const base = "/data/search/data-fields";
+  const region = "USA", delay = 1, universe = "TOP3000";
+  const limit = 100;
+  const out = [];
 
-# 2)（建议）先提交本地更新到 Git
-git add RUNBOOK.md STATUS.md DOCS_INDEX.md iterm_commands.txt scripts/daily_pull_incremental.sh scripts/daily_run_combo_current.sh scripts/update_divadj_prices_incremental.py
-git commit -m "daily pipeline hardening + docs sync"
-git push
+  for (const kw of keywords) {
+    for (let offset = 0; ; offset += limit) {
+      const url = `${base}?region=${region}&delay=${delay}
+&universe=${universe}` +
+                  `&instrumentType=EQUITY&search=${encodeURIComponent(kw)}` +
+                  `&limit=${limit}&offset=${offset}`;
+      const r = await fetch(url, { credentials: "include" });
+      if (!r.ok) break;
+      const j = await r.json();
 
-# 3) 检查线上服务状态（你已跑过，可复查）
-export SSH_KEY='/Users/hui/Downloads/ssh-key-2026-02-03 (3).key'
-ssh -i "$SSH_KEY" ubuntu@132.226.88.196 "sudo systemctl status hui-uvicorn --no-pager -n 20"
+      const rows = j?.results || j?.data || j?.items || [];
+      if (!rows.length) break;
 
-# 4) 检查线上评分接口最新日期（修正版）
-curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard \
-| /Users/hui/miniconda3/bin/python3 -c "import sys,json; obj=json.load(sys.stdin); rows=obj.get('rows',[]); print('rows=',len(rows)); ds=[r.get('date') for r in rows if r.get('date')]; print('latest_date=', max(ds) if ds else 'N/A')"
+      for (const x of rows) {
+        out.push({
+          keyword: kw,
+          dataset: x.datasetName || x.dataset || "",
+          field: x.field || x.name || "",
+          description: x.description || "",
+          type: x.type || "",
+          coverage: x.coverage ?? "",
+          dateCoverage: x.dateCoverage ?? ""
+        });
+      }
+      if (rows.length < limit) break;
+    }
+  }
 
-# 5)（排错用）先看接口原始返回前 300 字符
-curl -sS https://h4o4v8f0f4e3.share.zrok.io/api/quant/scoreboard | head -c 300
+  const uniq = Array.from(new Map(out.map(r => [r.field + "|" + r.dataset, r])).values());
+  const header = ["keyword","dataset","field","description","type","coverage","dateCoverage"];
+  const csv = [header.join(","), ...uniq.map(r =>
+    header.map(h => `"${String(r[h] ?? "").replace(/"/g,'""')}"`).join(",")
+  )].join("\n");
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "brain_fields_export.csv";
+  a.click();
+})();

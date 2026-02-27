@@ -14,7 +14,7 @@
     "high_remediation_min_delta": 0.0
   },
   "sleep_seconds_between_rounds": 0,
-  "dq_input_csv": "data/your_input.csv",
+  "dq_input_csv": "data/research_inputs/combo_v2_dq_input_latest.csv",
   "retry": {
     "max_attempts": 2,
     "backoff_seconds": 5,
