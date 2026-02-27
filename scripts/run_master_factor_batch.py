@@ -15,6 +15,31 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 
 
+VALUE_COMPONENT_FAMILIES = {
+    "value_ey_cross",
+    "value_fcfy_cross",
+    "value_ev_ebitda_cross",
+}
+QUALITY_COMPONENT_FAMILIES = {
+    "quality_roe_cross",
+    "quality_roa_cross",
+    "quality_gm_cross",
+    "quality_cfoa_cross",
+    "safety_de_inverse",
+}
+QUALITY_TREND_FAMILIES = {
+    "roe_trend",
+    "roa_trend",
+    "margin_trend",
+    "cfo_quality_trend",
+    "deleveraging_trend",
+}
+VALUE_TREND_FAMILIES = {"value_re_rating_ey", "value_re_rating_fcfy"}
+SUE_EPS_STYLE_FAMILIES = {"sue_eps_basic", "pead_short_window"}
+SUE_REVENUE_STYLE_FAMILIES = {"sue_revenue_basic"}
+INSTITUTIONAL_FAMILIES = {"institutional_ownership_change", "institutional_breadth_change"}
+
+
 def _pybin() -> str:
     v = ROOT / ".venv" / "bin" / "python"
     if v.exists():
@@ -32,6 +57,91 @@ def _load_rows(csv_path: Path, batch_id: str) -> list[dict[str, Any]]:
                 continue
             out.append(row)
     return out
+
+
+def _winsor_pair(pct: Any) -> tuple[float, float]:
+    p = float(pct)
+    p = max(0.0, min(p, 0.49))
+    return p, 1.0 - p
+
+
+def _map_params(factor_family: str, raw: dict[str, Any]) -> dict[str, Any]:
+    mapped: dict[str, Any] = {}
+
+    for k, v in raw.items():
+        if str(k).isupper():
+            mapped[str(k)] = v
+
+    if "industry_neutral" in raw:
+        mapped["INDUSTRY_NEUTRAL"] = bool(raw["industry_neutral"])
+
+    if "winsor_pct" in raw:
+        w_low, w_high = _winsor_pair(raw["winsor_pct"])
+        mapped["SIGNAL_WINSOR_PCT_LOW"] = w_low
+        mapped["SIGNAL_WINSOR_PCT_HIGH"] = w_high
+
+    if "smooth_days" in raw:
+        mapped["SIGNAL_SMOOTH_WINDOW"] = max(1, int(raw["smooth_days"]))
+
+    lag_days = raw.get("lag_days")
+    if lag_days is not None:
+        lag = int(lag_days)
+        if factor_family in VALUE_COMPONENT_FAMILIES:
+            mapped["VALUE_COMPONENT_LAG_DAYS"] = lag
+        elif factor_family in QUALITY_COMPONENT_FAMILIES:
+            mapped["QUALITY_COMPONENT_LAG_DAYS"] = lag
+        elif factor_family == "value_composite_v1":
+            mapped["VALUE_LAG_DAYS"] = lag
+        elif factor_family == "quality_composite_v1":
+            mapped["QUALITY_LAG_DAYS"] = lag
+        elif factor_family == "value_quality_blend":
+            mapped["VALUE_QUALITY_BLEND_LAG_DAYS"] = lag
+        elif factor_family == "profitability_minus_leverage":
+            mapped["PML_LAG_DAYS"] = lag
+        elif factor_family in QUALITY_TREND_FAMILIES:
+            mapped["QUALITY_TREND_LAG_DAYS"] = lag
+        elif factor_family in VALUE_TREND_FAMILIES:
+            mapped["VALUE_TREND_LAG_DAYS"] = lag
+        elif factor_family in SUE_EPS_STYLE_FAMILIES:
+            if factor_family == "pead_short_window":
+                mapped["PEAD_SHORT_WINDOW_LAG_DAYS"] = lag
+            else:
+                mapped["SUE_LAG_DAYS"] = lag
+        elif factor_family in SUE_REVENUE_STYLE_FAMILIES:
+            mapped["SUE_REVENUE_LAG_DAYS"] = lag
+        elif factor_family in INSTITUTIONAL_FAMILIES:
+            mapped["INSTITUTIONAL_LAG_DAYS"] = lag
+        elif factor_family == "owner_earnings_yield_proxy":
+            mapped["OWNER_EARNINGS_LAG_DAYS"] = lag
+        else:
+            mapped["FACTOR_LAG_DAYS"] = lag
+
+    if "lookback_days" in raw:
+        lb = int(raw["lookback_days"])
+        if factor_family in QUALITY_TREND_FAMILIES:
+            mapped["QUALITY_TREND_LOOKBACK_DAYS"] = lb
+        elif factor_family in VALUE_TREND_FAMILIES:
+            mapped["VALUE_TREND_LOOKBACK_DAYS"] = lb
+
+    if "event_max_age_days" in raw:
+        mapped["SUE_EVENT_MAX_AGE_DAYS"] = int(raw["event_max_age_days"])
+    if "event_window_days" in raw and factor_family == "pead_short_window":
+        mapped["SUE_EVENT_MAX_AGE_DAYS"] = int(raw["event_window_days"])
+
+    if "surprise_floor" in raw:
+        floor = float(raw["surprise_floor"])
+        if factor_family in SUE_REVENUE_STYLE_FAMILIES:
+            mapped["SUE_REVENUE_FLOOR"] = floor
+        else:
+            mapped["SUE_EPS_FLOOR"] = floor
+
+    if "min_rows" in raw and factor_family in INSTITUTIONAL_FAMILIES:
+        mapped["INSTITUTIONAL_MIN_ROWS"] = max(1, int(raw["min_rows"]))
+
+    if "price_align_days" in raw and factor_family == "owner_earnings_yield_proxy":
+        mapped["OWNER_EARNINGS_PRICE_ALIGN_DAYS"] = max(0, int(raw["price_align_days"]))
+
+    return mapped
 
 
 def _run_one(
@@ -92,6 +202,9 @@ def main() -> None:
     ap.add_argument("--years", type=int, default=2)
     ap.add_argument("--jobs", type=int, default=8)
     ap.add_argument("--max-candidates", type=int, default=0)
+    ap.add_argument("--skip-candidates", type=int, default=0, help="Skip first N candidates by master-table order.")
+    ap.add_argument("--run-root", default="", help="Optional existing/new run root directory for outputs.")
+    ap.add_argument("--audit-dir", default="", help="Optional audit directory for summary outputs.")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -100,13 +213,23 @@ def main() -> None:
     if not rows:
         raise SystemExit(f"no rows found for batch_id={args.batch_id} in {csv_path}")
 
+    if args.skip_candidates > 0:
+        rows = rows[int(args.skip_candidates) :]
     if args.max_candidates > 0:
         rows = rows[: args.max_candidates]
+    if not rows:
+        raise SystemExit("no candidates left after skip/max filter")
 
     ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    run_root = (ROOT / "segment_results" / "factor_factory" / f"{ts}_{args.batch_id}").resolve()
+    if args.run_root:
+        run_root = (ROOT / args.run_root).resolve()
+    else:
+        run_root = (ROOT / "segment_results" / "factor_factory" / f"{ts}_{args.batch_id}").resolve()
     run_root.mkdir(parents=True, exist_ok=True)
-    audit_dir = (ROOT / "audit" / "factor_factory" / f"{ts}_{args.batch_id}").resolve()
+    if args.audit_dir:
+        audit_dir = (ROOT / args.audit_dir).resolve()
+    else:
+        audit_dir = (ROOT / "audit" / "factor_factory" / f"{ts}_{args.batch_id}").resolve()
     audit_dir.mkdir(parents=True, exist_ok=True)
 
     base_sets = [
@@ -128,7 +251,8 @@ def main() -> None:
             cid = row["candidate_id"].strip()
             factor = row["factor_family"].strip()
             p = json.loads(row["params_json"]) if row.get("params_json") else {}
-            sets = list(base_sets) + [f"{k}={v}" for k, v in p.items()]
+            mapped = _map_params(factor, p)
+            sets = list(base_sets) + [f"{k}={mapped[k]}" for k in sorted(mapped.keys())]
             out_dir = run_root / cid
             out_dir.mkdir(parents=True, exist_ok=True)
             log_path = out_dir / "runner.log"
@@ -161,6 +285,7 @@ def main() -> None:
         "run_root": str(run_root),
         "jobs": jobs,
         "years": int(args.years),
+        "skip_candidates": int(args.skip_candidates),
         "candidate_count": len(results),
         "failed_count": sum(1 for r in results if int(r["return_code"]) != 0),
         "results": results,
@@ -193,4 +318,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

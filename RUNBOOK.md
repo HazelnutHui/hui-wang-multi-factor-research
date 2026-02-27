@@ -1,8 +1,15 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-18 (live trading eval + bilingual daily PDF report)
+Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 currently running on workstation; queue launches still require manual approval)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
+
+Status boundary note:
+- command execution success (`exit_code=0`) is not equal to gate pass.
+- official status must be read from latest `production_gates_report.json` plus artifact availability.
+- if a documented workstation run is not present in local paths, mark it as `pending_local_sync` until artifacts are synced and verified.
+- factor-factory full-batch runs default to workstation with at least `--jobs 4` (local default is `--dry-run` planning).
+- factor-factory ranking comparability baseline is fixed in policy `default_set`: `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`.
 
 ## 1) Environment
 - Python 3.11 recommended
@@ -14,6 +21,26 @@ export PYTHONPATH=$(pwd)
 ```
 
 ## 2) Common Workflows
+
+### 2.0 Current Queue Governance (required)
+```bash
+# Step 1: update approval gate after manual review
+# edit configs/research/factory_queue/run_approval.json
+# set:
+#   "approved": true
+#   "approved_queue": "configs/research/factory_queue/<target_queue>.json"
+#
+# Step 2: run approved queue on workstation
+bash scripts/ops_entry.sh factory_queue \
+  --queue-json configs/research/factory_queue/<target_queue>.json \
+  --jobs 8
+```
+
+Policy notes:
+- queue run is blocked unless approval gate matches target queue.
+- single-factor `SF-L1` is the mandatory segmented gate.
+- single-factor `SF-DIAG` is diagnostic optional (use only for debugging/triage).
+- after round-1 ranking, run shortlist robustness with `HOLDING_PERIOD=1/3/5`.
 
 ### 2.1 Segmented backtest (2-year slices)
 ```bash
@@ -82,7 +109,7 @@ Important:
 Current combo lock after formula comparison:
 - Formula: `linear`
 - Weights: `value=0.90`, `momentum=0.10`
-- Nonlinear candidates (`gated`, `two_stage`) were tested and did not beat linear under Stage2 strict constraints.
+- Nonlinear candidates (`gated`, `two_stage`) were tested and did not beat linear under strict segmented constraints.
 - Layer2 fixed train/test (locked): `train_ic=0.080637`, `test_ic=0.053038`
 - Layer3 walk-forward (2013-2025, `REBALANCE_MODE=None`):
   - `test_ic mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
@@ -98,11 +125,15 @@ python scripts/generate_factor_report.py --strategy configs/strategies/momentum_
 python -m pytest tests
 ```
 
-### 2.9 Stage2 strict top3 (production segmented, 6-core)
+### 2.9 Strict segmented top3 (historical replay, 6-core)
 ```bash
 chmod +x scripts/run_stage2_strict_top3_parallel.sh
 bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3
 ```
+
+Note:
+- this is a historical strict-top3 profile retained for reproducibility.
+- for current factor discovery, use section `2.0` queue workflow.
 
 Resume-safe behavior:
 - Default mode skips already completed segments.

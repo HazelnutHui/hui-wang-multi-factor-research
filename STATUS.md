@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-27 (V1 batch36 frozen; no V2/V3 queue retained; any future batch must be newly reviewed and manually approved)
+Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 is running on workstation; no V2/V3 queue retained; any new future batch must be newly reviewed and manually approved)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -39,7 +39,10 @@ Last updated: 2026-02-27 (V1 batch36 frozen; no V2/V3 queue retained; any future
   - `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon` (`0/20` complete)
   - `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing` (`0/20` complete)
 - Queue state:
-  - active queue processes: none
+  - active batch run:
+    - `batchA100_logic25_v1` on workstation
+    - run dir: `segment_results/factor_factory/2026-02-27_204818_batchA100_logic25_v1`
+    - execution mode: `--jobs 8`
   - baseline `36` is frozen as current clean reference (V1)
   - queue config directory currently keeps only:
     - `configs/research/factory_queue/run_approval.json`

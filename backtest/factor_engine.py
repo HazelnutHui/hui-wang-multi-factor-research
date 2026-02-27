@@ -561,7 +561,7 @@ class FactorEngine:
             has_any = False
             for k in keys:
                 v = metrics.get(k)
-                if v is None or (isinstance(v, float) and np.isnan(v)):
+                if v is None or pd.isna(v):
                     row[k] = np.nan
                     continue
                 row[k] = float(v)
@@ -1030,19 +1030,26 @@ class FactorEngine:
     def calculate_pead_short_window(self, symbol: str, date: str) -> Optional[float]:
         return self.calculate_sue_eps_basic(symbol, date)
 
-    def _latest_from_symbol_cache(self, cache: Dict[str, pd.DataFrame], symbol: str, date: str) -> Optional[pd.Series]:
+    def _latest_from_symbol_cache(
+        self,
+        cache: Dict[str, pd.DataFrame],
+        symbol: str,
+        date: str,
+        min_rows: int = 1,
+    ) -> Optional[pd.Series]:
         df = cache.get(symbol)
         if df is None or len(df) == 0 or "date" not in df.columns:
             return None
         d = pd.Timestamp(date)
         work = df[df["date"] <= d]
-        if len(work) == 0:
+        if len(work) < max(1, int(min_rows)):
             return None
         return work.iloc[-1]
 
     def calculate_institutional_ownership_change(self, symbol: str, date: str) -> Optional[float]:
         cache = self._load_institutional_summary()
-        row = self._latest_from_symbol_cache(cache, symbol, date)
+        min_rows = int(self.config.get("INSTITUTIONAL_MIN_ROWS", 1))
+        row = self._latest_from_symbol_cache(cache, symbol, date, min_rows=min_rows)
         if row is None:
             return None
         v = row.get("ownershipPercentChange")
@@ -1052,7 +1059,8 @@ class FactorEngine:
 
     def calculate_institutional_breadth_change(self, symbol: str, date: str) -> Optional[float]:
         cache = self._load_institutional_summary()
-        row = self._latest_from_symbol_cache(cache, symbol, date)
+        min_rows = int(self.config.get("INSTITUTIONAL_MIN_ROWS", 1))
+        row = self._latest_from_symbol_cache(cache, symbol, date, min_rows=min_rows)
         if row is None:
             return None
         v = row.get("investorsHoldingChange")
@@ -1068,15 +1076,17 @@ class FactorEngine:
         oeps = row.get("ownersEarningsPerShare")
         if oeps is None or pd.isna(oeps):
             return None
-        start_date = (pd.Timestamp(date) - pd.Timedelta(days=10)).strftime("%Y-%m-%d")
-        px = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        align_days = int(self.config.get("OWNER_EARNINGS_PRICE_ALIGN_DAYS", 0))
+        px_end = (pd.Timestamp(date) - pd.Timedelta(days=max(0, align_days))).strftime("%Y-%m-%d")
+        start_date = (pd.Timestamp(px_end) - pd.Timedelta(days=10)).strftime("%Y-%m-%d")
+        px = self.data_engine.get_price(symbol, start_date=start_date, end_date=px_end)
         if px is None or len(px) == 0:
             return None
         px = px.copy()
         px["date"] = pd.to_datetime(px["date"], errors="coerce")
         px["close"] = pd.to_numeric(px["close"], errors="coerce")
         px = px.dropna(subset=["date", "close"])
-        px = px[(px["date"] <= pd.Timestamp(date)) & (px["close"] > 0)]
+        px = px[(px["date"] <= pd.Timestamp(px_end)) & (px["close"] > 0)]
         if len(px) == 0:
             return None
         close = float(px.sort_values("date").iloc[-1]["close"])

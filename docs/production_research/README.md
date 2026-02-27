@@ -1,6 +1,6 @@
 # Production Research Governance Docs
 
-Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable set verified as 36 unique candidates)
+Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 running on workstation; future new queue runs still require manual approval)
 
 This folder documents the production-grade governance layer added on top of V4 research workflows.
 
@@ -52,9 +52,12 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized execution-profile decision
 - `FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked end-to-end factor pipeline and stage terminology
 - `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`: latest factor-factory continuity snapshot (verified complete usable 36-candidate set; incomplete/stale lineages explicitly excluded)
+- `V1_BATCH36_BASELINE_2026-02-27.md`: frozen V1 baseline (single source of current usable factor-factory set)
+- `FACTOR_BATCH_MASTER_TABLE.csv`: queryable master table (batch/factor logic/formula/params/results)
+- `FACTOR_BATCH_MASTER_TABLE.md`: readable summary of master table and batch snapshot
 - `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: historical continuity snapshot kept for audit trail
 - `FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use boundary (core vs research-only vs hold)
-- `NEXT100_V3_PLAN_2026-02-26.md`: next100 v3 draft (new-signal-first logic, FMP support matrix, launch de-dup gate, not started while v2 is active)
+- retired planning docs (`V2_REMAINING80_REDESIGN_2026-02-27.md`, `NEXT100_V3_PLAN_2026-02-26.md`) were deleted on 2026-02-27.
 - `FMP_INTERFACE_PROBE_STANDARD.md`: small-sample FMP endpoint probe standard and ambiguity log
 - `FMP_ENDPOINT_CATALOG_2026-02-23.md`: probed endpoint availability/status snapshot and ingestion boundary
 - `FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: full recheck of batch1/batch2 failed endpoints with doc-aligned replacements
@@ -79,6 +82,9 @@ Active-flow note:
 - historical snapshots are retained for audit, but current execution mode is defined by:
   - `FACTOR_PIPELINE_FREEZE_2026-02-25.md`
   - `FACTOR_FACTORY_STANDARD.md`
+  - `V1_BATCH36_BASELINE_2026-02-27.md`
+- queue runs are blocked by default unless manually approved in:
+  - `configs/research/factory_queue/run_approval.json`
 
 ## Core scripts
 
@@ -133,6 +139,7 @@ Active-flow note:
 - `configs/research/auto_research_policy.json`
 - `configs/research/auto_research_search_v1_policy.json`
 - `configs/research/factor_factory_policy.json`
+- `configs/research/factory_queue/run_approval.json`
 - `configs/research/auto_research_scheduler_policy.json`
 - `configs/research/auto_research_scheduler_policy.low_network.json`
 

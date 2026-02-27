@@ -62,6 +62,18 @@ FACTOR_SPECS = {
         "config_path": PROJECT_ROOT / "strategies" / "size_v1" / "config.py",
         "weights": {"size": -1.0},
     },
+    "turnover_shock": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"turnover_shock": 1.0},
+    },
+    "vol_regime": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"vol_regime": 1.0},
+    },
+    "quality_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_trend": 1.0},
+    },
     "momentum_v2": {
         "config_path": PROJECT_ROOT / "strategies" / "momentum_v2" / "config.py",
         "weights": {"momentum": 1.0, "reversal": 0.0, "low_vol": 0.0, "pead": 0.0},
@@ -96,6 +108,122 @@ FACTOR_SPECS = {
             "low_vol": 0.0,
             "pead": 0.0,
         },
+    },
+    # BatchA logic families (new-signal-first)
+    "value_ey_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_component": 1.0},
+        "set": ["VALUE_COMPONENT_METRIC=earnings_yield"],
+    },
+    "value_fcfy_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_component": 1.0},
+        "set": ["VALUE_COMPONENT_METRIC=fcf_yield"],
+    },
+    "value_ev_ebitda_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_component": 1.0},
+        "set": ["VALUE_COMPONENT_METRIC=ev_ebitda_yield"],
+    },
+    "value_composite_v1": {
+        "config_path": PROJECT_ROOT / "strategies" / "value_v2" / "config.py",
+        "weights": {"value": 1.0},
+    },
+    "quality_roe_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_component": 1.0},
+        "set": ["QUALITY_COMPONENT_METRIC=roe"],
+    },
+    "quality_roa_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_component": 1.0},
+        "set": ["QUALITY_COMPONENT_METRIC=roa"],
+    },
+    "quality_gm_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_component": 1.0},
+        "set": ["QUALITY_COMPONENT_METRIC=gross_margin"],
+    },
+    "quality_cfoa_cross": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_component": 1.0},
+        "set": ["QUALITY_COMPONENT_METRIC=cfo_to_assets"],
+    },
+    "safety_de_inverse": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_component": -1.0},
+        "set": ["QUALITY_COMPONENT_METRIC=debt_to_equity"],
+    },
+    "quality_composite_v1": {
+        "config_path": PROJECT_ROOT / "strategies" / "quality_v2" / "config.py",
+        "weights": {"quality": 1.0},
+    },
+    "value_quality_blend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_quality_blend": 1.0},
+    },
+    "profitability_minus_leverage": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"profitability_minus_leverage": 1.0},
+    },
+    "roe_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_metric_trend": 1.0},
+        "set": ["QUALITY_TREND_METRIC=roe"],
+    },
+    "roa_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_metric_trend": 1.0},
+        "set": ["QUALITY_TREND_METRIC=roa"],
+    },
+    "margin_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_metric_trend": 1.0},
+        "set": ["QUALITY_TREND_METRIC=gross_margin"],
+    },
+    "cfo_quality_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_metric_trend": 1.0},
+        "set": ["QUALITY_TREND_METRIC=cfo_to_assets"],
+    },
+    "deleveraging_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"quality_metric_trend": -1.0},
+        "set": ["QUALITY_TREND_METRIC=debt_to_equity"],
+    },
+    "value_re_rating_ey": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_metric_trend": 1.0},
+        "set": ["VALUE_TREND_METRIC=earnings_yield"],
+    },
+    "value_re_rating_fcfy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_metric_trend": 1.0},
+        "set": ["VALUE_TREND_METRIC=fcf_yield"],
+    },
+    "sue_eps_basic": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"sue_eps_basic": 1.0},
+    },
+    "sue_revenue_basic": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"sue_revenue_basic": 1.0},
+    },
+    "pead_short_window": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"pead_short_window": 1.0},
+    },
+    "institutional_ownership_change": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"institutional_ownership_change": 1.0},
+    },
+    "institutional_breadth_change": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"institutional_breadth_change": 1.0},
+    },
+    "owner_earnings_yield_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"owner_earnings_yield_proxy": 1.0},
     },
 }
 
@@ -238,6 +366,32 @@ def _make_engine_config(cfg):
         "LOW_VOL_USE_RESIDUAL",
         "LOW_VOL_BENCH_SYMBOL",
         "LOW_VOL_DOWNSIDE_ONLY",
+        "TURNOVER_SHOCK_SHORT",
+        "TURNOVER_SHOCK_LONG",
+        "TURNOVER_SHOCK_MIN_OBS",
+        "TURNOVER_SHOCK_LAG_DAYS",
+        "VOL_REGIME_SHORT",
+        "VOL_REGIME_LONG",
+        "VOL_REGIME_MIN_OBS",
+        "VOL_REGIME_LAG_DAYS",
+        "QUALITY_TREND_LOOKBACK_DAYS",
+        "QUALITY_TREND_LAG_DAYS",
+        "QUALITY_COMPONENT_LAG_DAYS",
+        "VALUE_COMPONENT_LAG_DAYS",
+        "VALUE_QUALITY_BLEND_LAG_DAYS",
+        "PML_LAG_DAYS",
+        "VALUE_TREND_LOOKBACK_DAYS",
+        "VALUE_TREND_LAG_DAYS",
+        "SUE_EVENT_MAX_AGE_DAYS",
+        "SUE_EPS_FLOOR",
+        "SUE_REVENUE_FLOOR",
+        "SUE_LAG_DAYS",
+        "SUE_REVENUE_LAG_DAYS",
+        "PEAD_SHORT_WINDOW_LAG_DAYS",
+        "INSTITUTIONAL_LAG_DAYS",
+        "INSTITUTIONAL_MIN_ROWS",
+        "OWNER_EARNINGS_LAG_DAYS",
+        "OWNER_EARNINGS_PRICE_ALIGN_DAYS",
         "MARKET_CAP_DIR",
         "MARKET_CAP_STRICT",
         "SIGNAL_NEUTRALIZE_SIZE",
@@ -491,6 +645,9 @@ def main():
             spec["weights"] = dict(spec["weights"])
             spec["weights"]["momentum"] = -1.0
         cfg = _load_cfg(spec["config_path"])
+        spec_set = spec.get("set") if isinstance(spec.get("set"), list) else []
+        if spec_set:
+            _apply_overrides(cfg, spec_set)
         _apply_overrides(cfg, args.set)
         # combo_v2 weights must come from its config (COMBO_WEIGHTS), not hardcoded defaults.
         weights = dict(spec["weights"])

@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-27 (V1 batch36 frozen; future queue runs require manual approval)
+Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 running on workstation; future new queue runs still require manual approval)
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
