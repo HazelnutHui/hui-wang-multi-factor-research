@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-26 (next100 de-duplicated queue running on workstation)
+Last updated: 2026-02-27 (v2 queue still running; latest verified usable set is 36 unique candidates)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -26,20 +26,22 @@ Last updated: 2026-02-26 (next100 de-duplicated queue running on workstation)
 - Current local gate snapshot reference:
   - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
 
-## 4) Latest Factor-Factory Snapshot (2026-02-26)
-- Snapshot note: `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`
-- Current retained outputs:
-  - run dir: `segment_results/factor_factory/2026-02-25_072539_p1_core_short_horizon`
-  - completed candidates: `16` (`momentum_v2/reversal_v2/turnover_shock/vol_regime`, each `core_001~004`)
+## 4) Latest Factor-Factory Snapshot (2026-02-27)
+- Snapshot note: `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`
+- Current verified usable outputs:
+  - run dir: `segment_results/factor_factory/2026-02-25_072539_p1_core_short_horizon` (`16/16` complete)
+  - run dir: `segment_results/factor_factory/2026-02-26_104024_p1_core_short_horizon_no_existing16` (`20/20` complete)
+  - merged usable set: `36` complete candidates, signature-level unique (`duplicate_groups=0`)
+- Incomplete/non-usable lineages (not for ranking or gate input):
+  - `segment_results/factor_factory/2026-02-26_103744_p1_core_short_horizon` (`0/20` complete)
+  - `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon` (`0/20` complete)
+  - `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing` (`0/20` complete)
 - Current queue state:
   - active run on workstation: `queue_100_fastscreen_v2` (`--jobs 8`, single queue process)
-  - p1 is switched to de-duplicated policy:
-    - `configs/research/factory_queue/policy_p1_core_short_horizon_no_existing16.json`
+  - active batch process observed: `policy_p2_quality_value_timing` (`--jobs 8 --max-candidates 20`)
   - runtime safeguards:
     - BLAS thread caps enabled (`OMP/MKL/OPENBLAS/NUMEXPR=1`) to avoid CPU oversubscription
     - queue `sleep_sec=0`
-  - current next100 queue definition was validated before run:
-    - `new_total=100`, `new_unique=100`, `overlap_with_retained16=0`
   - this snapshot does not override official gate status; gate SSOT remains `CURRENT_GATE_STATUS_2026-02-23.md`
 
 ## 5) FMP Next100 Data Readiness (2026-02-26)
@@ -51,7 +53,18 @@ Last updated: 2026-02-26 (next100 de-duplicated queue running on workstation)
   - next100-required endpoint pull + 429 retry were completed on workstation
   - paths were normalized to `data/fmp/` and `data/fmp/research_only/`; legacy staging backup removed
 
-## 6) Historical Records (Kept for Audit, Not Active Requirements)
+## 6) Next100 V3 Draft Status (2026-02-26)
+- Plan note: `docs/production_research/NEXT100_V3_PLAN_2026-02-26.md`
+- Intent:
+  - V3 is defined as **new-signal-first** expansion (expectation/event/inst-flow/owner-earnings/accounting structure), not repeated V2-style parameter tuning.
+- Current state:
+  - V3 queue/policies are written as draft config only.
+  - V3 is not running while V2 queue is active.
+- Launch prerequisites:
+  - FMP support + code-level new factor implementation complete
+  - signature-level overlap checks vs historical16 and V2 both equal `0`
+
+## 7) Historical Records (Kept for Audit, Not Active Requirements)
 - `PROJECT_SUMMARY.md`
 - `COMBO_WEIGHT_EXPERIMENTS.md`
 - `FACTOR_NOTES.md`

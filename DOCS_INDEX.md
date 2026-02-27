@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-02-26 (next100 de-duplicated queue running)
+Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable set verified as 36 unique candidates)
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
@@ -18,8 +18,10 @@ Last updated: 2026-02-26 (next100 de-duplicated queue running)
 - `docs/production_research/FACTOR_FACTORY_STANDARD.md`: factor factory generation/evaluation/registration standard
 - `docs/production_research/CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized factor-factory execution profile
 - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked stage definitions and end-to-end factor workflow
-- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: factor-factory continuity snapshot (retained clean 16-candidate dataset + active de-duplicated next100 run state)
+- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`: latest factor-factory continuity snapshot (verified complete usable 36-candidate set; incomplete/stale lineages explicitly excluded)
+- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: historical factor-factory snapshot kept for audit continuity
 - `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use policy (core vs research-only vs hold)
+- `docs/production_research/NEXT100_V3_PLAN_2026-02-26.md`: v3 next100 draft plan (new-signal-first design, FMP support boundary, de-dup launch gate; draft-only/not running)
 - `configs/research/factory_queue/queue_100_fastscreen_v2.json`: default fast-screen queued plan (100 candidates, round-1 low-vol residual disabled)
 - `configs/research/factory_queue/queue_100_v1.json`: legacy queued plan (kept only for historical replay)
 - `docs/production_research/FMP_INTERFACE_PROBE_STANDARD.md`: FMP interface probing and field-semantic mapping standard

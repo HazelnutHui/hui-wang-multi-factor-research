@@ -2,7 +2,7 @@
 
 As-of: 2026-02-26 (cleanup completed, then de-duplicated next100 run restarted)
 
-This snapshot records factor-factory continuity for this cycle. It is not an official production-gate verdict.
+This is a historical snapshot kept for continuity. It is not the latest state and not an official production-gate verdict.
 
 ## 1) Final Retained Outputs
 
@@ -45,9 +45,14 @@ This snapshot records factor-factory continuity for this cycle. It is not an off
   - `configs/research/factory_queue/policy_p4_neutralized_core.json`
   - `LOW_VOL_USE_RESIDUAL=[false]`
 
-## 5) Interpretation Boundary
+## 5) Interpretation Boundary (Historical As-of 2026-02-26)
 
-1. Current factor-factory reference dataset for this cycle is the retained `16` only.
+1. As-of 2026-02-26, the then-reference dataset was the retained `16` only.
 2. Next100 run must use a new lineage and de-duplicated queue definition (do not mix with removed/stale restarted outputs).
 3. Official gate status SSOT remains:
    - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
+4. V3 configs are draft-only in this cycle and must not be launched before:
+   - V2 queue completion or explicit switch decision,
+   - new-signal implementation and de-dup gate completion.
+5. For current/latest state, use:
+   - `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`

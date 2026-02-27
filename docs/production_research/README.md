@@ -1,6 +1,6 @@
 # Production Research Governance Docs
 
-Last updated: 2026-02-26 (next100 de-duplicated queue running)
+Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable set verified as 36 unique candidates)
 
 This folder documents the production-grade governance layer added on top of V4 research workflows.
 
@@ -51,8 +51,10 @@ This folder documents the production-grade governance layer added on top of V4 r
 - `FACTOR_FACTORY_STANDARD.md`: batch new-factor factory standard (candidate build/execute/rank)
 - `CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized execution-profile decision
 - `FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked end-to-end factor pipeline and stage terminology
-- `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: factor-factory continuity snapshot (retained clean 16-candidate dataset + active de-duplicated next100 run state)
+- `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`: latest factor-factory continuity snapshot (verified complete usable 36-candidate set; incomplete/stale lineages explicitly excluded)
+- `FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: historical continuity snapshot kept for audit trail
 - `FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use boundary (core vs research-only vs hold)
+- `NEXT100_V3_PLAN_2026-02-26.md`: next100 v3 draft (new-signal-first logic, FMP support matrix, launch de-dup gate, not started while v2 is active)
 - `FMP_INTERFACE_PROBE_STANDARD.md`: small-sample FMP endpoint probe standard and ambiguity log
 - `FMP_ENDPOINT_CATALOG_2026-02-23.md`: probed endpoint availability/status snapshot and ingestion boundary
 - `FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: full recheck of batch1/batch2 failed endpoints with doc-aligned replacements
