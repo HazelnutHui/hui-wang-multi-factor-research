@@ -8,6 +8,8 @@ Adds:
 import pandas as pd
 import numpy as np
 from typing import Dict, Optional, Iterable
+import json
+from pathlib import Path
 
 from .data_engine import DataEngine
 from .universe_builder import UniverseBuilder
@@ -15,6 +17,9 @@ from .fundamentals_engine import FundamentalsEngine
 from .value_fundamentals_engine import ValueFundamentalsEngine
 from . import pead_factor_cached
 from .factor_factory import standardize_signal, resolve_factor_date
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 class FactorEngine:
     """
     Calculate factors including SUE-based PEAD and produce signals/positions.
@@ -79,6 +84,10 @@ class FactorEngine:
             value_dir,
             max_staleness_days=self.config.get('VALUE_MAX_STALENESS_DAYS', 270),
         )
+        self._institutional_summary_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._owner_earnings_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._earnings_calendar_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._earnings_history_cache: Optional[Dict[str, pd.DataFrame]] = None
 
         # Optional industry neutralization
         self.industry_neutral = bool(self.config.get('INDUSTRY_NEUTRAL', False))
@@ -119,6 +128,175 @@ class FactorEngine:
         if len(df) == 0:
             return {}
         return dict(zip(df['symbol'].astype(str), df[col].astype(str)))
+
+    def _resolve_data_path(self, path_value: Optional[str], default_rel: str) -> Path:
+        raw = str(path_value).strip() if path_value else default_rel
+        cand = Path(raw)
+        if cand.exists():
+            return cand
+        cand2 = (PROJECT_ROOT / raw).resolve()
+        if cand2.exists():
+            return cand2
+        if raw.startswith("../"):
+            cand3 = (PROJECT_ROOT / raw.replace("../", "", 1)).resolve()
+            if cand3.exists():
+                return cand3
+        return cand2
+
+    def _load_symbol_payload_cache(self, path: Path, required_cols: set[str]) -> Dict[str, pd.DataFrame]:
+        out: Dict[str, list[dict]] = {}
+        if not path.exists():
+            return {}
+        with open(path, "r") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                payload = obj.get("payload")
+                sym_fallback = obj.get("symbol")
+                if not isinstance(payload, list) or not payload:
+                    continue
+                for rec in payload:
+                    if not isinstance(rec, dict):
+                        continue
+                    sym = rec.get("symbol") or sym_fallback
+                    if not sym:
+                        continue
+                    keep = {k: rec.get(k) for k in required_cols}
+                    keep["symbol"] = str(sym)
+                    out.setdefault(str(sym), []).append(keep)
+        built: Dict[str, pd.DataFrame] = {}
+        for sym, rows in out.items():
+            df = pd.DataFrame(rows)
+            if "date" in df.columns:
+                df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                df = df.dropna(subset=["date"])
+                df = df.sort_values("date").reset_index(drop=True)
+            built[sym] = df
+        return built
+
+    def _load_institutional_summary(self) -> Dict[str, pd.DataFrame]:
+        if self._institutional_summary_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("INSTITUTIONAL_SUMMARY_PATH"),
+                "data/fmp/institutional/institutional-ownership__symbol-positions-summary.jsonl",
+            )
+            self._institutional_summary_cache = self._load_symbol_payload_cache(
+                p,
+                {
+                    "date",
+                    "ownershipPercentChange",
+                    "investorsHoldingChange",
+                    "ownershipPercent",
+                    "investorsHolding",
+                },
+            )
+        return self._institutional_summary_cache
+
+    def _load_owner_earnings(self) -> Dict[str, pd.DataFrame]:
+        if self._owner_earnings_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("OWNER_EARNINGS_PATH"),
+                "data/fmp/owner_earnings/owner-earnings.jsonl",
+            )
+            self._owner_earnings_cache = self._load_symbol_payload_cache(
+                p,
+                {"date", "ownersEarningsPerShare", "ownersEarnings", "maintenanceCapex", "growthCapex"},
+            )
+        return self._owner_earnings_cache
+
+    def _load_earnings_calendar(self) -> Dict[str, pd.DataFrame]:
+        if self._earnings_calendar_cache is not None:
+            return self._earnings_calendar_cache
+        out: Dict[str, pd.DataFrame] = {}
+        p = self._resolve_data_path(self.config.get("EARNINGS_CALENDAR_PATH"), "data/fmp/earnings/earnings_calendar.csv")
+        if p.exists():
+            try:
+                df = pd.read_csv(p)
+                if len(df) > 0 and "symbol" in df.columns and "date" in df.columns:
+                    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                    df = df.dropna(subset=["date"])
+                    for sym, grp in df.groupby("symbol"):
+                        out[str(sym)] = grp.sort_values("date").reset_index(drop=True)
+            except Exception:
+                out = {}
+        self._earnings_calendar_cache = out
+        return out
+
+    def _load_symbol_data_cache(
+        self,
+        path: Path,
+        required_cols: set[str],
+        aliases: Optional[dict[str, list[str]]] = None,
+    ) -> Dict[str, pd.DataFrame]:
+        """
+        Load symbol-level JSONL where each line uses the shape:
+        {"symbol": "...", "ok": true, "data": [...]}
+        """
+        out: Dict[str, list[dict]] = {}
+        if not path.exists():
+            return {}
+        aliases = aliases or {}
+        with open(path, "r") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                data = obj.get("data")
+                sym_fallback = obj.get("symbol")
+                if isinstance(data, dict):
+                    data = [data]
+                if not isinstance(data, list) or not data:
+                    continue
+                for rec in data:
+                    if not isinstance(rec, dict):
+                        continue
+                    sym = rec.get("symbol") or sym_fallback
+                    if not sym:
+                        continue
+                    keep: dict[str, object] = {"symbol": str(sym)}
+                    for k in required_cols:
+                        val = rec.get(k)
+                        if val is None and k in aliases:
+                            for ak in aliases[k]:
+                                val = rec.get(ak)
+                                if val is not None:
+                                    break
+                        keep[k] = val
+                    out.setdefault(str(sym), []).append(keep)
+        built: Dict[str, pd.DataFrame] = {}
+        for sym, rows in out.items():
+            df = pd.DataFrame(rows)
+            if "date" in df.columns:
+                df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                df = df.dropna(subset=["date"])
+                df = df.sort_values("date").reset_index(drop=True)
+            built[sym] = df
+        return built
+
+    def _load_earnings_history(self) -> Dict[str, pd.DataFrame]:
+        if self._earnings_history_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("EARNINGS_HISTORY_PATH"),
+                "data/fmp/earnings_history/earnings.jsonl",
+            )
+            self._earnings_history_cache = self._load_symbol_data_cache(
+                p,
+                {"date", "revenueActual", "revenueEstimated"},
+                aliases={
+                    "revenueActual": ["revenue", "revenueactual"],
+                    "revenueEstimated": ["revenueEstimate", "revenueestimated"],
+                },
+            )
+        return self._earnings_history_cache
 
     def calculate_momentum(self, symbol: str, date: str,
                            lookback: Optional[int] = None,
@@ -619,6 +797,291 @@ class FactorEngine:
             return None
         return float(score / wsum)
 
+    def calculate_turnover_shock(self, symbol: str, date: str) -> Optional[float]:
+        """
+        Liquidity regime proxy:
+        log(ADV_short / ADV_long), where ADV is close * volume.
+        Positive means recent turnover is stronger than long-run baseline.
+        """
+        short_w = int(self.config.get("TURNOVER_SHOCK_SHORT", 20))
+        long_w = int(self.config.get("TURNOVER_SHOCK_LONG", 120))
+        min_obs = int(self.config.get("TURNOVER_SHOCK_MIN_OBS", max(long_w, 60)))
+        if short_w <= 1 or long_w <= short_w:
+            return None
+
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=long_w * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < min_obs:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work.dropna(subset=["close", "volume"])
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)]
+        if len(work) < min_obs:
+            return None
+        work["dollar_vol"] = work["close"] * work["volume"]
+        hist = work["dollar_vol"].tail(long_w)
+        if len(hist) < long_w:
+            return None
+        adv_short = float(hist.tail(short_w).mean())
+        adv_long = float(hist.mean())
+        if adv_short <= 0 or adv_long <= 0:
+            return None
+        return float(np.log(adv_short / adv_long))
+
+    def calculate_vol_regime(self, symbol: str, date: str) -> Optional[float]:
+        """
+        Volatility regime score:
+        (vol_long - vol_short) / vol_long.
+        Positive means short-term vol is below long-run vol.
+        """
+        short_w = int(self.config.get("VOL_REGIME_SHORT", 20))
+        long_w = int(self.config.get("VOL_REGIME_LONG", 120))
+        min_obs = int(self.config.get("VOL_REGIME_MIN_OBS", max(long_w, 60)))
+        if short_w <= 1 or long_w <= short_w:
+            return None
+
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=long_w * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < min_obs:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        work["ret"] = np.log(work["close"] / work["close"].shift(1))
+        r = work["ret"].dropna()
+        if len(r) < min_obs:
+            return None
+        long_r = r.tail(long_w)
+        if len(long_r) < long_w:
+            return None
+        short_r = long_r.tail(short_w)
+        vol_short = float(short_r.std(ddof=1))
+        vol_long = float(long_r.std(ddof=1))
+        if not np.isfinite(vol_short) or not np.isfinite(vol_long) or vol_long <= 0:
+            return None
+        return float((vol_long - vol_short) / vol_long)
+
+    def calculate_quality_trend(self, symbol: str, date: str) -> Optional[float]:
+        """
+        Fundamental improvement score:
+        quality(t) - quality(t-lookback_days).
+        """
+        lookback_days = int(self.config.get("QUALITY_TREND_LOOKBACK_DAYS", 252))
+        if lookback_days <= 0:
+            return None
+        cur = self.calculate_quality(symbol, date)
+        if cur is None or pd.isna(cur):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+        past = self.calculate_quality(symbol, past_date)
+        if past is None or pd.isna(past):
+            return None
+        return float(cur - past)
+
+    def calculate_quality_component(self, symbol: str, date: str) -> Optional[float]:
+        if not self.fundamentals_engine:
+            return None
+        metric = str(self.config.get("QUALITY_COMPONENT_METRIC", "roe"))
+        metrics = self.fundamentals_engine.get_latest_metrics(symbol, date)
+        if not metrics:
+            return None
+        v = metrics.get(metric)
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+
+    def calculate_value_component(self, symbol: str, date: str) -> Optional[float]:
+        if not self.value_engine:
+            return None
+        metric = str(self.config.get("VALUE_COMPONENT_METRIC", "earnings_yield"))
+        metrics = self.value_engine.get_latest_metrics(symbol, date)
+        if not metrics:
+            return None
+        v = metrics.get(metric)
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+
+    def calculate_value_quality_blend(self, symbol: str, date: str) -> Optional[float]:
+        v = self.calculate_value(symbol, date)
+        q = self.calculate_quality(symbol, date)
+        if v is None or q is None or pd.isna(v) or pd.isna(q):
+            return None
+        wv = float(self.config.get("VALUE_BLEND_WEIGHT", 0.5))
+        wq = float(self.config.get("QUALITY_BLEND_WEIGHT", 0.5))
+        denom = abs(wv) + abs(wq)
+        if denom <= 0:
+            return None
+        return float((wv * float(v) + wq * float(q)) / denom)
+
+    def calculate_profitability_minus_leverage(self, symbol: str, date: str) -> Optional[float]:
+        if not self.fundamentals_engine:
+            return None
+        metrics = self.fundamentals_engine.get_latest_metrics(symbol, date)
+        if not metrics:
+            return None
+        a = metrics.get("cfo_to_assets")
+        b = metrics.get("debt_to_equity")
+        if a is None or b is None or pd.isna(a) or pd.isna(b):
+            return None
+        return float(float(a) - float(b))
+
+    def calculate_quality_metric_trend(self, symbol: str, date: str) -> Optional[float]:
+        metric = str(self.config.get("QUALITY_TREND_METRIC", "roe"))
+        lookback_days = int(self.config.get("QUALITY_TREND_LOOKBACK_DAYS", 252))
+        if lookback_days <= 0:
+            return None
+        if not self.fundamentals_engine:
+            return None
+        cur = self.fundamentals_engine.get_latest_metrics(symbol, date)
+        if not cur:
+            return None
+        cur_v = cur.get(metric)
+        if cur_v is None or pd.isna(cur_v):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+        past = self.fundamentals_engine.get_latest_metrics(symbol, past_date)
+        if not past:
+            return None
+        past_v = past.get(metric)
+        if past_v is None or pd.isna(past_v):
+            return None
+        return float(float(cur_v) - float(past_v))
+
+    def calculate_value_metric_trend(self, symbol: str, date: str) -> Optional[float]:
+        metric = str(self.config.get("VALUE_TREND_METRIC", "earnings_yield"))
+        lookback_days = int(self.config.get("VALUE_TREND_LOOKBACK_DAYS", 252))
+        if lookback_days <= 0:
+            return None
+        if not self.value_engine:
+            return None
+        cur = self.value_engine.get_latest_metrics(symbol, date)
+        if not cur:
+            return None
+        cur_v = cur.get(metric)
+        if cur_v is None or pd.isna(cur_v):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+        past = self.value_engine.get_latest_metrics(symbol, past_date)
+        if not past:
+            return None
+        past_v = past.get(metric)
+        if past_v is None or pd.isna(past_v):
+            return None
+        return float(float(cur_v) - float(past_v))
+
+    def calculate_sue_eps_basic(self, symbol: str, date: str) -> Optional[float]:
+        if not self.pead_factor:
+            return None
+        earnings = self.pead_factor.get_earnings(symbol)
+        if earnings is None or len(earnings) == 0:
+            return None
+        work = earnings.copy()
+        if "date" not in work.columns:
+            return None
+        work["date"] = pd.to_datetime(work["date"], errors="coerce")
+        work = work.dropna(subset=["date", "epsActual", "epsEstimated"])
+        if len(work) == 0:
+            return None
+        d = pd.Timestamp(date)
+        max_age = int(self.config.get("SUE_EVENT_MAX_AGE_DAYS", 7))
+        floor = float(self.config.get("SUE_EPS_FLOOR", 0.01))
+        work = work[(work["date"] <= d) & (work["date"] >= d - pd.Timedelta(days=max_age))]
+        if len(work) == 0:
+            return None
+        row = work.sort_values("date").iloc[-1]
+        est = float(row["epsEstimated"])
+        act = float(row["epsActual"])
+        denom = max(abs(est), floor)
+        return float((act - est) / denom)
+
+    def calculate_sue_revenue_basic(self, symbol: str, date: str) -> Optional[float]:
+        cal = self._load_earnings_calendar()
+        df = cal.get(symbol)
+        use_fallback = df is None or len(df) == 0
+        if not use_fallback and ("revenueActual" not in df.columns or "revenueEstimated" not in df.columns):
+            use_fallback = True
+        if use_fallback:
+            hist = self._load_earnings_history()
+            df = hist.get(symbol)
+        if df is None or len(df) == 0:
+            return None
+        d = pd.Timestamp(date)
+        max_age = int(self.config.get("SUE_EVENT_MAX_AGE_DAYS", 7))
+        floor = float(self.config.get("SUE_REVENUE_FLOOR", 1e6))
+        work = df[(df["date"] <= d) & (df["date"] >= d - pd.Timedelta(days=max_age))].copy()
+        if len(work) == 0:
+            return None
+        if "revenueActual" not in work.columns or "revenueEstimated" not in work.columns:
+            return None
+        work["revenueActual"] = pd.to_numeric(work["revenueActual"], errors="coerce")
+        work["revenueEstimated"] = pd.to_numeric(work["revenueEstimated"], errors="coerce")
+        work = work.dropna(subset=["revenueActual", "revenueEstimated"])
+        if len(work) == 0:
+            return None
+        row = work.sort_values("date").iloc[-1]
+        act = float(row["revenueActual"])
+        est = float(row["revenueEstimated"])
+        denom = max(abs(est), floor)
+        return float((act - est) / denom)
+
+    def calculate_pead_short_window(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_sue_eps_basic(symbol, date)
+
+    def _latest_from_symbol_cache(self, cache: Dict[str, pd.DataFrame], symbol: str, date: str) -> Optional[pd.Series]:
+        df = cache.get(symbol)
+        if df is None or len(df) == 0 or "date" not in df.columns:
+            return None
+        d = pd.Timestamp(date)
+        work = df[df["date"] <= d]
+        if len(work) == 0:
+            return None
+        return work.iloc[-1]
+
+    def calculate_institutional_ownership_change(self, symbol: str, date: str) -> Optional[float]:
+        cache = self._load_institutional_summary()
+        row = self._latest_from_symbol_cache(cache, symbol, date)
+        if row is None:
+            return None
+        v = row.get("ownershipPercentChange")
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+
+    def calculate_institutional_breadth_change(self, symbol: str, date: str) -> Optional[float]:
+        cache = self._load_institutional_summary()
+        row = self._latest_from_symbol_cache(cache, symbol, date)
+        if row is None:
+            return None
+        v = row.get("investorsHoldingChange")
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+
+    def calculate_owner_earnings_yield_proxy(self, symbol: str, date: str) -> Optional[float]:
+        cache = self._load_owner_earnings()
+        row = self._latest_from_symbol_cache(cache, symbol, date)
+        if row is None:
+            return None
+        oeps = row.get("ownersEarningsPerShare")
+        if oeps is None or pd.isna(oeps):
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=10)).strftime("%Y-%m-%d")
+        px = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if px is None or len(px) == 0:
+            return None
+        px = px.copy()
+        px["date"] = pd.to_datetime(px["date"], errors="coerce")
+        px["close"] = pd.to_numeric(px["close"], errors="coerce")
+        px = px.dropna(subset=["date", "close"])
+        px = px[(px["date"] <= pd.Timestamp(date)) & (px["close"] > 0)]
+        if len(px) == 0:
+            return None
+        close = float(px.sort_values("date").iloc[-1]["close"])
+        return float(float(oeps) / close)
+
     def calculate_all_factors(self, symbol: str, date: str,
                               needed: Optional[set] = None) -> Dict[str, Optional[float]]:
         """
@@ -655,6 +1118,51 @@ class FactorEngine:
         if (needed is None or 'value' in needed) and self.value_engine:
             val_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
             factors['value'] = self.calculate_value(symbol, val_date)
+        if needed is None or 'turnover_shock' in needed:
+            ts_date = resolve_factor_date(date, global_lag, self.config.get('TURNOVER_SHOCK_LAG_DAYS'))
+            factors['turnover_shock'] = self.calculate_turnover_shock(symbol, ts_date)
+        if needed is None or 'vol_regime' in needed:
+            vr_date = resolve_factor_date(date, global_lag, self.config.get('VOL_REGIME_LAG_DAYS'))
+            factors['vol_regime'] = self.calculate_vol_regime(symbol, vr_date)
+        if (needed is None or 'quality_trend' in needed) and self.fundamentals_engine:
+            qt_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['quality_trend'] = self.calculate_quality_trend(symbol, qt_date)
+        if (needed is None or 'quality_component' in needed) and self.fundamentals_engine:
+            qc_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_COMPONENT_LAG_DAYS'))
+            factors['quality_component'] = self.calculate_quality_component(symbol, qc_date)
+        if (needed is None or 'value_component' in needed) and self.value_engine:
+            vc_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_COMPONENT_LAG_DAYS'))
+            factors['value_component'] = self.calculate_value_component(symbol, vc_date)
+        if (needed is None or 'value_quality_blend' in needed) and self.fundamentals_engine and self.value_engine:
+            vq_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_QUALITY_BLEND_LAG_DAYS'))
+            factors['value_quality_blend'] = self.calculate_value_quality_blend(symbol, vq_date)
+        if (needed is None or 'profitability_minus_leverage' in needed) and self.fundamentals_engine:
+            pml_date = resolve_factor_date(date, global_lag, self.config.get('PML_LAG_DAYS'))
+            factors['profitability_minus_leverage'] = self.calculate_profitability_minus_leverage(symbol, pml_date)
+        if (needed is None or 'quality_metric_trend' in needed) and self.fundamentals_engine:
+            qmt_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['quality_metric_trend'] = self.calculate_quality_metric_trend(symbol, qmt_date)
+        if (needed is None or 'value_metric_trend' in needed) and self.value_engine:
+            vmt_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_TREND_LAG_DAYS'))
+            factors['value_metric_trend'] = self.calculate_value_metric_trend(symbol, vmt_date)
+        if needed is None or 'sue_eps_basic' in needed:
+            see_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['sue_eps_basic'] = self.calculate_sue_eps_basic(symbol, see_date)
+        if needed is None or 'sue_revenue_basic' in needed:
+            srv_date = resolve_factor_date(date, global_lag, self.config.get('SUE_REVENUE_LAG_DAYS'))
+            factors['sue_revenue_basic'] = self.calculate_sue_revenue_basic(symbol, srv_date)
+        if needed is None or 'pead_short_window' in needed:
+            psw_date = resolve_factor_date(date, global_lag, self.config.get('PEAD_SHORT_WINDOW_LAG_DAYS'))
+            factors['pead_short_window'] = self.calculate_pead_short_window(symbol, psw_date)
+        if needed is None or 'institutional_ownership_change' in needed:
+            ioc_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['institutional_ownership_change'] = self.calculate_institutional_ownership_change(symbol, ioc_date)
+        if needed is None or 'institutional_breadth_change' in needed:
+            ibc_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['institutional_breadth_change'] = self.calculate_institutional_breadth_change(symbol, ibc_date)
+        if needed is None or 'owner_earnings_yield_proxy' in needed:
+            oey_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
+            factors['owner_earnings_yield_proxy'] = self.calculate_owner_earnings_yield_proxy(symbol, oey_date)
         return factors
 
     def compute_signals(self, date: str, factor_weights: dict) -> pd.DataFrame:
@@ -739,6 +1247,21 @@ class FactorEngine:
                     "beta": f.get("beta"),
                     "quality": f.get("quality"),
                     "value": f.get("value"),
+                    "turnover_shock": f.get("turnover_shock"),
+                    "vol_regime": f.get("vol_regime"),
+                    "quality_trend": f.get("quality_trend"),
+                    "quality_component": f.get("quality_component"),
+                    "value_component": f.get("value_component"),
+                    "value_quality_blend": f.get("value_quality_blend"),
+                    "profitability_minus_leverage": f.get("profitability_minus_leverage"),
+                    "quality_metric_trend": f.get("quality_metric_trend"),
+                    "value_metric_trend": f.get("value_metric_trend"),
+                    "sue_eps_basic": f.get("sue_eps_basic"),
+                    "sue_revenue_basic": f.get("sue_revenue_basic"),
+                    "pead_short_window": f.get("pead_short_window"),
+                    "institutional_ownership_change": f.get("institutional_ownership_change"),
+                    "institutional_breadth_change": f.get("institutional_breadth_change"),
+                    "owner_earnings_yield_proxy": f.get("owner_earnings_yield_proxy"),
                 }
                 rows.append(row)
 
@@ -817,7 +1340,31 @@ class FactorEngine:
             )
         if bool(self.config.get('SIGNALS_INCLUDE_FACTORS', False)):
             cols = ["symbol", "date", "signal"]
-            for c in ["pead", "momentum", "reversal", "low_vol", "size", "beta", "quality", "value"]:
+            for c in [
+                "pead",
+                "momentum",
+                "reversal",
+                "low_vol",
+                "size",
+                "beta",
+                "quality",
+                "value",
+                "turnover_shock",
+                "vol_regime",
+                "quality_trend",
+                "quality_component",
+                "value_component",
+                "value_quality_blend",
+                "profitability_minus_leverage",
+                "quality_metric_trend",
+                "value_metric_trend",
+                "sue_eps_basic",
+                "sue_revenue_basic",
+                "pead_short_window",
+                "institutional_ownership_change",
+                "institutional_breadth_change",
+                "owner_earnings_yield_proxy",
+            ]:
                 if c in df.columns:
                     cols.append(c)
             return df[cols].reset_index(drop=True)

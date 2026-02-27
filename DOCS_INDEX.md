@@ -1,16 +1,14 @@
 # Documentation Index
 
-Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable set verified as 36 unique candidates)
+Last updated: 2026-02-27 (V1 batch36 frozen; future queue runs require manual approval)
 
 ## Core Documents
 - `README.md`: project overview and public-facing summary
 - `RUNBOOK.md`: practical command guide
 - `STATUS.md`: current progress and roadmap snapshot
 - `WEBSITE_HANDOFF.md`: website migration handoff (current state, fixes, next tasks, run/deploy notes)
-- `COMBO_WEIGHT_EXPERIMENTS.md`: combo weight research log and selection record
 - `POST_WF_PRODUCTION_CHECKLIST.md`: post walk-forward production validation gates (stress + risk + pass/fail)
 - `SINGLE_FACTOR_BASELINE.md`: single-factor validation checklist
-- `FACTOR_NOTES.md`: factor implementation notes
 - `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template
 
 ## Additional References
@@ -19,11 +17,15 @@ Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable s
 - `docs/production_research/CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized factor-factory execution profile
 - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked stage definitions and end-to-end factor workflow
 - `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`: latest factor-factory continuity snapshot (verified complete usable 36-candidate set; incomplete/stale lineages explicitly excluded)
+- `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`: frozen V1 baseline definition (current single reference set)
+- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`: queryable master table of batch/factor logic/formula/params/results (current SSOT table)
+- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`: readable view of master table with batch snapshot
+- `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`: BatchA100 family-level data readiness check (25 families, 100 candidates)
+- `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.csv`: machine-readable BatchA100 data readiness table
 - `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: historical factor-factory snapshot kept for audit continuity
 - `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use policy (core vs research-only vs hold)
-- `docs/production_research/NEXT100_V3_PLAN_2026-02-26.md`: v3 next100 draft plan (new-signal-first design, FMP support boundary, de-dup launch gate; draft-only/not running)
-- `configs/research/factory_queue/queue_100_fastscreen_v2.json`: default fast-screen queued plan (100 candidates, round-1 low-vol residual disabled)
-- `configs/research/factory_queue/queue_100_v1.json`: legacy queued plan (kept only for historical replay)
+- retired planning docs/queues (`V2_REMAINING80_REDESIGN_2026-02-27.md`, `NEXT100_V3_PLAN_2026-02-26.md`, `queue_080_v2_after36_nonoverlap.json`, `queue_100_fastscreen_v3.json`, plus earlier `queue_100_fastscreen_v2`, `queue_100_v1`, `queue_080_from_p2_v1`) were deleted on 2026-02-27.
+- `configs/research/factory_queue/run_approval.json`: mandatory queue approval gate file (must match target queue before run)
 - `docs/production_research/FMP_INTERFACE_PROBE_STANDARD.md`: FMP interface probing and field-semantic mapping standard
 - `docs/production_research/FMP_ENDPOINT_CATALOG_2026-02-23.md`: FMP endpoint callable catalog snapshot
 - `docs/production_research/FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: failed endpoint recheck log and outcomes
@@ -87,7 +89,6 @@ Last updated: 2026-02-27 (v2 queue still running; factor-factory latest usable s
 - `scripts/daily_update_pipeline.sh`: orchestrator (`pull -> run -> sync`)
 - `scripts/ops_entry.sh`: unified operator entry (`daily` / `status` / `official` / `check` / `cleanup` / `hygiene`)
 - `scripts/daily_research_run.sh`: internal daily pipeline entry (compatibility path)
-- `scripts/compare_v1_v2.py`: three-layer comparison helper (`v1` vs overwritten `v2.1`)
 - `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
 - `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
 - `scripts/monitor_gate_run.sh`: non-destructive monitor for active official gate runs

@@ -1,14 +1,13 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-27 (v2 queue still running; latest verified usable set is 36 unique candidates)
+Last updated: 2026-02-27 (V1 batch36 frozen; no V2/V3 queue retained; any future batch must be newly reviewed and manually approved)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
-- Factor discovery default: workstation `factory_queue` with fast-screen policy
-  - queue: `configs/research/factory_queue/queue_100_fastscreen_v2.json`
-  - parallelism: `--jobs 8`
-  - fixed profile: `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`
-  - round-1 low-vol setting: `LOW_VOL_USE_RESIDUAL=false` (p1 + p4 policy configs)
+- Factor discovery current governance:
+  - baseline reference: `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
+  - execution state: `review_required`
+  - queue runtime gate: `configs/research/factory_queue/run_approval.json` must approve target queue before any run
 - Single-factor validation policy:
   - `SF-L1` segmented strict: mandatory gate
   - `SF-L2` fixed train/test: mandatory before combo promotion
@@ -28,6 +27,9 @@ Last updated: 2026-02-27 (v2 queue still running; latest verified usable set is 
 
 ## 4) Latest Factor-Factory Snapshot (2026-02-27)
 - Snapshot note: `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`
+- Master query table:
+  - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
+  - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
 - Current verified usable outputs:
   - run dir: `segment_results/factor_factory/2026-02-25_072539_p1_core_short_horizon` (`16/16` complete)
   - run dir: `segment_results/factor_factory/2026-02-26_104024_p1_core_short_horizon_no_existing16` (`20/20` complete)
@@ -36,36 +38,35 @@ Last updated: 2026-02-27 (v2 queue still running; latest verified usable set is 
   - `segment_results/factor_factory/2026-02-26_103744_p1_core_short_horizon` (`0/20` complete)
   - `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon` (`0/20` complete)
   - `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing` (`0/20` complete)
-- Current queue state:
-  - active run on workstation: `queue_100_fastscreen_v2` (`--jobs 8`, single queue process)
-  - active batch process observed: `policy_p2_quality_value_timing` (`--jobs 8 --max-candidates 20`)
-  - runtime safeguards:
-    - BLAS thread caps enabled (`OMP/MKL/OPENBLAS/NUMEXPR=1`) to avoid CPU oversubscription
-    - queue `sleep_sec=0`
+- Queue state:
+  - active queue processes: none
+  - baseline `36` is frozen as current clean reference (V1)
+  - queue config directory currently keeps only:
+    - `configs/research/factory_queue/run_approval.json`
   - this snapshot does not override official gate status; gate SSOT remains `CURRENT_GATE_STATUS_2026-02-23.md`
 
-## 5) FMP Next100 Data Readiness (2026-02-26)
+## 5) FMP Next100 Data Readiness (2026-02-27)
 - Plan note: `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`
+- BatchA readiness table:
+  - `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`
+  - `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.csv`
 - Governance rule:
   - only `factor_ready_with_lag` data may enter default next100 factor generation
   - `research_only_high_leakage_guard` data stays in isolated research inputs until PIT checks pass
 - Download status:
   - next100-required endpoint pull + 429 retry were completed on workstation
   - paths were normalized to `data/fmp/` and `data/fmp/research_only/`; legacy staging backup removed
+  - newly downloaded on workstation for BatchA support:
+    - `data/fmp/earnings_history/earnings.jsonl` (`5372` symbols, `4122` non-empty payload)
+    - `data/fmp/statements/income-statement.jsonl` (`5372` symbols, `4688` non-empty payload)
+    - `data/fmp/statements/income-statement-ttm.jsonl` (`5372` symbols, `4679` non-empty payload)
+  - BatchA coverage conclusion:
+    - `25/25` logic families are data-ready for run
+    - `sue_revenue_basic` fallback to `earnings_history/earnings.jsonl` is wired in `backtest/factor_engine.py` and workstation-verified
 
-## 6) Next100 V3 Draft Status (2026-02-26)
-- Plan note: `docs/production_research/NEXT100_V3_PLAN_2026-02-26.md`
-- Intent:
-  - V3 is defined as **new-signal-first** expansion (expectation/event/inst-flow/owner-earnings/accounting structure), not repeated V2-style parameter tuning.
-- Current state:
-  - V3 queue/policies are written as draft config only.
-  - V3 is not running while V2 queue is active.
-- Launch prerequisites:
-  - FMP support + code-level new factor implementation complete
-  - signature-level overlap checks vs historical16 and V2 both equal `0`
+## 6) Next Batch Status
+- V2/V3 drafts, queues, and policies were removed.
+- Current policy: no pre-created next-batch queue; create only after review, then run with explicit approval in `configs/research/factory_queue/run_approval.json`.
 
 ## 7) Historical Records (Kept for Audit, Not Active Requirements)
-- `PROJECT_SUMMARY.md`
-- `COMBO_WEIGHT_EXPERIMENTS.md`
-- `FACTOR_NOTES.md`
 - historical gate snapshots in `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md` and `...2026-02-21.md`
