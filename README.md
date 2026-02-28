@@ -32,7 +32,7 @@ Default single-factor path is `SF-L1 -> SF-L2`; `SF-DIAG` is optional and non-ga
 - authoritative pipeline is frozen in:
   - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 - factor factory governance:
-  - V1 frozen baseline: `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
+  - Reset declaration: `docs/production_research/RESET_STATE_2026-02-27.md`
   - all next batches require manual approval before run:
     - `configs/research/factory_queue/run_approval.json`
   - fixed comparability profile (for approved runs): `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`
@@ -133,7 +133,6 @@ Current first live day archive:
 - `SINGLE_FACTOR_BASELINE.md`: standardized single-factor evaluation checklist
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas, execution constraints, and V4 defect audit (English)
 - `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式、执行约束与 V4 缺陷审查（中文）
-- `SYSTEM_OVERVIEW_CN.md`: Chinese system overview
 
 ## Interview-Ready Summary
 Designed and implemented a modular, PIT-aware multi-factor research platform that standardizes factor validation and distinguishes robust alpha signals from unstable ones under production-style checks.

@@ -1,0 +1,615 @@
+{
+  "batch_name": "batchA100_logic100_v1",
+  "mode": "grid",
+  "years": 2,
+  "default_set": [
+    "MARKET_CAP_DIR=data/fmp/market_cap_history",
+    "MARKET_CAP_STRICT=True",
+    "REBALANCE_FREQ=5",
+    "HOLDING_PERIOD=3",
+    "REBALANCE_MODE=None",
+    "EXECUTION_USE_TRADING_DAYS=True"
+  ],
+  "families": [
+    {
+      "name": "logic100_001",
+      "factor": "logic100_001",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_002",
+      "factor": "logic100_002",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_003",
+      "factor": "logic100_003",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_004",
+      "factor": "logic100_004",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_005",
+      "factor": "logic100_005",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_006",
+      "factor": "logic100_006",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_007",
+      "factor": "logic100_007",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_008",
+      "factor": "logic100_008",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_009",
+      "factor": "logic100_009",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_010",
+      "factor": "logic100_010",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_011",
+      "factor": "logic100_011",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_012",
+      "factor": "logic100_012",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_013",
+      "factor": "logic100_013",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_014",
+      "factor": "logic100_014",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_015",
+      "factor": "logic100_015",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_016",
+      "factor": "logic100_016",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_017",
+      "factor": "logic100_017",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_018",
+      "factor": "logic100_018",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_019",
+      "factor": "logic100_019",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_020",
+      "factor": "logic100_020",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_021",
+      "factor": "logic100_021",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_022",
+      "factor": "logic100_022",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_023",
+      "factor": "logic100_023",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_024",
+      "factor": "logic100_024",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_025",
+      "factor": "logic100_025",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_026",
+      "factor": "logic100_026",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_027",
+      "factor": "logic100_027",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_028",
+      "factor": "logic100_028",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_029",
+      "factor": "logic100_029",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_030",
+      "factor": "logic100_030",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_031",
+      "factor": "logic100_031",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_032",
+      "factor": "logic100_032",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_033",
+      "factor": "logic100_033",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_034",
+      "factor": "logic100_034",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_035",
+      "factor": "logic100_035",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_036",
+      "factor": "logic100_036",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_037",
+      "factor": "logic100_037",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_038",
+      "factor": "logic100_038",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_039",
+      "factor": "logic100_039",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_040",
+      "factor": "logic100_040",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_041",
+      "factor": "logic100_041",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_042",
+      "factor": "logic100_042",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_043",
+      "factor": "logic100_043",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_044",
+      "factor": "logic100_044",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_045",
+      "factor": "logic100_045",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_046",
+      "factor": "logic100_046",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_047",
+      "factor": "logic100_047",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_048",
+      "factor": "logic100_048",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_049",
+      "factor": "logic100_049",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_050",
+      "factor": "logic100_050",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_051",
+      "factor": "logic100_051",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_052",
+      "factor": "logic100_052",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_053",
+      "factor": "logic100_053",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_054",
+      "factor": "logic100_054",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_055",
+      "factor": "logic100_055",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_056",
+      "factor": "logic100_056",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_057",
+      "factor": "logic100_057",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_058",
+      "factor": "logic100_058",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_059",
+      "factor": "logic100_059",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_060",
+      "factor": "logic100_060",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_061",
+      "factor": "logic100_061",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_062",
+      "factor": "logic100_062",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_063",
+      "factor": "logic100_063",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_064",
+      "factor": "logic100_064",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_065",
+      "factor": "logic100_065",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_066",
+      "factor": "logic100_066",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_067",
+      "factor": "logic100_067",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_068",
+      "factor": "logic100_068",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_069",
+      "factor": "logic100_069",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_070",
+      "factor": "logic100_070",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_071",
+      "factor": "logic100_071",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_072",
+      "factor": "logic100_072",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_073",
+      "factor": "logic100_073",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_074",
+      "factor": "logic100_074",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_075",
+      "factor": "logic100_075",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_076",
+      "factor": "logic100_076",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_077",
+      "factor": "logic100_077",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_078",
+      "factor": "logic100_078",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_079",
+      "factor": "logic100_079",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_080",
+      "factor": "logic100_080",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_081",
+      "factor": "logic100_081",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_082",
+      "factor": "logic100_082",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_083",
+      "factor": "logic100_083",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_084",
+      "factor": "logic100_084",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_085",
+      "factor": "logic100_085",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_086",
+      "factor": "logic100_086",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_087",
+      "factor": "logic100_087",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_088",
+      "factor": "logic100_088",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_089",
+      "factor": "logic100_089",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_090",
+      "factor": "logic100_090",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_091",
+      "factor": "logic100_091",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_092",
+      "factor": "logic100_092",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_093",
+      "factor": "logic100_093",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_094",
+      "factor": "logic100_094",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_095",
+      "factor": "logic100_095",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_096",
+      "factor": "logic100_096",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_097",
+      "factor": "logic100_097",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_098",
+      "factor": "logic100_098",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_099",
+      "factor": "logic100_099",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "logic100_100",
+      "factor": "logic100_100",
+      "max_candidates": 1,
+      "grid": {}
+    }
+  ]
+}

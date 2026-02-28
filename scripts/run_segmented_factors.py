@@ -228,6 +228,91 @@ FACTOR_SPECS = {
 }
 
 
+def _register_logic100_specs() -> None:
+    """Register 100 formula-distinct logic specs (single + blended) for wide screening."""
+    combo_cfg = PROJECT_ROOT / "strategies" / "combo_v2" / "config.py"
+
+    # Atomic logic blocks (formula-level distinct definitions).
+    atoms: list[dict[str, object]] = [
+        {"name": "mom", "weights": {"momentum": 1.0}},
+        {"name": "rev", "weights": {"reversal": 1.0}},
+        {"name": "lv", "weights": {"low_vol": 1.0}},
+        {"name": "size", "weights": {"size": -1.0}},
+        {"name": "ts", "weights": {"turnover_shock": 1.0}},
+        {"name": "vr", "weights": {"vol_regime": 1.0}},
+        {"name": "qcomp_roe", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=roe"]},
+        {"name": "qcomp_roa", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=roa"]},
+        {"name": "qcomp_gm", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=gross_margin"]},
+        {"name": "qcomp_cfoa", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=cfo_to_assets"]},
+        {"name": "qcomp_de", "weights": {"quality_component": -1.0}, "set": ["QUALITY_COMPONENT_METRIC=debt_to_equity"]},
+        {"name": "vcomp_ey", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=earnings_yield"]},
+        {"name": "vcomp_fcfy", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=fcf_yield"]},
+        {"name": "vcomp_ev", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=ev_ebitda_yield"]},
+        {"name": "qt_roe", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=roe"]},
+        {"name": "qt_roa", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=roa"]},
+        {"name": "qt_gm", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=gross_margin"]},
+        {"name": "qt_cfoa", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=cfo_to_assets"]},
+        {"name": "qt_de", "weights": {"quality_metric_trend": -1.0}, "set": ["QUALITY_TREND_METRIC=debt_to_equity"]},
+        {"name": "vt_ey", "weights": {"value_metric_trend": 1.0}, "set": ["VALUE_TREND_METRIC=earnings_yield"]},
+        {"name": "vt_fcfy", "weights": {"value_metric_trend": 1.0}, "set": ["VALUE_TREND_METRIC=fcf_yield"]},
+        {"name": "vq_blend", "weights": {"value_quality_blend": 1.0}},
+        {"name": "pml", "weights": {"profitability_minus_leverage": 1.0}},
+        {"name": "sue_eps", "weights": {"sue_eps_basic": 1.0}},
+        {"name": "sue_rev", "weights": {"sue_revenue_basic": 1.0}},
+        {"name": "pead_sw", "weights": {"pead_short_window": 1.0}},
+        {"name": "inst_own", "weights": {"institutional_ownership_change": 1.0}},
+        {"name": "inst_brd", "weights": {"institutional_breadth_change": 1.0}},
+        {"name": "owner_ey", "weights": {"owner_earnings_yield_proxy": 1.0}},
+    ]
+
+    specs: list[dict[str, object]] = []
+    specs.extend(atoms)
+
+    # Build blended logic blocks using equal-weight combinations of atom formulas.
+    pair_limit_pool = atoms[:20]
+    for i in range(len(pair_limit_pool)):
+        for j in range(i + 1, len(pair_limit_pool)):
+            a = pair_limit_pool[i]
+            b = pair_limit_pool[j]
+            w: dict[str, float] = {}
+            for k, v in a["weights"].items():
+                w[str(k)] = w.get(str(k), 0.0) + 0.5 * float(v)
+            for k, v in b["weights"].items():
+                w[str(k)] = w.get(str(k), 0.0) + 0.5 * float(v)
+            set_items = []
+            if isinstance(a.get("set"), list):
+                set_items.extend([str(x) for x in a["set"]])
+            if isinstance(b.get("set"), list):
+                set_items.extend([str(x) for x in b["set"]])
+            dedup_set = []
+            for s in set_items:
+                if s not in dedup_set:
+                    dedup_set.append(s)
+            specs.append(
+                {
+                    "name": f"blend_{a['name']}__{b['name']}",
+                    "weights": w,
+                    "set": dedup_set,
+                }
+            )
+            if len(specs) >= 100:
+                break
+        if len(specs) >= 100:
+            break
+
+    specs = specs[:100]
+    for idx, spec in enumerate(specs, start=1):
+        key = f"logic100_{idx:03d}"
+        FACTOR_SPECS[key] = {
+            "config_path": combo_cfg,
+            "weights": dict(spec["weights"]),
+            "set": list(spec.get("set", [])),
+        }
+
+
+_register_logic100_specs()
+
+
 def _load_cfg(path: Path):
     spec = _ilu.spec_from_file_location(path.stem, path)
     module = _ilu.module_from_spec(spec)

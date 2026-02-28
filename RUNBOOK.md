@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 currently running on workstation; queue launches still require manual approval)
+Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batchA100_logic100_v1 pending approval)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -94,12 +94,7 @@ python3 scripts/run_walk_forward.py \
   --set MIN_PRICE=5
 ```
 
-### 2.6 Derive combo weights from segmented outputs
-```bash
-python scripts/derive_combo_weights.py --root . --out segment_results/derived/combo_v2_weights_suggested.csv
-```
-
-### 2.6b Combo segmented weight-grid (corrected path)
+### 2.6 Combo segmented weight-grid (corrected path)
 Important:
 - Use only corrected output path for weight selection:
   - `segment_results/combo_weight_grid_2026_02_17_fix`
@@ -158,61 +153,24 @@ Latest completed stress result (2026-02-17):
 - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
 - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
 
-### 2.11 Daily lightweight update pipeline (incremental, not full overwrite)
-Three-step design:
-1. Incremental pull (`latest/recent`, no full rebuild by default)
-2. Run current combo strategy once in live-daily profile (refresh `test_signals_latest.csv`)
-3. Sync minimal outputs to web side
-
-Scripts:
-- `scripts/daily_pull_incremental.sh`
-- `scripts/daily_run_combo_current.sh`
-- `scripts/daily_sync_web.sh`
-- `scripts/daily_update_pipeline.sh` (orchestrator)
-
-Default strategy config used by `daily_run_combo_current.sh`:
-- `configs/strategies/combo_v2_live_daily.yaml`
-
-Default run mode:
-- `RUN_MODE=live_snapshot` (latest signal snapshot only, no full train/test rerun)
-- Optional: `RUN_MODE=full_backtest` (if you explicitly want fresh IC/run json)
-
-Examples:
+### 2.11 Daily research orchestration (current)
+Preferred entry:
 ```bash
-# dry-run full pipeline
-DRY_RUN=1 bash scripts/daily_update_pipeline.sh
-
-# full daily run
-bash scripts/daily_update_pipeline.sh
-
-# run only strategy + sync (skip pull)
-DO_PULL=0 bash scripts/daily_update_pipeline.sh
+bash scripts/ops_entry.sh daily
 ```
 
-Operational notes (2026-02-18):
-- `daily_pull_incremental.sh` now auto-selects Python in this order:
-  1) `.venv/bin/python`
-  2) `/Users/hui/miniconda3/bin/python3`
-  3) `python3`
-- If local DNS cannot resolve FMP, set:
+Dry-run validation only:
 ```bash
-export FMP_RESOLVE_IPS='34.194.189.88,52.202.201.64,107.21.126.193'
+bash scripts/ops_entry.sh status
 ```
-- Signal semantics for web publish:
-  - `test_signals_latest.csv` with `date=T` means signal computed with data up to `T` and used for next trading day `T+1`.
 
-Workstation fallback (when local DNS/network to FMP fails):
-```bash
-ssh hui@100.66.103.44
-cd ~/projects/hui-wang-multi-factor-research
-export FMP_API_KEY=...
-bash scripts/daily_pull_incremental.sh
-```
-Then sync refreshed cache back to local if needed:
-```bash
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/prices_divadj/ /Users/hui/quant_score/v4/data/prices_divadj/
-rsync -avh --progress hui@100.66.103.44:~/projects/hui-wang-multi-factor-research/data/fmp/earnings/ /Users/hui/quant_score/v4/data/fmp/earnings/
-```
+The `daily` flow now uses:
+- `scripts/prepare_dq_input.py`
+- `scripts/data_quality_gate.py`
+- `scripts/generate_candidate_queue.py`
+- `scripts/generate_next_run_plan.py`
+- `scripts/repair_next_run_plan_paths.py`
+- `scripts/execute_next_run_plan.py` (dry-run first; execute only when enabled)
 
 ### 2.12 Live trading daily eval (T -> T+1) + readable PDF
 Run ID convention:

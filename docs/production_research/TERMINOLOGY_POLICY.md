@@ -42,7 +42,6 @@ Run:
 rg -n "institutional|Institutional|docs/institutional|institutional_gates|combo_v2_inst|POST_WF_INSTITUTIONAL_CHECKLIST" \
   --glob '!.git/**' \
   --glob '!docs/production_research/TERMINOLOGY_POLICY.md' \
-  --glob '!docs/production_research/RENAMING_AUDIT_2026-02-21.md' \
   --glob '!docs/production_research/CHANGELOG.md'
 ```
 

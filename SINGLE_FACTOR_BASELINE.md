@@ -49,7 +49,7 @@ Goal: ensure data exists and PIT timing is valid.
 
 1. Verify required data folders exist and are non-empty.  
 2. Verify PIT availability (if fundamentals).  
-3. Note any known risks in `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`.  
+3. Note reset-boundary risks in `docs/production_research/RESET_STATE_2026-02-27.md`.  
 
 ### Step 2. SF-L1 segmented strict backtest (mandatory)
 Goal: production-style robustness check (primary single-factor segmented gate).
@@ -147,5 +147,5 @@ Use this unless you override with your own standards.
 ## 5) Record Keeping (Required)
 
 1. Update `STATUS.md` with latest `SF-L1`/`SF-L2` results (`SF-DIAG` only if used).  
-2. Update `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md` (or approved successor baseline doc) with any logic changes or pitfalls.  
+2. Update `docs/production_research/RESET_STATE_2026-02-27.md` and current batch master table with any logic changes or pitfalls.  
 3. Keep report outputs in `strategies/<factor>/reports/`.  

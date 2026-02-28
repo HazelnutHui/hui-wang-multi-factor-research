@@ -52,7 +52,7 @@ For small OCI instances, use minimal daily uploads:
 - latest `strategies/combo_v2/runs/*.json` (keep last 1-3)
 - `strategies/combo_v2/config.py`
 - `STATUS.md`
-- `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
+- `docs/production_research/RESET_STATE_2026-02-27.md`
 
 Optional periodic uploads:
 - latest `walk_forward_summary.csv` (final/stress)

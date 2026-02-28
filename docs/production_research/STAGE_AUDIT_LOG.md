@@ -1,23 +1,19 @@
 # Stage Audit Log
 
-Last updated: 2026-02-24
+Last updated: 2026-02-28
 
 Purpose:
-- append-only stage-level audit ledger;
-- quick handoff view for new sessions and committee review.
+- keep only active, post-reset stage decisions;
+- avoid stale references to retired artifacts.
 
 ## Ledger
 
 | date | stage | decision_tag | owner | objective | command_ref | artifact_ref | result | next_action |
 |---|---|---|---|---|---|---|---|---|
-| 2026-02-21 | S0/S3 Governance Rename | committee_2026-02-21_naming_migration | hui | unify production naming and audit docs | `scripts/run_research_workflow.py --workflow production_gates --help` | `docs/production_research/RENAMING_AUDIT_2026-02-21.md` | pass | continue S2/S3 official workstation rerun under new naming |
-| 2026-02-21 | S3 Production Gates | committee_2026-02-21_run1_rerun4 | hui | official workstation gate run with wf shard parallelism | `audit/workstation_runs/2026-02-21_053448_production_gates_committee_2026-02-21_run1_rerun4/command.sh` | `gate_results/production_gates_2026-02-21_053448/production_gates_report.json` | superseded | superseded by finalized fail row for same decision_tag |
-| 2026-02-21 | S3 Production Gates | committee_2026-02-21_run1_rerun4 | hui | S3 production gates official rerun | `/Users/hui/quant_score/v4/audit/workstation_runs/2026-02-21_053448_production_gates_committee_2026-02-21_run1_rerun4/command.sh` | `/Users/hui/quant_score/v4/gate_results/production_gates_2026-02-21_053448/production_gates_report.json` | fail | review failed gate components and rerun |
-| 2026-02-22 | S3 Production Gates | committee_2026-02-22_run5 | hui | official workstation gate rerun (run5) | `audit/workstation_runs/2026-02-22_223843_production_gates_committee_2026-02-22_run5/command.sh` | `gate_results/production_gates_2026-02-22_223844/production_gates_report.json` | pending_local_sync | referenced in docs snapshot, but corresponding artifacts are not currently synced in local workspace |
-| 2026-02-22 | S0 Factor Factory | factor_factory_2026-02-22_batch1 | hui | local factor-factory batch candidate planning | `python3 scripts/run_factor_factory_batch.py --policy-json configs/research/factor_factory_policy.json --jobs 4 --max-candidates 20 --dry-run` | `audit/factor_factory/2026-02-22_174534_factor_factory_v1/factor_factory_batch_report.json` | dry_run_complete | rerun without `--dry-run` to generate ranked leaderboard |
+| 2026-02-27 | S0 Reset | reset_2026-02-27_state_clear | hui | retire all pre-reset factor outputs and docs references | `scripts/run_segmented_factors.py --help` | `docs/production_research/RESET_STATE_2026-02-27.md` | pass | treat `batchA100_logic100_v1` as first official batch, pending approval |
 
 ## Update Rule
 
-- New row required for every official stage decision.
-- `decision_tag` must match gate registry decision tag when S3 is involved.
-- Never delete rows; use new rows for corrections.
+- Add a new row for each official post-reset stage decision.
+- `artifact_ref` must point to an existing local file.
+- If an old row becomes invalid after cleanup, replace by a new corrected row.

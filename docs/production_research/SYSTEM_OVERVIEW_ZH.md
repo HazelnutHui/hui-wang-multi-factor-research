@@ -16,11 +16,11 @@ Last updated: 2026-02-27
 本文档为客观技术说明，不含主观叙述与人称指代。
 
 当前运行快照（2026-02-27）：
-1. 冻结基线：`V1 batch36`（36 个完整可用单因子候选）。
-2. 当前在跑批次：`batchA100_logic25_v1`。
-   - 运行目录：`segment_results/factor_factory/2026-02-27_204818_batchA100_logic25_v1`
-   - 执行并行度：`--jobs 8`
-3. 治理边界：
+1. 重置前历史结果：已退役（当前决策不作为正式结果使用）。
+2. 当前在跑批次：无。
+3. 下一批次草案：`batchA100_logic100_v1`（100 个不同逻辑候选，每个逻辑仅 1 个候选）。
+   - 状态：`ready_for_review`（未启动）
+4. 治理边界：
    - 后续新批次/新队列仍需人工审批后才能启动。
    - 审批门文件：`configs/research/factory_queue/run_approval.json`
 

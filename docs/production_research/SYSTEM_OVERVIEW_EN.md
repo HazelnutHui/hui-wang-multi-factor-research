@@ -15,10 +15,10 @@ Primary goals:
 This is a technical system description, not a strategy marketing note.
 
 Current operational snapshot (2026-02-27):
-- frozen single-factor baseline: `V1 batch36` (36 complete usable candidates)
-- active workstation batch: `batchA100_logic25_v1`
-  - run dir: `segment_results/factor_factory/2026-02-27_204818_batchA100_logic25_v1`
-  - execution profile: `--jobs 8`
+- pre-reset historical result status: retired (not considered formal for current decisions)
+- active workstation batch: none
+- next prepared batch: `batchA100_logic100_v1` (100 distinct logic candidates; one candidate per logic)
+  - status: `ready_for_review` (not started)
 - governance boundary:
   - new future queue/batch launches still require manual approval
   - approval gate file: `configs/research/factory_queue/run_approval.json`
@@ -458,7 +458,7 @@ Typical heavy-run profile:
 Recommended order:
 1. `SESSION_CONTINUITY_PROTOCOL.md`
 2. `DOCS_INDEX.md`
-3. this document (`NOTION_SYSTEM_OVERVIEW_EN.md`)
+3. this document (`SYSTEM_OVERVIEW_EN.md`)
 4. `docs/production_research/GATE_SPEC.md`
 5. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
 6. latest `audit/system_closure/*/system_closure_report.json`

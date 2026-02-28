@@ -91,7 +91,7 @@ localStorage.removeItem('collapsedCards'); location.reload();
 Use these files first:
 1. `WEBSITE_HANDOFF.md`
 2. `STATUS.md`
-3. `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
+3. `docs/production_research/RESET_STATE_2026-02-27.md`
 4. `DOCS_INDEX.md`
 
 Then request:

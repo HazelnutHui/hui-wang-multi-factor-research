@@ -1,11 +1,10 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 is running on workstation; no V2/V3 queue retained; any new future batch must be newly reviewed and manually approved)
+Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batchA100_logic100_v1 is first official batch and pending approval)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 - Factor discovery current governance:
-  - baseline reference: `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`
   - execution state: `review_required`
   - queue runtime gate: `configs/research/factory_queue/run_approval.json` must approve target queue before any run
 - Single-factor validation policy:
@@ -25,25 +24,18 @@ Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 is running on workstation
 - Current local gate snapshot reference:
   - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
 
-## 4) Latest Factor-Factory Snapshot (2026-02-27)
-- Snapshot note: `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`
+## 4) Current Factor-Factory State (Post-Reset)
+- Reset declaration: `docs/production_research/RESET_STATE_2026-02-27.md`
 - Master query table:
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
-- Current verified usable outputs:
-  - run dir: `segment_results/factor_factory/2026-02-25_072539_p1_core_short_horizon` (`16/16` complete)
-  - run dir: `segment_results/factor_factory/2026-02-26_104024_p1_core_short_horizon_no_existing16` (`20/20` complete)
-  - merged usable set: `36` complete candidates, signature-level unique (`duplicate_groups=0`)
-- Incomplete/non-usable lineages (not for ranking or gate input):
-  - `segment_results/factor_factory/2026-02-26_103744_p1_core_short_horizon` (`0/20` complete)
-  - `segment_results/factor_factory/2026-02-26_103804_p1_core_short_horizon` (`0/20` complete)
-  - `segment_results/factor_factory/2026-02-27_033745_p2_quality_value_timing` (`0/20` complete)
+- Verified usable outputs: none (all pre-reset result sets retired and deleted).
 - Queue state:
-  - active batch run:
-    - `batchA100_logic25_v1` on workstation
-    - run dir: `segment_results/factor_factory/2026-02-27_204818_batchA100_logic25_v1`
-    - execution mode: `--jobs 8`
-  - baseline `36` is frozen as current clean reference (V1)
+  - active batch run: none
+  - next prepared batch:
+    - `batchA100_logic100_v1` (100 distinct logic candidates; one candidate per logic)
+    - status: `ready_for_review` (not started)
+  - current official reference set: none (pre-run state)
   - queue config directory currently keeps only:
     - `configs/research/factory_queue/run_approval.json`
   - this snapshot does not override official gate status; gate SSOT remains `CURRENT_GATE_STATUS_2026-02-23.md`
@@ -71,5 +63,5 @@ Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 is running on workstation
 - V2/V3 drafts, queues, and policies were removed.
 - Current policy: no pre-created next-batch queue; create only after review, then run with explicit approval in `configs/research/factory_queue/run_approval.json`.
 
-## 7) Historical Records (Kept for Audit, Not Active Requirements)
-- historical gate snapshots in `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md` and `...2026-02-21.md`
+## 7) Historical Records
+- pre-reset historical snapshots were retired during reset cleanup and are not part of current governance SSOT.

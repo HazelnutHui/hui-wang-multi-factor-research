@@ -1,154 +1,28 @@
 # Documentation Index
 
-Last updated: 2026-02-27 (V1 batch36 frozen; BatchA100 running on workstation; future new queue runs still require manual approval)
+Last updated: 2026-02-27 (reset mode)
 
-## Core Documents
-- `README.md`: project overview and public-facing summary
-- `RUNBOOK.md`: practical command guide
-- `STATUS.md`: current progress and roadmap snapshot
-- `WEBSITE_HANDOFF.md`: website migration handoff (current state, fixes, next tasks, run/deploy notes)
-- `POST_WF_PRODUCTION_CHECKLIST.md`: post walk-forward production validation gates (stress + risk + pass/fail)
-- `SINGLE_FACTOR_BASELINE.md`: single-factor validation checklist
-- `FACTOR_EVAL_TEMPLATE.md`: standardized factor evaluation template
+## Current Source of Truth
+- `docs/production_research/RESET_STATE_2026-02-27.md`
+- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
+- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
+- `STATUS.md`
+- `RUNBOOK.md`
+- `SESSION_CONTINUITY_PROTOCOL.md`
 
-## Additional References
-- `SESSION_CONTINUITY_PROTOCOL.md`: single-file session handoff guide (recommended first read)
-- `docs/production_research/FACTOR_FACTORY_STANDARD.md`: factor factory generation/evaluation/registration standard
-- `docs/production_research/CONFIG_AUDIT_2026-02-24.md`: consolidated config audit and normalized factor-factory execution profile
-- `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`: locked stage definitions and end-to-end factor workflow
-- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-27.md`: latest factor-factory continuity snapshot (verified complete usable 36-candidate set; incomplete/stale lineages explicitly excluded)
-- `docs/production_research/V1_BATCH36_BASELINE_2026-02-27.md`: frozen V1 baseline definition (current single reference set)
-- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`: queryable master table of batch/factor logic/formula/params/results (current SSOT table)
-- `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`: readable view of master table with batch snapshot
-- `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`: BatchA100 family-level data readiness check (25 families, 100 candidates)
-- `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.csv`: machine-readable BatchA100 data readiness table
-- `docs/production_research/FACTOR_FACTORY_QUEUE_SNAPSHOT_2026-02-26.md`: historical factor-factory snapshot kept for audit continuity
-- `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`: next100 FMP data classification and download/use policy (core vs research-only vs hold)
-- retired planning docs/queues (`V2_REMAINING80_REDESIGN_2026-02-27.md`, `NEXT100_V3_PLAN_2026-02-26.md`, `queue_080_v2_after36_nonoverlap.json`, `queue_100_fastscreen_v3.json`, plus earlier `queue_100_fastscreen_v2`, `queue_100_v1`, `queue_080_from_p2_v1`) were deleted on 2026-02-27.
-- `configs/research/factory_queue/run_approval.json`: mandatory queue approval gate file (must match target queue before run)
-- `docs/production_research/FMP_INTERFACE_PROBE_STANDARD.md`: FMP interface probing and field-semantic mapping standard
-- `docs/production_research/FMP_ENDPOINT_CATALOG_2026-02-23.md`: FMP endpoint callable catalog snapshot
-- `docs/production_research/FMP_FAILED_ENDPOINT_RECHECK_2026-02-23.md`: failed endpoint recheck log and outcomes
-- `docs/production_research/FMP_API_CALLABILITY_SUMMARY_2026-02-23.md`: endpoint callability summary and usable scope
-- `docs/production_research/FMP_ENDPOINT_FIELD_DICTIONARY_STATUS_2026-02-23.md`: endpoint-level field dictionary progress/status
-- `docs/production_research/FMP_FIELD_SEMANTIC_CATALOG_2026-02-23.md`: normalized field semantic catalog
-- `docs/production_research/FMP_FACTOR_FACTORY_DATA_CONSTRAINTS_2026-02-23.md`: data constraints for daily tradable factor generation
-- `docs/production_research/FMP_CATEGORY_PLAYBOOK_2026-02-23.md`: category-level actionable playbook for factor candidates
-- `docs/production_research/FMP_MEANINGFUL_DATA_INVENTORY_2026-02-23.md`: meaningful-data inventory for factory intake
-- `docs/production_research/README.md`: production governance docs index
-- `docs/production_research/GATE_SPEC.md`: formal hard-gate specification
-- `docs/production_research/OPS_PLAYBOOK.md`: production run operations playbook
-- `docs/production_research/COMMAND_SURFACE.md`: primary/internal command boundary (recommended operator entrypoints)
-- `docs/production_research/DAILY_DEV_RESEARCH_FLOW.md`: daily dual-track development/research SOP (anti-loop + data-boundary expansion)
-- `docs/production_research/WORKSTATION_PRIMARY_MODE.md`: workstation-primary execution policy
-- `docs/production_research/SESSION_BOOTSTRAP.md`: strict read order for new sessions
-- `docs/production_research/AUDIT_ARTIFACTS.md`: mandatory audit artifact definitions
-- `docs/production_research/CURRENT_GATE_STATUS_2026-02-20.md`: historical production gate snapshot and rerun checklist (2026-02-20)
-- `docs/production_research/CURRENT_GATE_STATUS_2026-02-21.md`: historical rerun4 status snapshot and verified execution context (2026-02-21)
-- `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`: 2026-02-23 snapshot entry with 2026-02-24 local evidence reconciliation (run5 sync-boundary + factor-factory dry-run status)
-- `docs/production_research/AUDIT_SNAPSHOT_2026-02-20.md`: current path-level audit snapshot
-- `docs/production_research/TERMINOLOGY_POLICY.md`: canonical production naming policy
-- `docs/production_research/RENAMING_AUDIT_2026-02-21.md`: full renaming audit trail
-- `docs/production_research/STAGE_EXECUTION_STANDARD.md`: stage-by-stage production execution standard
-- `docs/production_research/WORKSTATION_RUNNER_SPEC.md`: official workstation wrapper and audit outputs
-- `docs/production_research/STAGE_AUDIT_LOG.md`: append-only stage decision ledger
-- `docs/production_research/ARTIFACT_RETENTION_AND_CLEANUP.md`: retention and safe cleanup rules for audit artifacts
-- `docs/production_research/PERFORMANCE_OPTIMIZATION_BACKLOG_2026-02-21.md`: prioritized non-destructive performance optimization plan
-- `docs/production_research/POST_RUN_OPERATIONS.md`: one-command post-run sync and finalize procedure
-- `docs/production_research/GOVERNANCE_AUDIT_CHECKER.md`: governance completeness checker definition and usage
-- `docs/production_research/GOVERNANCE_REMEDIATION_PLAN.md`: governance failure-to-remediation mapping standard
-- `docs/production_research/DATA_QUALITY_POLICY.md`: official pre-gate data quality policy and thresholds
-- `docs/production_research/RISK_REGISTER.md`: append-only production research risk register
-- `docs/production_research/MODEL_CHANGE_CONTROL.md`: change classification and approval matrix standard
-- `docs/production_research/INCIDENT_RESPONSE.md`: incident severity and response timeline standard
-- `docs/production_research/SECURITY_AND_ACCESS_CONTROL.md`: security baseline and access controls
-- `docs/production_research/OFFICIAL_RUN_TEMPLATE.md`: copy-ready official run and auto-close command templates
-- `docs/production_research/RUN_REVIEW_TEMPLATE.md`: standardized post-run committee review template
-- `docs/production_research/FACTOR_EXPERIMENT_REGISTRY.md`: centralized experiment registry and scoring/ranking standard
-- `docs/production_research/CANDIDATE_QUEUE_POLICY.md`: candidate queue generation and prioritization policy
-- `docs/production_research/NEXT_RUN_PLANNING.md`: standard for producing rerun command/hypothesis plan
-- `docs/production_research/NEXT_RUN_EXECUTION_STANDARD.md`: standard for repairing/executing next-run plans with normalized tags
-- `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`: standard for multi-round automated research orchestration with budgets
-- `docs/production_research/AUTO_RESEARCH_SEARCH_V1.md`: standard for combo_v2 search-v1 trial planning, derived strategy generation, and audited execution reports
-- `docs/production_research/SYSTEM_OVERVIEW_EN.md`: full English white paper for architecture, research flow, governance gates, and audit topology
-- `docs/production_research/SYSTEM_OVERVIEW_ZH.md`: 中文完整版系统说明（架构、门禁、审计、低联网与工作站分工）
-- `docs/production_research/NOTION_SYSTEM_OVERVIEW_ZH.md`: 可直接放入 Notion 的中文项目介绍模板
-- `docs/production_research/NOTION_SYSTEM_OVERVIEW_EN.md`: concise English Notion brief (system architecture + research logic)
-- `docs/production_research/AUTO_RESEARCH_SCHEDULER.md`: standard for unattended orchestrator scheduling with lock/heartbeat/alerts
-- `docs/production_research/AUTO_RESEARCH_DEPLOYMENT.md`: standard for workstation systemd deployment and service operations
-- `docs/production_research/LOW_NETWORK_MODE.md`: standard low-network profile and switching procedure
-- `docs/production_research/SYSTEM_CLOSURE_CHECK.md`: standard for one-command end-of-phase closure checks
-- `docs/production_research/FAILURE_PATTERN_DB.md`: standard for failure-pattern database and summary updates
-- `docs/production_research/SESSION_HANDOFF_READINESS.md`: standard for validating new-session handoff traceability
-- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_EN.md`: public factor formulas + execution constraints + V4 gap audit (English)
-- `docs/public_factor_references/FACTOR_PUBLIC_FORMULAS_AND_EXECUTION_CONSTRAINTS_CN.md`: 公开因子公式 + 执行约束 + V4 缺陷审查（中文）
-- `iterm_commands.txt`: convenience command snippets
-- `scripts/daily_pull_incremental.sh`: incremental pull entry (daily)
-- `scripts/daily_run_combo_current.sh`: daily combo run entry (live snapshot by default)
-- `scripts/daily_sync_web.sh`: daily minimal web sync entry
-- `scripts/daily_update_pipeline.sh`: orchestrator (`pull -> run -> sync`)
-- `scripts/ops_entry.sh`: unified operator entry (`daily` / `status` / `official` / `check` / `cleanup` / `hygiene`)
-- `scripts/daily_research_run.sh`: internal daily pipeline entry (compatibility path)
-- `scripts/derive_combo_weights.py`: derives robust combo weights from segmented outputs
-- `scripts/run_stage2_strict_top3_parallel.sh`: strict Stage2 segmented runner with cache support
-- `scripts/monitor_gate_run.sh`: non-destructive monitor for active official gate runs
-- `scripts/monitor_then_finalize.sh`: monitor active run and auto-trigger post-run sync/finalize when safe
-- `scripts/finalize_gate_run.sh`: one-command post-run finalization (ledger + summary)
-- `scripts/post_run_sync_and_finalize.sh`: one-command remote sync + local finalization
-- `scripts/finalize_gate_run.py`: core finalization helper used by finalize shell wrapper
-- `scripts/data_quality_gate.py`: pre-gate dataset quality checker (json/md artifact output, non-zero on fail)
-- `scripts/prepare_dq_input.py`: build canonical DQ input (`date,ticker,score`) from latest score snapshot
-- `scripts/governance_audit_checker.py`: post-run governance completeness checker (json/md artifact output, non-zero on fail)
-- `scripts/governance_remediation_plan.py`: post-run remediation plan generator from governance audit output
-- `scripts/generate_run_review.py`: generate standardized committee run review markdown from finalized artifacts
-- `scripts/update_factor_experiment_registry.py`: update experiment registry and leaderboard from gate artifacts
-- `scripts/generate_candidate_queue.py`: generate next-run prioritized factor candidate queue from registry
-- `scripts/generate_next_run_plan.py`: generate next-run command/hypothesis plan from queue + remediation + latest report
-- `scripts/execute_next_run_plan.py`: execute ranked command from next_run_plan.json (supports dry-run)
-- `scripts/repair_next_run_plan_paths.py`: repair freeze/dq paths in next_run_plan into fixed executable plan
-- `scripts/auto_research_orchestrator.py`: run multi-round queue-plan-repair-validate-(optional execute) loop with audit reports
-- `scripts/build_search_v1_trials.py`: build search-v1 trial plan, derived strategy yamls, and optional execution report
-- `scripts/auto_research_scheduler.py`: run orchestrator by cadence with singleton lock, heartbeat, and scheduler ledger
-- `scripts/test_scheduler_alert_channels.py`: self-test scheduler alert channels (command/email dry-run dedupe and payload contract)
-- `scripts/switch_auto_research_mode.sh`: switch scheduler policy between low-network and standard profiles with audit trail
-- `scripts/run_system_closure_check.py`: run closure checks and generate consolidated closure report
-- `scripts/install_auto_research_scheduler_service.sh`: install user-level systemd service for scheduler with env file template
-- `scripts/manage_auto_research_scheduler_service.sh`: operate scheduler service (status/start/stop/restart/logs)
-- `scripts/update_failure_pattern_db.py`: update failure-pattern database from governance remediation/audit artifacts
-- `scripts/check_session_handoff_readiness.py`: validate session-guide mandatory read chain and handoff readiness outputs
-- `scripts/check_command_surface.py`: detect command-surface drift in docs (old entry commands reappearing)
-- `scripts/check_script_surface.py`: detect likely unreferenced scripts for safe/manual deprecation review
-- `scripts/safe_artifact_cleanup.py`: safe cleanup for non-critical artifacts (dry-run by default; explicit `--apply` required)
-- `scripts/generate_daily_research_brief.py`: internal concise brief generator (`PASS/FAIL + manual decisions only`)
-- `scripts/live_trading_eval.py`: daily live-trading score vs realized-return evaluation (IC/Top-Bottom/win-rate/coverage/deciles)
-- `configs/research/candidate_queue_policy.json`: versioned mixed/robust/exploration queue policy config
-- `configs/research/auto_research_policy.json`: versioned automation policy for multi-round research orchestration
-- `configs/research/auto_research_search_v1_policy.json`: versioned search-v1 trial policy for combo_v2 parameter exploration
-- `configs/research/auto_research_scheduler_policy.json`: scheduler policy for orchestration cadence and failure handling
-- `configs/research/auto_research_scheduler_policy.low_network.json`: low-network scheduler profile (no outbound alerts; local+dry-run only)
-- `audit/auto_research/auto_research_ledger.csv`: append-only ledger of orchestrator cycles
-- `audit/auto_research/auto_research_ledger.md`: human-readable snapshot of latest orchestrator ledger rows
-- `audit/auto_research/auto_research_weekly_summary.csv`: last-7-days daily aggregate health metrics for orchestrator runs
-- `audit/auto_research/auto_research_weekly_summary.md`: weekly health dashboard (failure rate/stop reasons/averages)
-- `audit/auto_research/auto_research_scheduler_heartbeat.json`: scheduler liveness status and last cycle metadata
-- `audit/auto_research/auto_research_scheduler_ledger.csv`: append-only scheduler cycle ledger
-- `audit/auto_research/auto_research_scheduler_ledger.md`: human-readable scheduler cycle ledger snapshot
-- `audit/auto_research/auto_research_scheduler_alert_state.json`: scheduler alert dedupe state (last sent keys/timestamps)
-- `audit/search_v1/<ts>_search_v1/search_v1_trial_plan.json`: search-v1 trial plan output (machine-readable)
-- `audit/search_v1/<ts>_search_v1/search_v1_trial_plan.md`: search-v1 trial plan output (human-readable)
-- `audit/search_v1/<ts>_search_v1/search_v1_execution_report.json`: search-v1 execution status report
-- `audit/system_closure/<ts>_closure/system_closure_report.json`: consolidated closure check report
-- `audit/system_closure/<ts>_closure/system_closure_report.md`: readable closure check report
-- `audit/factor_registry/next_run_plan.md`: latest generated next-run hypothesis/command plan snapshot
-- `audit/factor_registry/next_run_plan_fixed.md`: latest executable repaired next-run plan snapshot
-- `audit/failure_patterns/failure_pattern_summary.md`: latest failure-pattern rollup for queue feedback
-- `audit/fmp_probe_coverage_v1/fmp_interface_probe_latest.json`: latest FMP probe raw coverage artifact
-- `audit/fmp_probe_coverage_v1/fmp_endpoint_semantic_map_2026-02-23.csv`: endpoint-level semantic map for usable fields
-- `audit/fmp_probe_coverage_v1/fmp_factor_factory_allowlist_2026-02-23.csv`: approved low-leakage factor-factory field allowlist
-- `audit/fmp_probe_coverage_v1/fmp_high_leakage_blocklist_2026-02-23.csv`: blocked high-leakage fields list
-- `audit/fmp_probe_coverage_v1/fmp_field_semantic_catalog_2026-02-23.csv`: canonical field semantic catalog for generated factors
-- `audit/fmp_probe_coverage_v1/fmp_meaningful_data_inventory_2026-02-23.json`: meaningful-data inventory with usability tags
-- `scripts/generate_daily_live_report.py`: generate bilingual (EN/ZH) daily readable PDF report for a run_id
-- `live_trading/reports/README.md`: report path convention and generation command
-- `strategies/`: strategy-level docs and configs
-- `configs/`: protocol and strategy configuration files
+## Core Governance Docs
+- `docs/production_research/README.md`
+- `docs/production_research/FACTOR_FACTORY_STANDARD.md`
+- `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
+- `docs/production_research/OPS_PLAYBOOK.md`
+- `docs/production_research/STAGE_EXECUTION_STANDARD.md`
+- `docs/production_research/WORKSTATION_PRIMARY_MODE.md`
+- `docs/production_research/WORKSTATION_RUNNER_SPEC.md`
+
+## Data Boundary Docs
+- `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`
+- `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`
+
+## Notes
+- Pre-reset result snapshots and legacy baseline docs were removed.
+- First official batch is `batchA100_logic100_v1` and is not started yet.
