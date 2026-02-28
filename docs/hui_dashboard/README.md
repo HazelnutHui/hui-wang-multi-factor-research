@@ -2,7 +2,7 @@
 
 Local-first PWA dashboard for U.S. equities with a dedicated quant-score board.
 
-Last updated: 2026-02-18
+Last updated: 2026-02-28
 
 ## Product snapshot
 
@@ -30,20 +30,13 @@ Last updated: 2026-02-18
 
 ## Quant research board (latest sync)
 
-The "研究与系统细节" panel now reads current V4 combo research context directly:
-- Locked core combo: `linear`, `value=0.90`, `momentum=0.10`
-- Layer2 fixed train/test (official locked run): `train_ic=0.080637`, `test_ic=0.053038`
-- Layer3 walk-forward (2013-2025): `test_ic mean=0.057578`, `test_ic_overall mean=0.050814`
-- Stage2 filter details and system architecture modules are rendered dynamically from V4 config/docs.
+The "研究与系统细节" panel reads current V4 research context directly from active docs/configs.
+Historical metric snapshots are not treated as SSOT after reset cleanup.
 
 If local result files are not synced yet, the board falls back to `STATUS.md` official metrics to avoid showing stale values.
 
-First live trading-day snapshot archive:
-- Trading day: `2026-02-18` (using signal date `2026-02-17`)
-- Local archive:
-  - `/Users/hui/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
-- Web-side archive:
-  - `/home/ubuntu/Hui/data/quant_score/v4/live_snapshots/trade_2026-02-18_from_signal_2026-02-17/`
+Live trading snapshots use run-id pattern:
+- `trade_YYYY-MM-DD_from_signal_YYYY-MM-DD`
 
 ## Lightweight server mode (recommended)
 

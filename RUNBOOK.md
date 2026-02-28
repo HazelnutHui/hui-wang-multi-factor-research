@@ -69,47 +69,6 @@ python scripts/run_segmented_factors.py --factors combo_v2 --years 2
 python scripts/run_walk_forward.py --factors combo_v2 --train-years 3 --test-years 1 --start-year 2010 --end-year 2026
 ```
 
-### 2.5b Combo final locked run (recommended)
-```bash
-# Layer2 fixed train/test
-python3 scripts/run_with_config.py --strategy configs/strategies/combo_v2_prod.yaml
-
-# Layer3 walk-forward (important: REBALANCE_MODE=None)
-python3 scripts/run_walk_forward.py \
-  --factors combo_v2 \
-  --train-years 3 --test-years 1 --start-year 2010 --end-year 2025 \
-  --set REBALANCE_MODE=None \
-  --set COMBO_FORMULA=linear \
-  --set SIGNAL_ZSCORE=True \
-  --set SIGNAL_RANK=False \
-  --set SIGNAL_WINSOR_PCT_LOW=0.01 \
-  --set SIGNAL_WINSOR_PCT_HIGH=0.99 \
-  --set SIGNAL_MISSING_POLICY=drop \
-  --set INDUSTRY_NEUTRAL=True \
-  --set INDUSTRY_MIN_GROUP=5 \
-  --set SIGNAL_NEUTRALIZE_SIZE=True \
-  --set SIGNAL_NEUTRALIZE_BETA=True \
-  --set MIN_MARKET_CAP=1000000000 \
-  --set MIN_DOLLAR_VOLUME=2000000 \
-  --set MIN_PRICE=5
-```
-
-### 2.6 Combo segmented weight-grid (corrected path)
-Important:
-- Use only corrected output path for weight selection:
-  - `segment_results/combo_weight_grid_2026_02_17_fix`
-- Do not use:
-  - `segment_results/combo_weight_grid_2026_02_17_p6` (invalid for final selection due to old hardcoded combo defaults in segmented runner)
-
-Current combo lock after formula comparison:
-- Formula: `linear`
-- Weights: `value=0.90`, `momentum=0.10`
-- Nonlinear candidates (`gated`, `two_stage`) were tested and did not beat linear under strict segmented constraints.
-- Layer2 fixed train/test (locked): `train_ic=0.080637`, `test_ic=0.053038`
-- Layer3 walk-forward (2013-2025, `REBALANCE_MODE=None`):
-  - `test_ic mean=0.057578`, `std=0.033470`, `pos_ratio=1.0000`, `n=13`
-  - `test_ic_overall mean=0.050814`, `std=0.032703`, `pos_ratio=1.0000`, `n=13`
-
 ### 2.7 Factor report generation
 ```bash
 python scripts/generate_factor_report.py --strategy configs/strategies/momentum_v1.yaml --quantiles 5 --rolling-window 60 --cost-multipliers 2,3
@@ -118,23 +77,6 @@ python scripts/generate_factor_report.py --strategy configs/strategies/momentum_
 ### 2.8 Tests
 ```bash
 python -m pytest tests
-```
-
-### 2.9 Strict segmented top3 (historical replay, 6-core)
-```bash
-chmod +x scripts/run_stage2_strict_top3_parallel.sh
-bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3
-```
-
-Note:
-- this is a historical strict-top3 profile retained for reproducibility.
-- for current factor discovery, use section `2.0` queue workflow.
-
-Resume-safe behavior:
-- Default mode skips already completed segments.
-- Force rerun all 27 tasks:
-```bash
-bash scripts/run_stage2_strict_top3_parallel.sh 6 segment_results/stage2_v2026_02_16b_top3 1
 ```
 
 ### 2.10 Post-WF production gates (must-pass before paper/live)
@@ -146,12 +88,6 @@ Includes:
 - walk-forward stress (cost + stricter universe)
 - post-hoc risk diagnostics (`scripts/posthoc_factor_diagnostics.py`)
 - pass/fail criteria for promotion
-
-Latest completed stress result (2026-02-17):
-- Profile: `COST_MULTIPLIER=1.5`, `MIN_MARKET_CAP=2e9`, `MIN_DOLLAR_VOLUME=5e6`
-- Output: `walk_forward_results/combo_v2_postwf_stress_x1_5_p6/combo_v2/walk_forward_summary.csv`
-- `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
-- `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
 
 ### 2.11 Daily research orchestration (current)
 Preferred entry:
@@ -179,16 +115,16 @@ Run ID convention:
 Daily evaluation from score snapshot and realized returns:
 ```bash
 python scripts/live_trading_eval.py \
-  --signals live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/scores_full_ranked.csv \
-  --signal-date 2026-02-17 \
-  --trade-date 2026-02-18 \
-  --realized-file live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/accuracy_check_2026-02-18_symbol_returns.csv
+  --signals live_trading/scores/trade_YYYY-MM-DD_from_signal_YYYY-MM-DD/scores_full_ranked.csv \
+  --signal-date YYYY-MM-DD \
+  --trade-date YYYY-MM-DD \
+  --realized-file live_trading/accuracy/trade_YYYY-MM-DD_from_signal_YYYY-MM-DD/accuracy_check_YYYY-MM-DD_symbol_returns.csv
 ```
 
 Generate bilingual daily readable reports (PDF):
 ```bash
 python scripts/generate_daily_live_report.py \
-  --run-id trade_2026-02-18_from_signal_2026-02-17
+  --run-id trade_YYYY-MM-DD_from_signal_YYYY-MM-DD
 ```
 
 Outputs:
@@ -201,14 +137,6 @@ Outputs:
 - Readable reports:
   - `live_trading/reports/daily/en/<run_id>/daily_report_en.pdf`
   - `live_trading/reports/daily/zh/<run_id>/daily_report_zh.pdf`
-
-First live-day archive (2026-02-18 trading):
-- Local:
-  - `live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
-  - `live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
-- Web-side:
-  - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/scores/trade_2026-02-18_from_signal_2026-02-17/`
-  - `/home/ubuntu/Hui/data/quant_score/v4/live_trading/accuracy/trade_2026-02-18_from_signal_2026-02-17/`
 
 ### 2.13 Governed unified entry + freeze (production-grade)
 Single entrypoint:

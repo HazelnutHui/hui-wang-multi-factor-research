@@ -119,10 +119,6 @@ Core metrics (production-style, daily):
 - Coverage (`n_matched / n_total`)
 - Decile return table
 
-Current first live day archive:
-- `run_id=trade_2026-02-18_from_signal_2026-02-17`
-- `signal_date=2026-02-17`, `trade_date=2026-02-18`
-
 ## Key Documents
 - `SESSION_CONTINUITY_PROTOCOL.md`: single-file handoff guide for new sessions (read this first)
 - `RUNBOOK.md`: practical command reference

@@ -21,8 +21,7 @@ Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batc
 ## 3) Gate Status Boundary
 - Official gate pass/fail must be read from latest gate artifacts, not command exit codes.
 - If workstation and local artifacts differ, local status is `pending_local_sync` until verified.
-- Current local gate snapshot reference:
-  - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
+- Current local reset state keeps no official gate artifact snapshot as SSOT.
 
 ## 4) Current Factor-Factory State (Post-Reset)
 - Reset declaration: `docs/production_research/RESET_STATE_2026-02-27.md`
@@ -38,7 +37,7 @@ Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batc
   - current official reference set: none (pre-run state)
   - queue config directory currently keeps only:
     - `configs/research/factory_queue/run_approval.json`
-  - this snapshot does not override official gate status; gate SSOT remains `CURRENT_GATE_STATUS_2026-02-23.md`
+  - no local official gate snapshot file is treated as SSOT in reset mode.
 
 ## 5) FMP Next100 Data Readiness (2026-02-27)
 - Plan note: `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`
@@ -56,7 +55,8 @@ Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batc
     - `data/fmp/statements/income-statement.jsonl` (`5372` symbols, `4688` non-empty payload)
     - `data/fmp/statements/income-statement-ttm.jsonl` (`5372` symbols, `4679` non-empty payload)
   - BatchA coverage conclusion:
-    - `25/25` logic families are data-ready for run
+    - current target is `batchA100_logic100_v1` (`100` distinct logic factors), data path is ready for this logic100 run
+    - parameter expansion is a later-stage step and is not part of current first-pass logic100 definition
     - `sue_revenue_basic` fallback to `earnings_history/earnings.jsonl` is wired in `backtest/factor_engine.py` and workstation-verified
 
 ## 6) Next Batch Status

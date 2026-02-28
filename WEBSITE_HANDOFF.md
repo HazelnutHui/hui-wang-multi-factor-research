@@ -8,7 +8,7 @@ Last updated: 2026-02-24
   - this document is for website implementation handoff only.
   - research/gate truth source must come from:
     - `STATUS.md`
-    - `docs/production_research/CURRENT_GATE_STATUS_2026-02-23.md`
+    - `docs/production_research/RESET_STATE_2026-02-27.md`
 - Current objective:
   - Keep existing visual style
   - Migrate old content to current V4 quant workflow
