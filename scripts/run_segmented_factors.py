@@ -225,88 +225,440 @@ FACTOR_SPECS = {
         "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
         "weights": {"owner_earnings_yield_proxy": 1.0},
     },
+    # P0 new logic signals (price/liquidity/risk)
+    "trend_tstat_126": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"trend_tstat_126": 1.0},
+    },
+    "high_52w_proximity": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"high_52w_proximity": 1.0},
+    },
+    "breakout_persistence": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"breakout_persistence": 1.0},
+    },
+    "pullback_in_uptrend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"pullback_in_uptrend": 1.0},
+    },
+    "momentum_crash_adjusted": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"momentum_crash_adjusted": 1.0},
+    },
+    "overnight_drift_63": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"overnight_drift_63": 1.0},
+    },
+    "gap_fill_propensity": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"gap_fill_propensity": 1.0},
+    },
+    "amihud_illiquidity_20": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"amihud_illiquidity_20": 1.0},
+    },
+    "amihud_improving": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"amihud_improving": 1.0},
+    },
+    "dollar_volume_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"dollar_volume_trend": 1.0},
+    },
+    "downside_vol_60": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"downside_vol_60": 1.0},
+    },
+    "left_tail_es5_126": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"left_tail_es5_126": 1.0},
+    },
+    "max_drawdown_126": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"max_drawdown_126": 1.0},
+    },
+    "low_beta_252": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"low_beta_252": 1.0},
+    },
+    "illiq_size_interaction": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"illiq_size_interaction": 1.0},
+    },
+    "liquidity_regime_score": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"liquidity_regime_score": 1.0},
+    },
+    "turnover_spike_decay": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"turnover_spike_decay": 1.0},
+    },
+    "crowding_turnover_x_inst": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"crowding_turnover_x_inst": 1.0},
+    },
+    "event_underreaction_low_own": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"event_underreaction_low_own": 1.0},
+    },
+    "event_underreaction_value_anchor": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"event_underreaction_value_anchor": 1.0},
+    },
+    "ownership_x_quality": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ownership_x_quality": 1.0},
+    },
+    "ownership_x_value": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ownership_x_value": 1.0},
+    },
+    "owner_earnings_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"owner_earnings_trend": 1.0},
+    },
+    "de_crowding_momentum": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"de_crowding_momentum": 1.0},
+    },
+    "earnings_yield_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"earnings_yield_ttm": 1.0},
+    },
+    "fcf_yield_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"fcf_yield_ttm": 1.0},
+    },
+    "ebitda_ev_yield": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ebitda_ev_yield": 1.0},
+    },
+    "value_composite_sector_neutral": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_composite_sector_neutral": 1.0},
+    },
+    "value_rerating_trend": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"value_rerating_trend": 1.0},
+    },
+    "roe_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"roe_ttm": 1.0},
+    },
+    "roa_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"roa_ttm": 1.0},
+    },
+    "gross_profitability_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"gross_profitability_proxy": 1.0},
+    },
+    "qmj_proxy_composite": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"qmj_proxy_composite": 1.0},
+    },
+    "sue_eps": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"sue_eps": 1.0},
+    },
+    "sue_revenue": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"sue_revenue": 1.0},
+    },
+    "pead_1_20": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"pead_1_20": 1.0},
+    },
+    "pead_21_60": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"pead_21_60": 1.0},
+    },
+    "earnings_gap_strength": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"earnings_gap_strength": 1.0},
+    },
+    "surprise_persistence": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"surprise_persistence": 1.0},
+    },
+    "beat_with_revenue_confirm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"beat_with_revenue_confirm": 1.0},
+    },
+    "institutional_ownership_delta": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"institutional_ownership_delta": 1.0},
+    },
+    "institutional_breadth_delta": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"institutional_breadth_delta": 1.0},
+    },
+    "owner_earnings_yield": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"owner_earnings_yield": 1.0},
+    },
+    "low_vol_60": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"low_vol_60": 1.0},
+    },
+    "turnover_shock_20_120": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"turnover_shock_20_120": 1.0},
+    },
+    "cfo_to_assets": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"cfo_to_assets": 1.0},
+    },
+    "gross_margin_level": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"gross_margin_level": 1.0},
+    },
+    "deleveraging_quality": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"deleveraging_quality": 1.0},
+    },
+    "residual_mom_12_1": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"residual_mom_12_1": 1.0},
+    },
+    "range_followthrough": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"range_followthrough": 1.0},
+    },
+    "st_reversal_liquidity_filtered": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"st_reversal_liquidity_filtered": 1.0},
+    },
+    "post_spike_cooldown": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"post_spike_cooldown": 1.0},
+    },
+    "overreaction_volume_adjusted": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"overreaction_volume_adjusted": 1.0},
+    },
+    "failed_breakout_reversal": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"failed_breakout_reversal": 1.0},
+    },
+    "compression_reversal": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"compression_reversal": 1.0},
+    },
+    "skew_reversal": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"skew_reversal": 1.0},
+    },
+    "three_red_days_rebound": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"three_red_days_rebound": 1.0},
+    },
+    "large_gap_reversal": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"large_gap_reversal": 1.0},
+    },
+    "flow_autocorr_20": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"flow_autocorr_20": 1.0},
+    },
+    "spread_proxy_stability": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"spread_proxy_stability": 1.0},
+    },
+    "vol_of_vol_126": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"vol_of_vol_126": 1.0},
+    },
+    "jump_risk_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"jump_risk_proxy": 1.0},
+    },
+    "trend_regime_switch": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"trend_regime_switch": 1.0},
+    },
+    "vol_regime_switch": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"vol_regime_switch": 1.0},
+    },
+    "liquidity_regime_switch": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"liquidity_regime_switch": 1.0},
+    },
+    "earnings_season_alpha": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"earnings_season_alpha": 1.0},
+    },
+    "state_weighted_meta_signal": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"state_weighted_meta_signal": 1.0},
+    },
+    "idio_mom_vs_sector": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"idio_mom_vs_sector": 1.0},
+    },
+    "extreme_reversal_ex_earnings": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"extreme_reversal_ex_earnings": 1.0},
+    },
+    "intraday_reversion_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"intraday_reversion_proxy": 1.0},
+    },
+    "idiosyncratic_vol_63": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"idiosyncratic_vol_63": 1.0},
+    },
+    "beta_instability_126": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"beta_instability_126": 1.0},
+    },
+    "downside_beta_crash": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"downside_beta_crash": 1.0},
+    },
+    "ocf_yield_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ocf_yield_ttm": 1.0},
+    },
+    "sales_ev_yield": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"sales_ev_yield": 1.0},
+    },
+    "book_to_market": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"book_to_market": 1.0},
+    },
+    "shareholder_yield": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"shareholder_yield": 1.0},
+    },
+    "net_payout_yield": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"net_payout_yield": 1.0},
+    },
+    "gross_profitability": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"gross_profitability": 1.0},
+    },
+    "roic_ttm": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"roic_ttm": 1.0},
+    },
+    "accruals_inverse": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"accruals_inverse": 1.0},
+    },
+    "margin_stability_12q": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"margin_stability_12q": 1.0},
+    },
+    "earnings_stability_12q": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"earnings_stability_12q": 1.0},
+    },
+    "interest_coverage": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"interest_coverage": 1.0},
+    },
+    "revenue_growth_quality_adj": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"revenue_growth_quality_adj": 1.0},
+    },
+    "eps_growth_quality_adj": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"eps_growth_quality_adj": 1.0},
+    },
+    "fcf_growth_persistence": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"fcf_growth_persistence": 1.0},
+    },
+    "asset_growth_anomaly_inv": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"asset_growth_anomaly_inv": 1.0},
+    },
+    "capex_discipline": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"capex_discipline": 1.0},
+    },
+    "nwc_change_inverse": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"nwc_change_inverse": 1.0},
+    },
+    "profitability_trend_4q": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"profitability_trend_4q": 1.0},
+    },
+    "margin_trend_4q": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"margin_trend_4q": 1.0},
+    },
+    "cash_conversion_improve": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"cash_conversion_improve": 1.0},
+    },
+    "investment_conservatism": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"investment_conservatism": 1.0},
+    },
+    "post_event_liquidity_gap": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"post_event_liquidity_gap": 1.0},
+    },
+    "ownership_acceleration": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ownership_acceleration": 1.0},
+    },
+    "crowded_value_trap_avoid": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"crowded_value_trap_avoid": 1.0},
+    },
+    "ownership_dispersion_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"ownership_dispersion_proxy": 1.0},
+    },
+    "risk_on_off_breadth": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"risk_on_off_breadth": 1.0},
+    },
+    "cross_section_dispersion_regime": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"cross_section_dispersion_regime": 1.0},
+    },
+    "correlation_regime_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"correlation_regime_proxy": 1.0},
+    },
+    "defensive_rotation_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"defensive_rotation_proxy": 1.0},
+    },
+    "smallcap_seasonality_proxy": {
+        "config_path": PROJECT_ROOT / "strategies" / "combo_v2" / "config.py",
+        "weights": {"smallcap_seasonality_proxy": 1.0},
+    },
 }
 
 
 def _register_logic100_specs() -> None:
-    """Register 100 formula-distinct logic specs (single + blended) for wide screening."""
+    """Register batchA100 logic100 specs from catalog SSOT."""
     combo_cfg = PROJECT_ROOT / "strategies" / "combo_v2" / "config.py"
-
-    # Atomic logic blocks (formula-level distinct definitions).
-    atoms: list[dict[str, object]] = [
-        {"name": "mom", "weights": {"momentum": 1.0}},
-        {"name": "rev", "weights": {"reversal": 1.0}},
-        {"name": "lv", "weights": {"low_vol": 1.0}},
-        {"name": "size", "weights": {"size": -1.0}},
-        {"name": "ts", "weights": {"turnover_shock": 1.0}},
-        {"name": "vr", "weights": {"vol_regime": 1.0}},
-        {"name": "qcomp_roe", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=roe"]},
-        {"name": "qcomp_roa", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=roa"]},
-        {"name": "qcomp_gm", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=gross_margin"]},
-        {"name": "qcomp_cfoa", "weights": {"quality_component": 1.0}, "set": ["QUALITY_COMPONENT_METRIC=cfo_to_assets"]},
-        {"name": "qcomp_de", "weights": {"quality_component": -1.0}, "set": ["QUALITY_COMPONENT_METRIC=debt_to_equity"]},
-        {"name": "vcomp_ey", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=earnings_yield"]},
-        {"name": "vcomp_fcfy", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=fcf_yield"]},
-        {"name": "vcomp_ev", "weights": {"value_component": 1.0}, "set": ["VALUE_COMPONENT_METRIC=ev_ebitda_yield"]},
-        {"name": "qt_roe", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=roe"]},
-        {"name": "qt_roa", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=roa"]},
-        {"name": "qt_gm", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=gross_margin"]},
-        {"name": "qt_cfoa", "weights": {"quality_metric_trend": 1.0}, "set": ["QUALITY_TREND_METRIC=cfo_to_assets"]},
-        {"name": "qt_de", "weights": {"quality_metric_trend": -1.0}, "set": ["QUALITY_TREND_METRIC=debt_to_equity"]},
-        {"name": "vt_ey", "weights": {"value_metric_trend": 1.0}, "set": ["VALUE_TREND_METRIC=earnings_yield"]},
-        {"name": "vt_fcfy", "weights": {"value_metric_trend": 1.0}, "set": ["VALUE_TREND_METRIC=fcf_yield"]},
-        {"name": "vq_blend", "weights": {"value_quality_blend": 1.0}},
-        {"name": "pml", "weights": {"profitability_minus_leverage": 1.0}},
-        {"name": "sue_eps", "weights": {"sue_eps_basic": 1.0}},
-        {"name": "sue_rev", "weights": {"sue_revenue_basic": 1.0}},
-        {"name": "pead_sw", "weights": {"pead_short_window": 1.0}},
-        {"name": "inst_own", "weights": {"institutional_ownership_change": 1.0}},
-        {"name": "inst_brd", "weights": {"institutional_breadth_change": 1.0}},
-        {"name": "owner_ey", "weights": {"owner_earnings_yield_proxy": 1.0}},
-    ]
-
-    specs: list[dict[str, object]] = []
-    specs.extend(atoms)
-
-    # Build blended logic blocks using equal-weight combinations of atom formulas.
-    pair_limit_pool = atoms[:20]
-    for i in range(len(pair_limit_pool)):
-        for j in range(i + 1, len(pair_limit_pool)):
-            a = pair_limit_pool[i]
-            b = pair_limit_pool[j]
-            w: dict[str, float] = {}
-            for k, v in a["weights"].items():
-                w[str(k)] = w.get(str(k), 0.0) + 0.5 * float(v)
-            for k, v in b["weights"].items():
-                w[str(k)] = w.get(str(k), 0.0) + 0.5 * float(v)
-            set_items = []
-            if isinstance(a.get("set"), list):
-                set_items.extend([str(x) for x in a["set"]])
-            if isinstance(b.get("set"), list):
-                set_items.extend([str(x) for x in b["set"]])
-            dedup_set = []
-            for s in set_items:
-                if s not in dedup_set:
-                    dedup_set.append(s)
-            specs.append(
-                {
-                    "name": f"blend_{a['name']}__{b['name']}",
-                    "weights": w,
-                    "set": dedup_set,
-                }
-            )
-            if len(specs) >= 100:
-                break
-        if len(specs) >= 100:
-            break
-
-    specs = specs[:100]
-    for idx, spec in enumerate(specs, start=1):
-        key = f"logic100_{idx:03d}"
+    catalog_path = PROJECT_ROOT / "configs" / "research" / "logic100_catalog_batchA100_v1.json"
+    if not catalog_path.exists():
+        raise FileNotFoundError(f"logic100 catalog not found: {catalog_path}")
+    payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    entries = payload.get("entries") or []
+    if len(entries) != 100:
+        raise ValueError(f"logic100 catalog must contain 100 entries, got {len(entries)}")
+    for item in entries:
+        key = str(item.get("candidate_id", "")).strip()
+        if not key.startswith("logic100_"):
+            raise ValueError(f"invalid logic100 candidate_id: {key}")
         FACTOR_SPECS[key] = {
             "config_path": combo_cfg,
-            "weights": dict(spec["weights"]),
-            "set": list(spec.get("set", [])),
+            "weights": dict(item.get("weights") or {}),
+            "set": list(item.get("set") or []),
         }
 
 
@@ -798,6 +1150,39 @@ def main():
             check_non_negative_int(f"{prefix}.PEAD_LAG_DAYS", getattr(cfg, "PEAD_LAG_DAYS", 0), guard_errors)
             check_non_negative_int(f"{prefix}.QUALITY_LAG_DAYS", getattr(cfg, "QUALITY_LAG_DAYS", 0), guard_errors)
             check_non_negative_int(f"{prefix}.VALUE_LAG_DAYS", getattr(cfg, "VALUE_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.TREND_TSTAT_LAG_DAYS", getattr(cfg, "TREND_TSTAT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.HIGH_52W_LAG_DAYS", getattr(cfg, "HIGH_52W_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.BREAKOUT_LAG_DAYS", getattr(cfg, "BREAKOUT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.PULLBACK_LAG_DAYS", getattr(cfg, "PULLBACK_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.MOM_CRASH_ADJ_LAG_DAYS", getattr(cfg, "MOM_CRASH_ADJ_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.OVERNIGHT_DRIFT_LAG_DAYS", getattr(cfg, "OVERNIGHT_DRIFT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.GAP_FILL_LAG_DAYS", getattr(cfg, "GAP_FILL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.AMIHUD_LAG_DAYS", getattr(cfg, "AMIHUD_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.DOLLAR_VOL_TREND_LAG_DAYS", getattr(cfg, "DOLLAR_VOL_TREND_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.DOWNSIDE_VOL_LAG_DAYS", getattr(cfg, "DOWNSIDE_VOL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.LEFT_TAIL_LAG_DAYS", getattr(cfg, "LEFT_TAIL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.MAX_DRAWDOWN_LAG_DAYS", getattr(cfg, "MAX_DRAWDOWN_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.LOW_BETA_LAG_DAYS", getattr(cfg, "LOW_BETA_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.ILLIQ_SIZE_LAG_DAYS", getattr(cfg, "ILLIQ_SIZE_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.LIQ_REGIME_LAG_DAYS", getattr(cfg, "LIQ_REGIME_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.TURNOVER_SPIKE_LAG_DAYS", getattr(cfg, "TURNOVER_SPIKE_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.CROWDING_LAG_DAYS", getattr(cfg, "CROWDING_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.EVENT_UNDERREACTION_LAG_DAYS", getattr(cfg, "EVENT_UNDERREACTION_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.OWNERSHIP_INTERACT_LAG_DAYS", getattr(cfg, "OWNERSHIP_INTERACT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.DE_CROWDING_LAG_DAYS", getattr(cfg, "DE_CROWDING_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.RANGE_FOLLOW_LAG_DAYS", getattr(cfg, "RANGE_FOLLOW_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.POST_SPIKE_LAG_DAYS", getattr(cfg, "POST_SPIKE_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.OVERREACT_LAG_DAYS", getattr(cfg, "OVERREACT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.FAILED_BREAKOUT_LAG_DAYS", getattr(cfg, "FAILED_BREAKOUT_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.COMPRESSION_LAG_DAYS", getattr(cfg, "COMPRESSION_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.SKEW_REV_LAG_DAYS", getattr(cfg, "SKEW_REV_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.THREE_RED_LAG_DAYS", getattr(cfg, "THREE_RED_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.LARGE_GAP_LAG_DAYS", getattr(cfg, "LARGE_GAP_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.FLOW_AUTOCORR_LAG_DAYS", getattr(cfg, "FLOW_AUTOCORR_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.SPREAD_STAB_LAG_DAYS", getattr(cfg, "SPREAD_STAB_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.VOL_OF_VOL_LAG_DAYS", getattr(cfg, "VOL_OF_VOL_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.JUMP_RISK_LAG_DAYS", getattr(cfg, "JUMP_RISK_LAG_DAYS", 0), guard_errors)
+            check_non_negative_int(f"{prefix}.REGIME_LAG_DAYS", getattr(cfg, "REGIME_LAG_DAYS", 0), guard_errors)
 
             if "quality" in active:
                 q_dir = getattr(cfg, "FUNDAMENTALS_DIR", str(PROJECT_ROOT / "data" / "fmp" / "ratios" / "quality"))

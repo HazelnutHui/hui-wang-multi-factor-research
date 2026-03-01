@@ -1,6 +1,6 @@
 # Session Bootstrap
 
-Last updated: 2026-02-27 (reset mode)
+Last updated: 2026-02-28 (formal logic100 runtime sync)
 
 ## Required Read Chain
 1. `README.md`
@@ -14,7 +14,7 @@ Last updated: 2026-02-27 (reset mode)
 9. `docs/production_research/OPS_PLAYBOOK.md`
 
 ## Required Assertions
-- No active factor batch process.
+- Active factor batch process state on workstation is known (running/finished).
 - No legacy baseline/result snapshot is used for decision-making.
-- `batchA100_logic100_v1` is the first official post-reset batch.
+- `batchA100_logic100_formal_v1` is the first official post-reset batch.
 - Run approval is required before execution.

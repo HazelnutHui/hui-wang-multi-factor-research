@@ -1,11 +1,18 @@
 # Documentation Index
 
-Last updated: 2026-02-27 (reset mode)
+Last updated: 2026-02-28 (formal logic100 runtime sync)
 
 ## Current Source of Truth
 - `docs/production_research/RESET_STATE_2026-02-27.md`
 - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
 - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
+- `docs/production_research/BATCHA100_LOGIC100_FORMAL_V1_2026-02-28.md`
+- `docs/production_research/BATCHA100_LOGIC100_FORMAL_V1_2026-02-28.csv`
+- `docs/production_research/BATCHA100_GATE_REPORT_2026-02-28.md`
+- `docs/production_research/BATCHA100_PHASE1_RUNNABLE10_2026-02-28.csv`
+- `docs/production_research/BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.md`
+- `docs/production_research/BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.csv`
+- `docs/production_research/BATCHA100_FMP_DOWNLOAD_REQUIREMENTS_2026-02-28.md`
 - `STATUS.md`
 - `RUNBOOK.md`
 - `SESSION_CONTINUITY_PROTOCOL.md`
@@ -23,6 +30,12 @@ Last updated: 2026-02-27 (reset mode)
 - `docs/production_research/FMP_NEXT100_DATA_PLAN_2026-02-26.md`
 - `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`
 
+## Planned Next Batch (Design-Only)
+- `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.md`
+- `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.csv`
+- `docs/production_research/BATCHB100_FMP_DOWNLOAD_REQUIREMENTS_2026-03-01.md`
+
 ## Notes
 - Pre-reset result snapshots and legacy baseline docs were removed.
-- First official batch is `batchA100_logic100_v1` and is not started yet.
+- First official batch is `batchA100_logic100_formal_v1`.
+- Current status: running on workstation (`2026-02-28_095939_batchA100_logic100_formal_v1`).

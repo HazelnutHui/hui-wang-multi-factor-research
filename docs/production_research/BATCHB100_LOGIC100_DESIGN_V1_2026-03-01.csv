@@ -1,0 +1,101 @@
+logic_id,logic_name,family,core_formula,primary_data,fmp_source,priority,engine_fit,dedup_vs_batchA
+B001,autocorr_reversal_5,microstructure,"-autocorr(ret1,5)",ohlcv,price_history,P0,requires_signal_impl,new short-memory mean reversion
+B002,close_location_value,microstructure,"(close-low)/(high-low)",ohlcv,price_history,P1,requires_signal_impl,not in BatchA
+B003,true_range_expansion,microstructure,"z(tr/atr20)",ohlcv,price_history,P1,requires_signal_impl,distinct volatility-shock feature
+B004,volume_clock_imbalance,microstructure,"z(vol_today/vol_20)-z(abs(ret1))",ohlcv+volume,price_history,P1,requires_signal_impl,new flow-time proxy
+B005,price_acceleration_20,microstructure,"ret20-ret60/3",ohlcv,price_history,P0,requires_signal_impl,new acceleration logic
+B006,return_entropy_inverse,microstructure,"-entropy(sign(ret1),63)",ohlcv,price_history,P2,requires_signal_impl,new path-complexity logic
+B007,high_low_asymmetry,microstructure,"(high-close)-(close-low)",ohlcv,price_history,P1,requires_signal_impl,new intraday pressure proxy
+B008,trend_efficiency_ratio,microstructure,"abs(close_t-close_t-20)/sum(abs(diff(close)),20)",ohlcv,price_history,P1,requires_signal_impl,new trend quality metric
+B009,vol_breakout_follow,microstructure,"ret1*I(vol_z20>2)",ohlcv+volume,price_history,P0,requires_signal_impl,diff from post_spike_cooldown sign/conditioning
+B010,liquidity_hole_rebound,microstructure,"-ret1*I(dollar_vol<q20)",ohlcv+volume,price_history,P1,requires_signal_impl,new capacity-state reversal
+B011,overnight_gap_persistence,overnight,"sum(gap,5)",ohlcv,price_history,P1,requires_signal_impl,different from 63d overnight drift horizon
+B012,overnight_intraday_spread,overnight,"sum(overnight)-sum(intraday),20",ohlcv,price_history,P1,requires_signal_impl,new decomposition logic
+B013,monday_overnight_anomaly,overnight,"avg(gap_monday,52w)",ohlcv+calendar,price_history,P2,requires_signal_impl,new calendar-overnight logic
+B014,pre_holiday_drift,overnight,"ret_pre_holiday_mean",ohlcv+calendar,price_history,P2,requires_signal_impl,new calendar effect
+B015,open_auction_stress_proxy,overnight,"abs(open-prev_close)/atr20",ohlcv,price_history,P1,requires_signal_impl,new auction stress
+B016,close_to_open_reversal,overnight,"-gap_t*I(sign(gap_t)=sign(gap_t-1))",ohlcv,price_history,P1,requires_signal_impl,new conditional reversal
+B017,overnight_tail_balance,overnight,"q95(gap,63)+q05(gap,63)",ohlcv,price_history,P2,requires_signal_impl,new asymmetry state
+B018,overnight_seasonality_month,overnight,"mean(gap, month_bucket)",ohlcv+calendar,price_history,P2,requires_signal_impl,new seasonality lens
+B019,open_drive_breakout,overnight,"I(gap>q90 and close>open)",ohlcv,price_history,P1,requires_signal_impl,new continuation event
+B020,gap_fill_speed_proxy,overnight,"-(close-open)/abs(open-prev_close)",ohlcv,price_history,P1,requires_signal_impl,distinct from gap zscore
+B021,amihud_term_structure,liquidity,"amihud20/amihud120",ohlcv+volume,price_history,P0,requires_signal_impl,new liquidity curve
+B022,dollar_volume_convexity,liquidity,"d2(log(adv20),5)",ohlcv+volume,price_history,P1,requires_signal_impl,new higher-order flow
+B023,turnover_residual_vs_sector,liquidity,"turnover_z - sector_turnover_z",ohlcv+volume+sector,price_history+company_profiles,P1,requires_signal_impl,new sector-neutral flow
+B024,liquidity_drawdown,liquidity,"-max_drawdown(dollar_vol,126)",ohlcv+volume,price_history,P1,requires_signal_impl,new liquidity risk
+B025,volume_dispersion_crosssec,liquidity,"z(cross_section_std(volume_rank))",ohlcv+volume,price_history,P2,requires_signal_impl,new market-state feature
+B026,turnover_beta_to_market,liquidity,"beta(turnover,market_turnover,252)",ohlcv+volume,price_history,P1,requires_signal_impl,new flow beta
+B027,volume_skewness_63,liquidity,"skew(volume,63)",ohlcv+volume,price_history,P2,requires_signal_impl,new volume-shape factor
+B028,flow_reversal_after_extreme,liquidity,"-ret3*I(turnover_shock>q90)",ohlcv+volume,price_history,P0,requires_signal_impl,conditional reversal not in A
+B029,illiquidity_jump_count,liquidity,"count(amihud>q95,126)",ohlcv+volume,price_history,P1,requires_signal_impl,new jump-frequency lens
+B030,bidask_proxy_trend,liquidity,"slope((high-low)/close,63)",ohlcv,price_history,P1,requires_signal_impl,trend variant not in A
+B031,beta_down_up_spread,risk,"beta_downside-beta_upside",ohlcv+benchmark,price_history,P0,requires_signal_impl,new asymmetric beta
+B032,tail_ratio_95_5,risk,"abs(q95(ret))/abs(q05(ret))",ohlcv,price_history,P1,requires_signal_impl,new tail-balance metric
+B033,realized_skew_change,risk,"delta(skew63,21)",ohlcv,price_history,P1,requires_signal_impl,new skew dynamics
+B034,realized_kurt_change,risk,"delta(kurt63,21)",ohlcv,price_history,P1,requires_signal_impl,new kurtosis dynamics
+B035,vol_regime_persistence,risk,"I(vol20>vol120) streak_len",ohlcv,price_history,P1,requires_signal_impl,state persistence
+B036,drawup_drawdown_ratio,risk,"max_drawup126/abs(max_drawdown126)",ohlcv,price_history,P1,requires_signal_impl,new asymmetry reward-risk
+B037,downside_semibeta_market,risk,"cov(ret,market|market<0)/var(market|market<0)",ohlcv+benchmark,price_history,P0,requires_signal_impl,more formal semibeta
+B038,upside_capture_ratio,risk,"mean(ret|mkt>0)/mean(mkt|mkt>0)",ohlcv+benchmark,price_history,P1,requires_signal_impl,new capture profile
+B039,tail_dependence_proxy,risk,"corr(ret,market|tails)",ohlcv+benchmark,price_history,P1,requires_signal_impl,new crisis co-move lens
+B040,idio_tail_risk,risk,"ES5(residual_ret,126)",ohlcv+benchmark,price_history,P0,requires_signal_impl,new residual tail metric
+B041,ev_ebit_reversion,value,"z(ev_ebit)-z(ma4q(ev_ebit))",statements+ev,income_statement_ttm+enterprise_values,P1,requires_signal_impl,new rerating dynamic
+B042,fcf_margin_yield_combo,value,"z(fcf/revenue)+z(fcf/market_cap)",cashflow+income+mcap,cash_flow_statement_ttm+income_statement_ttm+market_cap_history,P0,requires_signal_impl,new hybrid value quality
+B043,sales_to_price_growth_adj,value,"(revenue/market_cap)/asset_growth",income+mcap+balance,income_statement_ttm+market_cap_history+balance_sheet_statement_ttm,P1,requires_signal_impl,new anti-overinvestment value
+B044,tangible_cash_value,value,"(cash+short_term_investments)/market_cap",balance+mcap,balance_sheet_statement_ttm+market_cap_history,P1,requires_signal_impl,new balance-sheet value
+B045,net_net_proxy,value,"(current_assets-total_liabilities)/market_cap",balance+mcap,balance_sheet_statement_ttm+market_cap_history,P2,requires_signal_impl,new deep value class
+B046,gross_profit_to_ev,value,"gross_profit_ttm/enterprise_value",income+ev,income_statement_ttm+enterprise_values,P0,requires_signal_impl,distinct from ebitda/sales yield
+B047,book_yield_trend,value,"delta(book_to_market,4q)",balance+mcap,balance_sheet_statement_ttm+market_cap_history,P1,requires_signal_impl,value trend not in A
+B048,payout_stability_score,value,"-std(net_payout_yield,8q)",cashflow+mcap,cash_flow_statement_ttm+market_cap_history,P2,requires_signal_impl,new stability variant
+B049,value_gap_vs_sector,value,"value_z-sector_value_z",ratios+sector,ratios/value+company_profiles,P0,requires_signal_impl,sector relative value gap
+B050,cheap_with_low_crowding,value,"value_z-crowding_z",ratios+ownership+turnover,ratios/value+institutional_holders+price_history,P0,requires_signal_impl,different weighting from crowded_value_trap_avoid
+B051,roa_acceleration,quality,"delta(roa,2q)-delta(roa,6q)",income+balance,income_statement_ttm+balance_sheet_statement_ttm,P1,requires_signal_impl,new second-derivative quality
+B052,gross_margin_acceleration,quality,"delta(gross_margin,2q)-delta(gross_margin,6q)",income,income_statement_ttm,P1,requires_signal_impl,new margin acceleration
+B053,cash_conversion_cycle_inverse,quality,"-(DSO+DIO-DPO)",statements,financial_statements,P1,requires_signal_impl,new working-capital efficiency
+B054,operating_leverage_proxy,quality,"delta(op_income)/delta(revenue)",income,income_statement_ttm,P1,requires_signal_impl,new operating leverage
+B055,quality_of_earnings_ratio,quality,"ocf_ttm/net_income_ttm",cashflow+income,cash_flow_statement_ttm+income_statement_ttm,P0,requires_signal_impl,related but explicit QoE ratio
+B056,asset_turnover_change,quality,"delta(revenue/assets,4q)",income+balance,income_statement_ttm+balance_sheet_statement_ttm,P1,requires_signal_impl,new efficiency trend
+B057,debt_service_safety,quality,"ocf_ttm/(interest+debt_maturity_proxy)",cashflow+income+balance,cash_flow_statement_ttm+income_statement_ttm+balance_sheet_statement_ttm,P2,requires_signal_impl,new solvency proxy
+B058,tax_efficiency_stability,quality,"-std(effective_tax_rate,12q)",income,income_statement,P2,requires_signal_impl,new quality stability
+B059,share_dilution_penalty,quality,"-delta(weighted_avg_shares,4q)",income,income_statement_ttm,P0,requires_signal_impl,new dilution control
+B060,qmj_debiased_value,quality,"qmj_proxy - beta*value_z",quality+value+beta,ratios/quality+ratios/value+price_history,P1,requires_signal_impl,new orthogonalized quality
+B061,revenue_revision_1m,event_expectation,"delta(consensus_revenue_est,1m)",analyst_estimates,data/fmp/research_only/analyst,P0,requires_signal_impl,new estimate revision class
+B062,eps_revision_1m,event_expectation,"delta(consensus_eps_est,1m)",analyst_estimates,data/fmp/research_only/analyst,P0,requires_signal_impl,new estimate revision class
+B063,target_price_revision,event_expectation,"delta(target_price_consensus,1m)",analyst_targets,data/fmp/research_only/analyst,P1,requires_signal_impl,new target-based predictor
+B064,revision_dispersion_compression,event_expectation,"-delta(std(estimates),1m)",analyst_estimates,data/fmp/research_only/analyst,P1,requires_signal_impl,new disagreement channel
+B065,estimate_momentum,event_expectation,"sum(revision_sign,3m)",analyst_estimates,data/fmp/research_only/analyst,P1,requires_signal_impl,new revision momentum
+B066,post_surprise_revision_follow,event_expectation,"sue_eps*eps_revision_1m",earnings+analyst,earnings_surprises+data/fmp/research_only/analyst,P0,requires_signal_impl,new chained event logic
+B067,guidance_gap_proxy,event_expectation,"actual_eps-next_q_est",earnings+analyst,earnings_surprises+data/fmp/research_only/analyst,P1,requires_signal_impl,new guidance proxy
+B068,analyst_breadth_change,event_expectation,"delta(n_analysts,1q)",analyst_estimates,data/fmp/research_only/analyst,P1,requires_signal_impl,new attention breadth
+B069,revision_x_quality,event_expectation,"eps_revision_1m*quality_z",analyst+quality,data/fmp/research_only/analyst+ratios/quality,P0,requires_signal_impl,new cross-block interaction
+B070,revision_x_value,event_expectation,"eps_revision_1m*value_z",analyst+value,data/fmp/research_only/analyst+ratios/value,P0,requires_signal_impl,new cross-block interaction
+B071,inst_ownership_concentration,ownership,"top_holders_share",institutional_holders,institutional_holders,P1,requires_signal_impl,new concentration factor
+B072,inst_concentration_change,ownership,"delta(top_holders_share,1q)",institutional_holders,institutional_holders,P1,requires_signal_impl,new change signal
+B073,holder_churn_rate,ownership,"(new_holders+exited_holders)/total_holders",institutional_holders,institutional_holders,P1,requires_signal_impl,new churn signal
+B074,ownership_momentum_3q,ownership,"sum(delta(inst_own),3q)",institutional_holders,institutional_holders,P0,requires_signal_impl,medium-horizon ownership trend
+B075,crowding_fragility,ownership,"ownership_concentration*turnover_shock",institutional+ohlcv,institutional_holders+price_history,P0,requires_signal_impl,new fragility interaction
+B076,ownership_liquidity_buffer,ownership,"inst_own_pct/amihud",institutional+ohlcv,institutional_holders+price_history,P1,requires_signal_impl,new capacity proxy
+B077,owner_earnings_surprise,ownership,"owner_earnings_yield-delta(owner_earnings_yield,4q)",owner_earnings+mcap,owner_earnings+market_cap_history,P1,requires_signal_impl,new owner earnings dynamic
+B078,insider_net_buying_rate,ownership,"(insider_buy-insider_sell)/float",insider_trading,data/fmp/research_only/insider,P1,requires_signal_impl,new insider channel
+B079,insider_cluster_buy_signal,ownership,"I(clustered_insider_buys)",insider_trading,data/fmp/research_only/insider,P2,requires_signal_impl,new event ownership
+B080,ownership_dispersion_change,ownership,"-delta(holder_weight_std,1q)",institutional_holders,institutional_holders,P2,requires_signal_impl,new dispersion dynamic
+B081,macro_beta_growth_sensitivity,regime_macro,"beta(stock,macro_growth_proxy)",price+macro,data/fmp/research_only/macro+price_history,P1,requires_signal_impl,new macro-linked exposure
+B082,real_rate_sensitivity_proxy,regime_macro,"corr(ret,real_rate_change)",price+macro,data/fmp/research_only/macro+price_history,P1,requires_signal_impl,new rates regime
+B083,inflation_pass_through_proxy,regime_macro,"margin_change/cpi_change",income+macro,income_statement+data/fmp/research_only/macro,P2,requires_signal_impl,new inflation robustness
+B084,usd_sensitivity_proxy,regime_macro,"corr(ret,usd_index)",price+macro,data/fmp/research_only/macro+price_history,P1,requires_signal_impl,new FX regime
+B085,credit_spread_sensitivity,regime_macro,"corr(ret,credit_spread_change)",price+macro,data/fmp/research_only/macro+price_history,P1,requires_signal_impl,new credit regime
+B086,vix_proxy_sensitivity,regime_macro,"beta(ret,vix_proxy)",price,index_price,price_history,P0,requires_signal_impl,new volatility regime exposure
+B087,regime_conditioned_value,regime_macro,"value_z*I(risk_off)",value+regime,ratios/value+price_history,P0,requires_signal_impl,new conditional deployment
+B088,regime_conditioned_momentum,regime_macro,"momentum_z*I(risk_on)",price+regime,price_history,P0,requires_signal_impl,new conditional deployment
+B089,cross_asset_corr_state,regime_macro,"market_corr_to_bonds/commodities proxy",price+macro,data/fmp/research_only/macro+price_history,P2,requires_signal_impl,new cross-asset state
+B090,state_transition_prob_proxy,regime_macro,"P(risk_on->risk_off)",market_state_series,price_history,P2,requires_signal_impl,new Markov-style state feature
+B091,multi_horizon_momentum_spread,meta,"mom_12_1-mom_3_1",ohlcv,price_history,P0,requires_signal_impl,new horizon spread logic
+B092,multi_horizon_reversal_spread,meta,"rev_2d-rev_10d",ohlcv,price_history,P0,requires_signal_impl,new horizon spread logic
+B093,quality_minus_growth_hot,meta,"quality_z-growth_hot_z",quality+growth,ratios/quality+income_statement_ttm,P1,requires_signal_impl,new style rotation
+B094,value_minus_junk_safety,meta,"value_z-junk_safety_z",value+quality,ratios/value+ratios/quality,P1,requires_signal_impl,new style spread
+B095,event_flow_alignment,meta,"sue_eps*turnover_shock_sign",earnings+flow,earnings_surprises+price_history,P1,requires_signal_impl,new event-flow alignment
+B096,flow_trend_disagreement,meta,"sign(momentum)-sign(flow_autocorr)",price+flow,price_history,P1,requires_signal_impl,new disagreement alpha
+B097,risk_adjusted_value_momentum,meta,"value_z+mom_z-volatile_z",value+price+risk,ratios/value+price_history,P1,requires_signal_impl,new tri-block but mechanism-specific
+B098,adaptive_signal_strength,meta,"signal/rolling_noise",multi_source,multi_source,P2,requires_signal_impl,new SNR gating
+B099,cross_section_herding_penalty,meta,"raw_alpha - lambda*market_herding",price+ownership,price_history+institutional_holders,P1,requires_signal_impl,new anti-crowding control
+B100,meta_rank_orthogonalized,meta,"rank(alpha1)+rank(alpha2)+rank(alpha3) after orthogonalization",multi_source,multi_source,P2,requires_signal_impl,new orthogonalized ensemble logic

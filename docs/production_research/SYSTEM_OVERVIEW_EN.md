@@ -1,6 +1,6 @@
 # V4 Quant Research System White Paper (English)
 
-Last updated: 2026-02-27
+Last updated: 2026-02-28
 
 ## 0. Document Positioning
 
@@ -14,11 +14,12 @@ Primary goals:
 
 This is a technical system description, not a strategy marketing note.
 
-Current operational snapshot (2026-02-27):
+Current operational snapshot (2026-02-28):
 - pre-reset historical result status: retired (not considered formal for current decisions)
-- active workstation batch: none
-- next prepared batch: `batchA100_logic100_v1` (100 distinct logic candidates; one candidate per logic)
-  - status: `ready_for_review` (not started)
+- active workstation batch: `batchA100_logic100_formal_v1`
+  - run id: `2026-02-28_095939_batchA100_logic100_formal_v1`
+  - status: `running`
+- formal logic coverage in runtime mapping: `100/100`
 - governance boundary:
   - new future queue/batch launches still require manual approval
   - approval gate file: `configs/research/factory_queue/run_approval.json`

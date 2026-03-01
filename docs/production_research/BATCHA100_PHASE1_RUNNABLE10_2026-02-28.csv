@@ -1,0 +1,11 @@
+logic_id,logic_name,runtime_factor_key,weights,set,reason
+L023,turnover_shock_20_120,turnover_shock,"{\"turnover_shock\":1.0}",[],native factor supported
+L031,low_vol_60,low_vol_v2,"{\"low_vol\":1.0}",[],native factor supported
+L049,value_composite_sector_neutral,value_v2,"{\"value\":1.0}",[],native factor supported
+L053,cfo_to_assets,quality_cfoa_cross,"{\"quality_component\":1.0}","[\"QUALITY_COMPONENT_METRIC=cfo_to_assets\"]",supported via quality_component metric
+L055,gross_margin_level,quality_gm_cross,"{\"quality_component\":1.0}","[\"QUALITY_COMPONENT_METRIC=gross_margin\"]",supported via quality_component metric
+L058,deleveraging_quality,deleveraging_trend,"{\"quality_metric_trend\":-1.0}","[\"QUALITY_TREND_METRIC=debt_to_equity\"]",supported via quality_metric_trend metric
+L071,sue_eps,sue_eps_basic,"{\"sue_eps_basic\":1.0}",[],native factor supported
+L073,pead_1_20,pead_short_window,"{\"pead_short_window\":1.0}",[],native factor supported
+L081,institutional_ownership_delta,institutional_ownership_change,"{\"institutional_ownership_change\":1.0}",[],native factor supported
+L084,owner_earnings_yield,owner_earnings_yield_proxy,"{\"owner_earnings_yield_proxy\":1.0}",[],native factor supported

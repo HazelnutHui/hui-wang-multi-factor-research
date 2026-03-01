@@ -1,0 +1,1473 @@
+{
+  "batch_id": "batchA100_logic100_v1",
+  "generated_at": "2026-02-28",
+  "count": 100,
+  "entries": [
+    {
+      "candidate_id": "logic100_001",
+      "family": "logic100_001",
+      "name": "mom",
+      "category": "price",
+      "logic_formula": "+1.00*momentum",
+      "weights": {
+        "momentum": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_002",
+      "family": "logic100_002",
+      "name": "rev",
+      "category": "price",
+      "logic_formula": "+1.00*reversal",
+      "weights": {
+        "reversal": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_003",
+      "family": "logic100_003",
+      "name": "lowvol",
+      "category": "risk",
+      "logic_formula": "+1.00*low_vol",
+      "weights": {
+        "low_vol": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_004",
+      "family": "logic100_004",
+      "name": "size_inv",
+      "category": "size",
+      "logic_formula": "-1.00*size",
+      "weights": {
+        "size": -1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_005",
+      "family": "logic100_005",
+      "name": "beta_inv",
+      "category": "risk",
+      "logic_formula": "-1.00*beta",
+      "weights": {
+        "beta": -1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_006",
+      "family": "logic100_006",
+      "name": "turnover",
+      "category": "liquidity",
+      "logic_formula": "+1.00*turnover_shock",
+      "weights": {
+        "turnover_shock": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_007",
+      "family": "logic100_007",
+      "name": "volreg",
+      "category": "risk",
+      "logic_formula": "+1.00*vol_regime",
+      "weights": {
+        "vol_regime": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_008",
+      "family": "logic100_008",
+      "name": "quality",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality",
+      "weights": {
+        "quality": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_009",
+      "family": "logic100_009",
+      "name": "value",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value",
+      "weights": {
+        "value": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_010",
+      "family": "logic100_010",
+      "name": "pead",
+      "category": "event",
+      "logic_formula": "+1.00*pead",
+      "weights": {
+        "pead": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_011",
+      "family": "logic100_011",
+      "name": "qcomp_roe",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_component",
+      "weights": {
+        "quality_component": 1.0
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_012",
+      "family": "logic100_012",
+      "name": "qcomp_roa",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_component",
+      "weights": {
+        "quality_component": 1.0
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_013",
+      "family": "logic100_013",
+      "name": "qcomp_gm",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_component",
+      "weights": {
+        "quality_component": 1.0
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_014",
+      "family": "logic100_014",
+      "name": "qcomp_cfoa",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_component",
+      "weights": {
+        "quality_component": 1.0
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=cfo_to_assets"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_015",
+      "family": "logic100_015",
+      "name": "qcomp_de_inv",
+      "category": "fundamental",
+      "logic_formula": "-1.00*quality_component",
+      "weights": {
+        "quality_component": -1.0
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=debt_to_equity"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_016",
+      "family": "logic100_016",
+      "name": "vcomp_ey",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_component",
+      "weights": {
+        "value_component": 1.0
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=earnings_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_017",
+      "family": "logic100_017",
+      "name": "vcomp_fcfy",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_component",
+      "weights": {
+        "value_component": 1.0
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=fcf_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_018",
+      "family": "logic100_018",
+      "name": "vcomp_ev",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_component",
+      "weights": {
+        "value_component": 1.0
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=ev_ebitda_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_019",
+      "family": "logic100_019",
+      "name": "vq_blend",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_quality_blend",
+      "weights": {
+        "value_quality_blend": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_020",
+      "family": "logic100_020",
+      "name": "pml",
+      "category": "fundamental",
+      "logic_formula": "+1.00*profitability_minus_leverage",
+      "weights": {
+        "profitability_minus_leverage": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_021",
+      "family": "logic100_021",
+      "name": "qtrend_roe",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_metric_trend",
+      "weights": {
+        "quality_metric_trend": 1.0
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_022",
+      "family": "logic100_022",
+      "name": "qtrend_roa",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_metric_trend",
+      "weights": {
+        "quality_metric_trend": 1.0
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_023",
+      "family": "logic100_023",
+      "name": "qtrend_gm",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_metric_trend",
+      "weights": {
+        "quality_metric_trend": 1.0
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_024",
+      "family": "logic100_024",
+      "name": "qtrend_cfoa",
+      "category": "fundamental",
+      "logic_formula": "+1.00*quality_metric_trend",
+      "weights": {
+        "quality_metric_trend": 1.0
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=cfo_to_assets"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_025",
+      "family": "logic100_025",
+      "name": "qtrend_de_inv",
+      "category": "fundamental",
+      "logic_formula": "-1.00*quality_metric_trend",
+      "weights": {
+        "quality_metric_trend": -1.0
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=debt_to_equity"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_026",
+      "family": "logic100_026",
+      "name": "vtrend_ey",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_metric_trend",
+      "weights": {
+        "value_metric_trend": 1.0
+      },
+      "set": [
+        "VALUE_TREND_METRIC=earnings_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_027",
+      "family": "logic100_027",
+      "name": "vtrend_fcfy",
+      "category": "fundamental",
+      "logic_formula": "+1.00*value_metric_trend",
+      "weights": {
+        "value_metric_trend": 1.0
+      },
+      "set": [
+        "VALUE_TREND_METRIC=fcf_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_028",
+      "family": "logic100_028",
+      "name": "sue_eps",
+      "category": "event",
+      "logic_formula": "+1.00*sue_eps_basic",
+      "weights": {
+        "sue_eps_basic": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_029",
+      "family": "logic100_029",
+      "name": "sue_rev",
+      "category": "event",
+      "logic_formula": "+1.00*sue_revenue_basic",
+      "weights": {
+        "sue_revenue_basic": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_030",
+      "family": "logic100_030",
+      "name": "pead_sw",
+      "category": "event",
+      "logic_formula": "+1.00*pead_short_window",
+      "weights": {
+        "pead_short_window": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_031",
+      "family": "logic100_031",
+      "name": "inst_own",
+      "category": "ownership",
+      "logic_formula": "+1.00*institutional_ownership_change",
+      "weights": {
+        "institutional_ownership_change": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_032",
+      "family": "logic100_032",
+      "name": "inst_breadth",
+      "category": "ownership",
+      "logic_formula": "+1.00*institutional_breadth_change",
+      "weights": {
+        "institutional_breadth_change": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_033",
+      "family": "logic100_033",
+      "name": "owner_ey",
+      "category": "ownership",
+      "logic_formula": "+1.00*owner_earnings_yield_proxy",
+      "weights": {
+        "owner_earnings_yield_proxy": 1.0
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_034",
+      "family": "logic100_034",
+      "name": "pair_mom__lowvol",
+      "category": "price+risk",
+      "logic_formula": "+0.50*low_vol +0.50*momentum",
+      "weights": {
+        "momentum": 0.5,
+        "low_vol": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_035",
+      "family": "logic100_035",
+      "name": "pair_mom__size_inv",
+      "category": "price+size",
+      "logic_formula": "+0.50*momentum -0.50*size",
+      "weights": {
+        "momentum": 0.5,
+        "size": -0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_036",
+      "family": "logic100_036",
+      "name": "pair_mom__beta_inv",
+      "category": "price+risk",
+      "logic_formula": "-0.50*beta +0.50*momentum",
+      "weights": {
+        "momentum": 0.5,
+        "beta": -0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_037",
+      "family": "logic100_037",
+      "name": "pair_mom__turnover",
+      "category": "price+liquidity",
+      "logic_formula": "+0.50*momentum +0.50*turnover_shock",
+      "weights": {
+        "momentum": 0.5,
+        "turnover_shock": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_038",
+      "family": "logic100_038",
+      "name": "pair_mom__volreg",
+      "category": "price+risk",
+      "logic_formula": "+0.50*momentum +0.50*vol_regime",
+      "weights": {
+        "momentum": 0.5,
+        "vol_regime": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_039",
+      "family": "logic100_039",
+      "name": "pair_mom__quality",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality",
+      "weights": {
+        "momentum": 0.5,
+        "quality": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_040",
+      "family": "logic100_040",
+      "name": "pair_mom__value",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value",
+      "weights": {
+        "momentum": 0.5,
+        "value": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_041",
+      "family": "logic100_041",
+      "name": "pair_mom__pead",
+      "category": "price+event",
+      "logic_formula": "+0.50*momentum +0.50*pead",
+      "weights": {
+        "momentum": 0.5,
+        "pead": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_042",
+      "family": "logic100_042",
+      "name": "pair_mom__qcomp_roe",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_component",
+      "weights": {
+        "momentum": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_043",
+      "family": "logic100_043",
+      "name": "pair_mom__qcomp_roa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_component",
+      "weights": {
+        "momentum": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_044",
+      "family": "logic100_044",
+      "name": "pair_mom__qcomp_gm",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_component",
+      "weights": {
+        "momentum": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_045",
+      "family": "logic100_045",
+      "name": "pair_mom__qcomp_cfoa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_component",
+      "weights": {
+        "momentum": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=cfo_to_assets"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_046",
+      "family": "logic100_046",
+      "name": "pair_mom__qcomp_de_inv",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum -0.50*quality_component",
+      "weights": {
+        "momentum": 0.5,
+        "quality_component": -0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=debt_to_equity"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_047",
+      "family": "logic100_047",
+      "name": "pair_mom__vcomp_ey",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_component",
+      "weights": {
+        "momentum": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=earnings_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_048",
+      "family": "logic100_048",
+      "name": "pair_mom__vcomp_fcfy",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_component",
+      "weights": {
+        "momentum": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=fcf_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_049",
+      "family": "logic100_049",
+      "name": "pair_mom__vcomp_ev",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_component",
+      "weights": {
+        "momentum": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=ev_ebitda_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_050",
+      "family": "logic100_050",
+      "name": "pair_mom__vq_blend",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_quality_blend",
+      "weights": {
+        "momentum": 0.5,
+        "value_quality_blend": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_051",
+      "family": "logic100_051",
+      "name": "pair_mom__pml",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*profitability_minus_leverage",
+      "weights": {
+        "momentum": 0.5,
+        "profitability_minus_leverage": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_052",
+      "family": "logic100_052",
+      "name": "pair_mom__qtrend_roe",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_053",
+      "family": "logic100_053",
+      "name": "pair_mom__qtrend_roa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_054",
+      "family": "logic100_054",
+      "name": "pair_mom__qtrend_gm",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_055",
+      "family": "logic100_055",
+      "name": "pair_mom__qtrend_cfoa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*quality_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=cfo_to_assets"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_056",
+      "family": "logic100_056",
+      "name": "pair_mom__qtrend_de_inv",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum -0.50*quality_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "quality_metric_trend": -0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=debt_to_equity"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_057",
+      "family": "logic100_057",
+      "name": "pair_mom__vtrend_ey",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "value_metric_trend": 0.5
+      },
+      "set": [
+        "VALUE_TREND_METRIC=earnings_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_058",
+      "family": "logic100_058",
+      "name": "pair_mom__vtrend_fcfy",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*momentum +0.50*value_metric_trend",
+      "weights": {
+        "momentum": 0.5,
+        "value_metric_trend": 0.5
+      },
+      "set": [
+        "VALUE_TREND_METRIC=fcf_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_059",
+      "family": "logic100_059",
+      "name": "pair_mom__sue_eps",
+      "category": "price+event",
+      "logic_formula": "+0.50*momentum +0.50*sue_eps_basic",
+      "weights": {
+        "momentum": 0.5,
+        "sue_eps_basic": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_060",
+      "family": "logic100_060",
+      "name": "pair_mom__sue_rev",
+      "category": "price+event",
+      "logic_formula": "+0.50*momentum +0.50*sue_revenue_basic",
+      "weights": {
+        "momentum": 0.5,
+        "sue_revenue_basic": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_061",
+      "family": "logic100_061",
+      "name": "pair_mom__pead_sw",
+      "category": "price+event",
+      "logic_formula": "+0.50*momentum +0.50*pead_short_window",
+      "weights": {
+        "momentum": 0.5,
+        "pead_short_window": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_062",
+      "family": "logic100_062",
+      "name": "pair_mom__inst_own",
+      "category": "price+ownership",
+      "logic_formula": "+0.50*institutional_ownership_change +0.50*momentum",
+      "weights": {
+        "momentum": 0.5,
+        "institutional_ownership_change": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_063",
+      "family": "logic100_063",
+      "name": "pair_mom__inst_breadth",
+      "category": "price+ownership",
+      "logic_formula": "+0.50*institutional_breadth_change +0.50*momentum",
+      "weights": {
+        "momentum": 0.5,
+        "institutional_breadth_change": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_064",
+      "family": "logic100_064",
+      "name": "pair_mom__owner_ey",
+      "category": "price+ownership",
+      "logic_formula": "+0.50*momentum +0.50*owner_earnings_yield_proxy",
+      "weights": {
+        "momentum": 0.5,
+        "owner_earnings_yield_proxy": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_065",
+      "family": "logic100_065",
+      "name": "pair_rev__lowvol",
+      "category": "price+risk",
+      "logic_formula": "+0.50*low_vol +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "low_vol": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_066",
+      "family": "logic100_066",
+      "name": "pair_rev__size_inv",
+      "category": "price+size",
+      "logic_formula": "+0.50*reversal -0.50*size",
+      "weights": {
+        "reversal": 0.5,
+        "size": -0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_067",
+      "family": "logic100_067",
+      "name": "pair_rev__beta_inv",
+      "category": "price+risk",
+      "logic_formula": "-0.50*beta +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "beta": -0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_068",
+      "family": "logic100_068",
+      "name": "pair_rev__turnover",
+      "category": "price+liquidity",
+      "logic_formula": "+0.50*reversal +0.50*turnover_shock",
+      "weights": {
+        "reversal": 0.5,
+        "turnover_shock": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_069",
+      "family": "logic100_069",
+      "name": "pair_rev__volreg",
+      "category": "price+risk",
+      "logic_formula": "+0.50*reversal +0.50*vol_regime",
+      "weights": {
+        "reversal": 0.5,
+        "vol_regime": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_070",
+      "family": "logic100_070",
+      "name": "pair_rev__quality",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_071",
+      "family": "logic100_071",
+      "name": "pair_rev__value",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*reversal +0.50*value",
+      "weights": {
+        "reversal": 0.5,
+        "value": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_072",
+      "family": "logic100_072",
+      "name": "pair_rev__pead",
+      "category": "price+event",
+      "logic_formula": "+0.50*pead +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "pead": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_073",
+      "family": "logic100_073",
+      "name": "pair_rev__qcomp_roe",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_component +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_074",
+      "family": "logic100_074",
+      "name": "pair_rev__qcomp_roa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_component +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_075",
+      "family": "logic100_075",
+      "name": "pair_rev__qcomp_gm",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_component +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_076",
+      "family": "logic100_076",
+      "name": "pair_rev__qcomp_cfoa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_component +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_component": 0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=cfo_to_assets"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_077",
+      "family": "logic100_077",
+      "name": "pair_rev__qcomp_de_inv",
+      "category": "price+fundamental",
+      "logic_formula": "-0.50*quality_component +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_component": -0.5
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=debt_to_equity"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_078",
+      "family": "logic100_078",
+      "name": "pair_rev__vcomp_ey",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*reversal +0.50*value_component",
+      "weights": {
+        "reversal": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=earnings_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_079",
+      "family": "logic100_079",
+      "name": "pair_rev__vcomp_fcfy",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*reversal +0.50*value_component",
+      "weights": {
+        "reversal": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=fcf_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_080",
+      "family": "logic100_080",
+      "name": "pair_rev__vcomp_ev",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*reversal +0.50*value_component",
+      "weights": {
+        "reversal": 0.5,
+        "value_component": 0.5
+      },
+      "set": [
+        "VALUE_COMPONENT_METRIC=ev_ebitda_yield"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_081",
+      "family": "logic100_081",
+      "name": "pair_rev__vq_blend",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*reversal +0.50*value_quality_blend",
+      "weights": {
+        "reversal": 0.5,
+        "value_quality_blend": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_082",
+      "family": "logic100_082",
+      "name": "pair_rev__pml",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*profitability_minus_leverage +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "profitability_minus_leverage": 0.5
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_083",
+      "family": "logic100_083",
+      "name": "pair_rev__qtrend_roe",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_metric_trend +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_084",
+      "family": "logic100_084",
+      "name": "pair_rev__qtrend_roa",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_metric_trend +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=roa"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_085",
+      "family": "logic100_085",
+      "name": "pair_rev__qtrend_gm",
+      "category": "price+fundamental",
+      "logic_formula": "+0.50*quality_metric_trend +0.50*reversal",
+      "weights": {
+        "reversal": 0.5,
+        "quality_metric_trend": 0.5
+      },
+      "set": [
+        "QUALITY_TREND_METRIC=gross_margin"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_086",
+      "family": "logic100_086",
+      "name": "tri_mom__quality__pead",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*pead +0.33*quality",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "pead": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_087",
+      "family": "logic100_087",
+      "name": "tri_mom__quality__sue_eps",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*quality +0.33*sue_eps_basic",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "sue_eps_basic": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_088",
+      "family": "logic100_088",
+      "name": "tri_mom__quality__sue_rev",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*quality +0.33*sue_revenue_basic",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "sue_revenue_basic": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_089",
+      "family": "logic100_089",
+      "name": "tri_mom__quality__pead_sw",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*pead_short_window +0.33*quality",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "pead_short_window": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_090",
+      "family": "logic100_090",
+      "name": "tri_mom__quality__inst_own",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*institutional_ownership_change +0.33*momentum +0.33*quality",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "institutional_ownership_change": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_091",
+      "family": "logic100_091",
+      "name": "tri_mom__quality__inst_breadth",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*institutional_breadth_change +0.33*momentum +0.33*quality",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "institutional_breadth_change": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_092",
+      "family": "logic100_092",
+      "name": "tri_mom__quality__owner_ey",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*momentum +0.33*owner_earnings_yield_proxy +0.33*quality",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality": 0.3333333333333333,
+        "owner_earnings_yield_proxy": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_093",
+      "family": "logic100_093",
+      "name": "tri_mom__value__pead",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*pead +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "pead": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_094",
+      "family": "logic100_094",
+      "name": "tri_mom__value__sue_eps",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*sue_eps_basic +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "sue_eps_basic": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_095",
+      "family": "logic100_095",
+      "name": "tri_mom__value__sue_rev",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*sue_revenue_basic +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "sue_revenue_basic": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_096",
+      "family": "logic100_096",
+      "name": "tri_mom__value__pead_sw",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*pead_short_window +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "pead_short_window": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_097",
+      "family": "logic100_097",
+      "name": "tri_mom__value__inst_own",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*institutional_ownership_change +0.33*momentum +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "institutional_ownership_change": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_098",
+      "family": "logic100_098",
+      "name": "tri_mom__value__inst_breadth",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*institutional_breadth_change +0.33*momentum +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "institutional_breadth_change": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_099",
+      "family": "logic100_099",
+      "name": "tri_mom__value__owner_ey",
+      "category": "price+fundamental+ownership",
+      "logic_formula": "+0.33*momentum +0.33*owner_earnings_yield_proxy +0.33*value",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "value": 0.3333333333333333,
+        "owner_earnings_yield_proxy": 0.3333333333333333
+      },
+      "set": [],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    },
+    {
+      "candidate_id": "logic100_100",
+      "family": "logic100_100",
+      "name": "tri_mom__qcomp_roe__pead",
+      "category": "price+fundamental+event",
+      "logic_formula": "+0.33*momentum +0.33*pead +0.33*quality_component",
+      "weights": {
+        "momentum": 0.3333333333333333,
+        "quality_component": 0.3333333333333333,
+        "pead": 0.3333333333333333
+      },
+      "set": [
+        "QUALITY_COMPONENT_METRIC=roe"
+      ],
+      "result_status": "not_run",
+      "note": "logic100 distinct formula candidate"
+    }
+  ]
+}

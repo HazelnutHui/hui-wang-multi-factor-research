@@ -1,0 +1,615 @@
+{
+  "batch_name": "batchA100_logic100_formal_v1",
+  "mode": "grid",
+  "years": 2,
+  "default_set": [
+    "MARKET_CAP_DIR=data/fmp/market_cap_history",
+    "MARKET_CAP_STRICT=True",
+    "REBALANCE_FREQ=5",
+    "HOLDING_PERIOD=3",
+    "REBALANCE_MODE=None",
+    "EXECUTION_USE_TRADING_DAYS=True"
+  ],
+  "families": [
+    {
+      "name": "trend_tstat_126",
+      "factor": "trend_tstat_126",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "residual_mom_12_1",
+      "factor": "residual_mom_12_1",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "idio_mom_vs_sector",
+      "factor": "idio_mom_vs_sector",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "high_52w_proximity",
+      "factor": "high_52w_proximity",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "breakout_persistence",
+      "factor": "breakout_persistence",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "pullback_in_uptrend",
+      "factor": "pullback_in_uptrend",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "momentum_crash_adjusted",
+      "factor": "momentum_crash_adjusted",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "overnight_drift_63",
+      "factor": "overnight_drift_63",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "gap_fill_propensity",
+      "factor": "gap_fill_propensity",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "range_followthrough",
+      "factor": "range_followthrough",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "st_reversal_liquidity_filtered",
+      "factor": "st_reversal_liquidity_filtered",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "extreme_reversal_ex_earnings",
+      "factor": "extreme_reversal_ex_earnings",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "intraday_reversion_proxy",
+      "factor": "intraday_reversion_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "post_spike_cooldown",
+      "factor": "post_spike_cooldown",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "overreaction_volume_adjusted",
+      "factor": "overreaction_volume_adjusted",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "failed_breakout_reversal",
+      "factor": "failed_breakout_reversal",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "compression_reversal",
+      "factor": "compression_reversal",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "skew_reversal",
+      "factor": "skew_reversal",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "three_red_days_rebound",
+      "factor": "three_red_days_rebound",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "large_gap_reversal",
+      "factor": "large_gap_reversal",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "amihud_illiquidity_20",
+      "factor": "amihud_illiquidity_20",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "amihud_improving",
+      "factor": "amihud_improving",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "turnover_shock_20_120",
+      "factor": "turnover_shock_20_120",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "turnover_spike_decay",
+      "factor": "turnover_spike_decay",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "dollar_volume_trend",
+      "factor": "dollar_volume_trend",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "illiq_size_interaction",
+      "factor": "illiq_size_interaction",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "flow_autocorr_20",
+      "factor": "flow_autocorr_20",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "crowding_turnover_x_inst",
+      "factor": "crowding_turnover_x_inst",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "liquidity_regime_score",
+      "factor": "liquidity_regime_score",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "spread_proxy_stability",
+      "factor": "spread_proxy_stability",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "low_vol_60",
+      "factor": "low_vol_60",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "downside_vol_60",
+      "factor": "downside_vol_60",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "idiosyncratic_vol_63",
+      "factor": "idiosyncratic_vol_63",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "low_beta_252",
+      "factor": "low_beta_252",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "beta_instability_126",
+      "factor": "beta_instability_126",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "left_tail_es5_126",
+      "factor": "left_tail_es5_126",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "max_drawdown_126",
+      "factor": "max_drawdown_126",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "vol_of_vol_126",
+      "factor": "vol_of_vol_126",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "downside_beta_crash",
+      "factor": "downside_beta_crash",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "jump_risk_proxy",
+      "factor": "jump_risk_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "earnings_yield_ttm",
+      "factor": "earnings_yield_ttm",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "fcf_yield_ttm",
+      "factor": "fcf_yield_ttm",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ocf_yield_ttm",
+      "factor": "ocf_yield_ttm",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ebitda_ev_yield",
+      "factor": "ebitda_ev_yield",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "sales_ev_yield",
+      "factor": "sales_ev_yield",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "book_to_market",
+      "factor": "book_to_market",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "shareholder_yield",
+      "factor": "shareholder_yield",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "net_payout_yield",
+      "factor": "net_payout_yield",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "value_composite_sector_neutral",
+      "factor": "value_composite_sector_neutral",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "value_rerating_trend",
+      "factor": "value_rerating_trend",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "gross_profitability",
+      "factor": "gross_profitability",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "roic_ttm",
+      "factor": "roic_ttm",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "cfo_to_assets",
+      "factor": "cfo_to_assets",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "accruals_inverse",
+      "factor": "accruals_inverse",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "gross_margin_level",
+      "factor": "gross_margin_level",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "margin_stability_12q",
+      "factor": "margin_stability_12q",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "earnings_stability_12q",
+      "factor": "earnings_stability_12q",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "deleveraging_quality",
+      "factor": "deleveraging_quality",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "interest_coverage",
+      "factor": "interest_coverage",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "qmj_proxy_composite",
+      "factor": "qmj_proxy_composite",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "revenue_growth_quality_adj",
+      "factor": "revenue_growth_quality_adj",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "eps_growth_quality_adj",
+      "factor": "eps_growth_quality_adj",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "fcf_growth_persistence",
+      "factor": "fcf_growth_persistence",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "asset_growth_anomaly_inv",
+      "factor": "asset_growth_anomaly_inv",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "capex_discipline",
+      "factor": "capex_discipline",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "nwc_change_inverse",
+      "factor": "nwc_change_inverse",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "profitability_trend_4q",
+      "factor": "profitability_trend_4q",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "margin_trend_4q",
+      "factor": "margin_trend_4q",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "cash_conversion_improve",
+      "factor": "cash_conversion_improve",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "investment_conservatism",
+      "factor": "investment_conservatism",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "sue_eps",
+      "factor": "sue_eps",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "sue_revenue",
+      "factor": "sue_revenue",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "pead_1_20",
+      "factor": "pead_1_20",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "pead_21_60",
+      "factor": "pead_21_60",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "earnings_gap_strength",
+      "factor": "earnings_gap_strength",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "surprise_persistence",
+      "factor": "surprise_persistence",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "beat_with_revenue_confirm",
+      "factor": "beat_with_revenue_confirm",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "post_event_liquidity_gap",
+      "factor": "post_event_liquidity_gap",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "event_underreaction_low_own",
+      "factor": "event_underreaction_low_own",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "event_underreaction_value_anchor",
+      "factor": "event_underreaction_value_anchor",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "institutional_ownership_delta",
+      "factor": "institutional_ownership_delta",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "institutional_breadth_delta",
+      "factor": "institutional_breadth_delta",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ownership_acceleration",
+      "factor": "ownership_acceleration",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "owner_earnings_yield",
+      "factor": "owner_earnings_yield",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "owner_earnings_trend",
+      "factor": "owner_earnings_trend",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "crowded_value_trap_avoid",
+      "factor": "crowded_value_trap_avoid",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "de_crowding_momentum",
+      "factor": "de_crowding_momentum",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ownership_x_quality",
+      "factor": "ownership_x_quality",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ownership_x_value",
+      "factor": "ownership_x_value",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "ownership_dispersion_proxy",
+      "factor": "ownership_dispersion_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "trend_regime_switch",
+      "factor": "trend_regime_switch",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "vol_regime_switch",
+      "factor": "vol_regime_switch",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "liquidity_regime_switch",
+      "factor": "liquidity_regime_switch",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "risk_on_off_breadth",
+      "factor": "risk_on_off_breadth",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "cross_section_dispersion_regime",
+      "factor": "cross_section_dispersion_regime",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "correlation_regime_proxy",
+      "factor": "correlation_regime_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "defensive_rotation_proxy",
+      "factor": "defensive_rotation_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "smallcap_seasonality_proxy",
+      "factor": "smallcap_seasonality_proxy",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "earnings_season_alpha",
+      "factor": "earnings_season_alpha",
+      "max_candidates": 1,
+      "grid": {}
+    },
+    {
+      "name": "state_weighted_meta_signal",
+      "factor": "state_weighted_meta_signal",
+      "max_candidates": 1,
+      "grid": {}
+    }
+  ]
+}

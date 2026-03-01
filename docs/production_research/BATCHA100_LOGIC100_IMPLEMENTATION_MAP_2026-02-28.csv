@@ -1,0 +1,101 @@
+logic_id,logic_name,family,priority,engine_fit_formal,impl_mode_now,impl_note
+L001,trend_tstat_126,price_trend,P0,requires_signal_impl,native,
+L002,residual_mom_12_1,price_trend,P0,requires_signal_impl,native,
+L003,idio_mom_vs_sector,price_trend,P1,requires_signal_impl,proxy,fallback proxy due to current field scope
+L004,high_52w_proximity,price_trend,P0,requires_signal_impl,native,
+L005,breakout_persistence,price_trend,P0,requires_signal_impl,proxy,fallback proxy due to current field scope
+L006,pullback_in_uptrend,price_trend,P0,requires_signal_impl,native,
+L007,momentum_crash_adjusted,price_trend,P0,requires_signal_impl,native,
+L008,overnight_drift_63,price_trend,P0,requires_signal_impl,native,
+L009,gap_fill_propensity,price_trend,P1,requires_signal_impl,native,
+L010,range_followthrough,price_trend,P1,requires_signal_impl,native,
+L011,st_reversal_liquidity_filtered,reversal,P0,requires_signal_impl,native,
+L012,extreme_reversal_ex_earnings,reversal,P0,requires_signal_impl,native,
+L013,intraday_reversion_proxy,reversal,P1,requires_signal_impl,native,
+L014,post_spike_cooldown,reversal,P0,requires_signal_impl,native,
+L015,overreaction_volume_adjusted,reversal,P1,requires_signal_impl,native,
+L016,failed_breakout_reversal,reversal,P1,requires_signal_impl,native,
+L017,compression_reversal,reversal,P1,requires_signal_impl,native,
+L018,skew_reversal,reversal,P1,requires_signal_impl,native,
+L019,three_red_days_rebound,reversal,P2,requires_signal_impl,native,
+L020,large_gap_reversal,reversal,P1,requires_signal_impl,native,
+L021,amihud_illiquidity_20,liquidity,P0,requires_signal_impl,native,
+L022,amihud_improving,liquidity,P0,requires_signal_impl,native,
+L023,turnover_shock_20_120,liquidity,P0,runnable_now,alias_proxy,light wrapper
+L024,turnover_spike_decay,liquidity,P1,requires_signal_impl,native,
+L025,dollar_volume_trend,liquidity,P1,requires_signal_impl,native,
+L026,illiq_size_interaction,liquidity,P0,requires_signal_impl,native,
+L027,flow_autocorr_20,liquidity,P1,requires_signal_impl,native,
+L028,crowding_turnover_x_inst,liquidity,P0,requires_signal_impl,native,
+L029,liquidity_regime_score,liquidity,P0,requires_signal_impl,native,
+L030,spread_proxy_stability,liquidity,P1,requires_signal_impl,native,
+L031,low_vol_60,risk,P0,runnable_now,alias_proxy,light wrapper
+L032,downside_vol_60,risk,P0,requires_signal_impl,native,
+L033,idiosyncratic_vol_63,risk,P0,requires_signal_impl,native,
+L034,low_beta_252,risk,P0,requires_signal_impl,native,
+L035,beta_instability_126,risk,P1,requires_signal_impl,native,
+L036,left_tail_es5_126,risk,P0,requires_signal_impl,native,
+L037,max_drawdown_126,risk,P0,requires_signal_impl,native,
+L038,vol_of_vol_126,risk,P1,requires_signal_impl,native,
+L039,downside_beta_crash,risk,P1,requires_signal_impl,native,
+L040,jump_risk_proxy,risk,P1,requires_signal_impl,native,
+L041,earnings_yield_ttm,value,P0,requires_signal_impl,native,
+L042,fcf_yield_ttm,value,P0,requires_signal_impl,native,
+L043,ocf_yield_ttm,value,P0,requires_signal_impl,proxy,fallback proxy due to current field scope
+L044,ebitda_ev_yield,value,P0,requires_signal_impl,native,
+L045,sales_ev_yield,value,P1,requires_signal_impl,proxy,fallback proxy due to current field scope
+L046,book_to_market,value,P0,requires_signal_impl,proxy,fallback proxy due to current field scope
+L047,shareholder_yield,value,P1,requires_signal_impl,alias_proxy,light wrapper
+L048,net_payout_yield,value,P1,requires_signal_impl,alias_proxy,light wrapper
+L049,value_composite_sector_neutral,value,P0,runnable_now,alias_proxy,light wrapper
+L050,value_rerating_trend,value,P0,requires_signal_impl,native,
+L051,gross_profitability,quality,P0,requires_signal_impl,alias_proxy,light wrapper
+L052,roic_ttm,quality,P1,requires_signal_impl,native,
+L053,cfo_to_assets,quality,P0,runnable_now,native,
+L054,accruals_inverse,quality,P0,requires_signal_impl,native,
+L055,gross_margin_level,quality,P0,runnable_now,native,
+L056,margin_stability_12q,quality,P1,requires_signal_impl,native,
+L057,earnings_stability_12q,quality,P1,requires_signal_impl,native,
+L058,deleveraging_quality,quality,P0,runnable_now,native,
+L059,interest_coverage,quality,P1,requires_signal_impl,native,
+L060,qmj_proxy_composite,quality,P0,requires_signal_impl,native,
+L061,revenue_growth_quality_adj,growth,P0,requires_signal_impl,native,
+L062,eps_growth_quality_adj,growth,P0,requires_signal_impl,alias_proxy,light wrapper
+L063,fcf_growth_persistence,growth,P1,requires_signal_impl,native,
+L064,asset_growth_anomaly_inv,growth,P0,requires_signal_impl,alias_proxy,light wrapper
+L065,capex_discipline,growth,P1,requires_signal_impl,alias_proxy,light wrapper
+L066,nwc_change_inverse,growth,P1,requires_signal_impl,alias_proxy,light wrapper
+L067,profitability_trend_4q,growth,P0,requires_signal_impl,native,
+L068,margin_trend_4q,growth,P0,requires_signal_impl,native,
+L069,cash_conversion_improve,growth,P1,requires_signal_impl,native,
+L070,investment_conservatism,growth,P1,requires_signal_impl,alias_proxy,light wrapper
+L071,sue_eps,event,P0,runnable_now,alias_proxy,light wrapper
+L072,sue_revenue,event,P0,requires_signal_impl,alias_proxy,light wrapper
+L073,pead_1_20,event,P0,runnable_now,alias_proxy,light wrapper
+L074,pead_21_60,event,P1,requires_signal_impl,proxy,fallback proxy due to current field scope
+L075,earnings_gap_strength,event,P0,requires_signal_impl,native,
+L076,surprise_persistence,event,P1,requires_signal_impl,native,
+L077,beat_with_revenue_confirm,event,P0,requires_signal_impl,native,
+L078,post_event_liquidity_gap,event,P1,requires_signal_impl,native,
+L079,event_underreaction_low_own,event,P0,requires_signal_impl,native,
+L080,event_underreaction_value_anchor,event,P0,requires_signal_impl,native,
+L081,institutional_ownership_delta,ownership,P0,runnable_now,alias_proxy,light wrapper
+L082,institutional_breadth_delta,ownership,P0,requires_signal_impl,alias_proxy,light wrapper
+L083,ownership_acceleration,ownership,P1,requires_signal_impl,native,
+L084,owner_earnings_yield,ownership,P0,runnable_now,alias_proxy,light wrapper
+L085,owner_earnings_trend,ownership,P1,requires_signal_impl,native,
+L086,crowded_value_trap_avoid,ownership,P0,requires_signal_impl,native,
+L087,de_crowding_momentum,ownership,P1,requires_signal_impl,native,
+L088,ownership_x_quality,ownership,P0,requires_signal_impl,native,
+L089,ownership_x_value,ownership,P0,requires_signal_impl,native,
+L090,ownership_dispersion_proxy,ownership,P2,requires_signal_impl,native,
+L091,trend_regime_switch,regime,P0,requires_signal_impl,native,
+L092,vol_regime_switch,regime,P1,requires_signal_impl,native,
+L093,liquidity_regime_switch,regime,P1,requires_signal_impl,native,
+L094,risk_on_off_breadth,regime,P1,requires_signal_impl,proxy,fallback proxy due to current field scope
+L095,cross_section_dispersion_regime,regime,P1,requires_signal_impl,alias_proxy,light wrapper
+L096,correlation_regime_proxy,regime,P1,requires_signal_impl,native,
+L097,defensive_rotation_proxy,regime,P1,requires_signal_impl,native,
+L098,smallcap_seasonality_proxy,regime,P2,requires_signal_impl,native,
+L099,earnings_season_alpha,regime,P1,requires_signal_impl,native,
+L100,state_weighted_meta_signal,regime,P2,requires_signal_impl,native,

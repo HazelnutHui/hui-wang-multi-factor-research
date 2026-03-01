@@ -1,0 +1,18 @@
+{
+  "batch_id": "batchA100_logic100_v1_phase1_runnable10",
+  "generated_at": "2026-02-28",
+  "count": 10,
+  "source_formal": "docs/production_research/BATCHA100_LOGIC100_FORMAL_V1_2026-02-28.csv",
+  "entries": [
+    {"logic_id":"L023","logic_name":"turnover_shock_20_120","runtime_factor_key":"turnover_shock"},
+    {"logic_id":"L031","logic_name":"low_vol_60","runtime_factor_key":"low_vol_v2"},
+    {"logic_id":"L049","logic_name":"value_composite_sector_neutral","runtime_factor_key":"value_v2"},
+    {"logic_id":"L053","logic_name":"cfo_to_assets","runtime_factor_key":"quality_cfoa_cross"},
+    {"logic_id":"L055","logic_name":"gross_margin_level","runtime_factor_key":"quality_gm_cross"},
+    {"logic_id":"L058","logic_name":"deleveraging_quality","runtime_factor_key":"deleveraging_trend"},
+    {"logic_id":"L071","logic_name":"sue_eps","runtime_factor_key":"sue_eps_basic"},
+    {"logic_id":"L073","logic_name":"pead_1_20","runtime_factor_key":"pead_short_window"},
+    {"logic_id":"L081","logic_name":"institutional_ownership_delta","runtime_factor_key":"institutional_ownership_change"},
+    {"logic_id":"L084","logic_name":"owner_earnings_yield","runtime_factor_key":"owner_earnings_yield_proxy"}
+  ]
+}

@@ -1,0 +1,101 @@
+logic_id,logic_name,family,core_formula,primary_data,fmp_source,priority,engine_fit
+L001,trend_tstat_126,price_trend,"tstat(slope(log(close),126))",ohlcv,price_history,P0,requires_signal_impl
+L002,residual_mom_12_1,price_trend,"residual_return(252,21,vs=SPY)",ohlcv+benchmark,price_history,P0,requires_signal_impl
+L003,idio_mom_vs_sector,price_trend,"residual_return(vs_sector_etf,126,21)",ohlcv+sector_map,price_history+profiles,P1,requires_signal_impl
+L004,high_52w_proximity,price_trend,"close/rolling_max(close,252)",ohlcv,price_history,P0,requires_signal_impl
+L005,breakout_persistence,price_trend,"(close-max252)/atr20",ohlcv,price_history,P0,requires_signal_impl
+L006,pullback_in_uptrend,price_trend,"z((close-ma20)/ma20) within ma50>ma200",ohlcv,price_history,P0,requires_signal_impl
+L007,momentum_crash_adjusted,price_trend,"mom_12_1*(1-tail_risk_21)",ohlcv,price_history,P0,requires_signal_impl
+L008,overnight_drift_63,price_trend,"sum(log(open_t/close_t-1),63)",ohlcv,price_history,P0,requires_signal_impl
+L009,gap_fill_propensity,price_trend,"-z(gap/open_to_prev_close,20)",ohlcv,price_history,P1,requires_signal_impl
+L010,range_followthrough,price_trend,"z((high-low)/close,20)*sign(ret5)",ohlcv,price_history,P1,requires_signal_impl
+L011,st_reversal_liquidity_filtered,reversal,"-sum(ret1,5)*I(adv20>threshold)",ohlcv+volume,price_history,P0,requires_signal_impl
+L012,extreme_reversal_ex_earnings,reversal,"-ret1*I(|ret1|>p95 and no_recent_earnings)",ohlcv+earnings_calendar,price_history+earnings_calendar,P0,requires_signal_impl
+L013,intraday_reversion_proxy,reversal,"-sum((close-open)/open,10)",ohlcv,price_history,P1,requires_signal_impl
+L014,post_spike_cooldown,reversal,"-ret1*I(volume_z>2)",ohlcv+volume,price_history,P0,requires_signal_impl
+L015,overreaction_volume_adjusted,reversal,"-ret3/(1+volume_z20)",ohlcv+volume,price_history,P1,requires_signal_impl
+L016,failed_breakout_reversal,reversal,"-(close-max20)/atr20 where close<max20",ohlcv,price_history,P1,requires_signal_impl
+L017,compression_reversal,reversal,"-ret5*I(std20<std120)",ohlcv,price_history,P1,requires_signal_impl
+L018,skew_reversal,reversal,"-ret2*I(skew20<0)",ohlcv,price_history,P1,requires_signal_impl
+L019,three_red_days_rebound,reversal,"I(3down)*next_rebound_score",ohlcv,price_history,P2,requires_signal_impl
+L020,large_gap_reversal,reversal,"-gap*I(|gap|>p90)",ohlcv,price_history,P1,requires_signal_impl
+L021,amihud_illiquidity_20,liquidity,"mean(|ret1|/dollar_volume,20)",ohlcv+volume,price_history,P0,requires_signal_impl
+L022,amihud_improving,liquidity,"-delta(amihud20,20)",ohlcv+volume,price_history,P0,requires_signal_impl
+L023,turnover_shock_20_120,liquidity,"log(adv20/adv120)",ohlcv+volume,price_history,P0,runnable_now
+L024,turnover_spike_decay,liquidity,"-delta(log(adv20/adv120),5)",ohlcv+volume,price_history,P1,requires_signal_impl
+L025,dollar_volume_trend,liquidity,"slope(log(adv20),63)",ohlcv+volume,price_history,P1,requires_signal_impl
+L026,illiq_size_interaction,liquidity,"z(amihud20)*z(-mktcap)",ohlcv+volume+mktcap,price_history+market_cap_history,P0,requires_signal_impl
+L027,flow_autocorr_20,liquidity,"autocorr(ret1*volume,20)",ohlcv+volume,price_history,P1,requires_signal_impl
+L028,crowding_turnover_x_inst,liquidity,"z(turnover_shock)+z(inst_ownership_pct)",volume+institutional_holders,price_history+institutional_holders,P0,requires_signal_impl
+L029,liquidity_regime_score,liquidity,"z(turnover_shock)-z(amihud20)",ohlcv+volume,price_history,P0,requires_signal_impl
+L030,spread_proxy_stability,liquidity,"-std((high-low)/close,60)",ohlcv,price_history,P1,requires_signal_impl
+L031,low_vol_60,risk,"-std(ret1,60)",ohlcv,price_history,P0,runnable_now
+L032,downside_vol_60,risk,"-std(min(ret1,0),60)",ohlcv,price_history,P0,requires_signal_impl
+L033,idiosyncratic_vol_63,risk,"-std(residual_ret_vs_mkt,63)",ohlcv+benchmark,price_history,P0,requires_signal_impl
+L034,low_beta_252,risk,"-beta(stock,SPY,252)",ohlcv+benchmark,price_history,P0,requires_signal_impl
+L035,beta_instability_126,risk,"-std(beta63_rolling,126)",ohlcv+benchmark,price_history,P1,requires_signal_impl
+L036,left_tail_es5_126,risk,"-expected_shortfall(ret1,5%,126)",ohlcv,price_history,P0,requires_signal_impl
+L037,max_drawdown_126,risk,"-max_drawdown(126)",ohlcv,price_history,P0,requires_signal_impl
+L038,vol_of_vol_126,risk,"-std(std20(ret1),126)",ohlcv,price_history,P1,requires_signal_impl
+L039,downside_beta_crash,risk,"-beta(ret1,SPY|SPY<q20)",ohlcv+benchmark,price_history,P1,requires_signal_impl
+L040,jump_risk_proxy,risk,"-count(|gap|>2*std_gap,126)",ohlcv,price_history,P1,requires_signal_impl
+L041,earnings_yield_ttm,value,"ebit_ttm/market_cap",statements+market_cap,income_statement_ttm+market_cap_history,P0,requires_signal_impl
+L042,fcf_yield_ttm,value,"fcf_ttm/market_cap",cashflow_ttm+market_cap,cash_flow_statement_ttm+market_cap_history,P0,requires_signal_impl
+L043,ocf_yield_ttm,value,"ocf_ttm/market_cap",cashflow_ttm+market_cap,cash_flow_statement_ttm+market_cap_history,P0,requires_signal_impl
+L044,ebitda_ev_yield,value,"ebitda_ttm/enterprise_value",income_statement_ttm+enterprise_values,income_statement_ttm+enterprise_values,P0,requires_signal_impl
+L045,sales_ev_yield,value,"revenue_ttm/enterprise_value",income_statement_ttm+enterprise_values,income_statement_ttm+enterprise_values,P1,requires_signal_impl
+L046,book_to_market,value,"book_equity/market_cap",balance_sheet_ttm+market_cap,balance_sheet_statement_ttm+market_cap_history,P0,requires_signal_impl
+L047,shareholder_yield,value,"buyback_yield+dividend_yield-dilution",cashflow+dividends+shares,cash_flow_statement_ttm+historical_price_full,P1,requires_signal_impl
+L048,net_payout_yield,value,"(repurchase-dividends)/market_cap",cashflow+dividends+market_cap,cash_flow_statement_ttm+historical_price_full+market_cap_history,P1,requires_signal_impl
+L049,value_composite_sector_neutral,value,"z(ey)+z(fcfy)+z(ebitda_ev), sector-neutral",value ratios+industry,ratios/value+company_profiles,P0,runnable_now
+L050,value_rerating_trend,value,"delta(value_composite,4q)",value ratios history,ratios/value,P0,requires_signal_impl
+L051,gross_profitability,quality,"gross_profit_ttm/assets_ttm",income+balance,income_statement_ttm+balance_sheet_statement_ttm,P0,requires_signal_impl
+L052,roic_ttm,quality,"nopat_ttm/invested_capital",income+balance,income_statement_ttm+balance_sheet_statement_ttm,P1,requires_signal_impl
+L053,cfo_to_assets,quality,"ocf_ttm/assets_ttm",cashflow+balance,cash_flow_statement_ttm+balance_sheet_statement_ttm,P0,runnable_now
+L054,accruals_inverse,quality,"-(net_income_ttm-ocf_ttm)/assets",income+cashflow+balance,income_statement_ttm+cash_flow_statement_ttm+balance_sheet_statement_ttm,P0,requires_signal_impl
+L055,gross_margin_level,quality,"gross_profit_ttm/revenue_ttm",income,income_statement_ttm,P0,runnable_now
+L056,margin_stability_12q,quality,"-std(gross_margin_q,12)",income quarterly,income_statement,P1,requires_signal_impl
+L057,earnings_stability_12q,quality,"-std(net_margin_q,12)",income quarterly,income_statement,P1,requires_signal_impl
+L058,deleveraging_quality,quality,"-delta(debt_to_equity,4q)",quality ratios history,ratios/quality,P0,runnable_now
+L059,interest_coverage,quality,"ebit_ttm/interest_expense_ttm",income,income_statement_ttm,P1,requires_signal_impl
+L060,qmj_proxy_composite,quality,"z(profitability)+z(safety)+z(payout)",quality ratios+cashflow+balance,ratios/quality+cash_flow_statement_ttm+balance_sheet_statement_ttm,P0,requires_signal_impl
+L061,revenue_growth_quality_adj,growth,"revenue_yoy * z(quality)",income+quality,income_statement_ttm+ratios/quality,P0,requires_signal_impl
+L062,eps_growth_quality_adj,growth,"eps_yoy * z(quality)",income+quality,income_statement_ttm+ratios/quality,P0,requires_signal_impl
+L063,fcf_growth_persistence,growth,"fcf_yoy + fcf_yoy_lag1",cashflow history,cash_flow_statement_ttm,P1,requires_signal_impl
+L064,asset_growth_anomaly_inv,growth,"-(assets_t/assets_t-1 -1)",balance history,balance_sheet_statement_ttm,P0,requires_signal_impl
+L065,capex_discipline,growth,"-(capex/assets)_delta",cashflow+balance,cash_flow_statement_ttm+balance_sheet_statement_ttm,P1,requires_signal_impl
+L066,nwc_change_inverse,growth,"-delta(nwc/assets,4q)",balance history,balance_sheet_statement_ttm,P1,requires_signal_impl
+L067,profitability_trend_4q,growth,"delta(roa,4q)",quality ratios history,ratios/quality,P0,requires_signal_impl
+L068,margin_trend_4q,growth,"delta(gross_margin,4q)",quality ratios history,ratios/quality,P0,requires_signal_impl
+L069,cash_conversion_improve,growth,"delta(ocf/net_income,4q)",cashflow+income,cash_flow_statement_ttm+income_statement_ttm,P1,requires_signal_impl
+L070,investment_conservatism,growth,"-(asset_growth + capex_growth)",balance+cashflow,balance_sheet_statement_ttm+cash_flow_statement_ttm,P1,requires_signal_impl
+L071,sue_eps,event,"(actual_eps-est_eps)/std(surprise)",earnings_surprises,earnings_surprises,P0,runnable_now
+L072,sue_revenue,event,"(actual_rev-est_rev)/std(surprise)",earnings_surprises,earnings_surprises,P0,requires_signal_impl
+L073,pead_1_20,event,"post_earnings_drift days1-20",earnings_calendar+ohlcv,earnings_calendar+price_history,P0,runnable_now
+L074,pead_21_60,event,"post_earnings_drift days21-60",earnings_calendar+ohlcv,earnings_calendar+price_history,P1,requires_signal_impl
+L075,earnings_gap_strength,event,"earnings_day_gap / hist_gap_std",earnings_calendar+ohlcv,earnings_calendar+price_history,P0,requires_signal_impl
+L076,surprise_persistence,event,"sue_t + sue_t-1",earnings_surprises,earnings_surprises,P1,requires_signal_impl
+L077,beat_with_revenue_confirm,event,"I(eps_surprise>0 & rev_surprise>0)",earnings_surprises,earnings_surprises,P0,requires_signal_impl
+L078,post_event_liquidity_gap,event,"sue_eps * -amihud20",earnings_surprises+ohlcv,earnings_surprises+price_history,P1,requires_signal_impl
+L079,event_underreaction_low_own,event,"sue_eps * (1-inst_own_pct)",earnings_surprises+institutional_holders,earnings_surprises+institutional_holders,P0,requires_signal_impl
+L080,event_underreaction_value_anchor,event,"sue_eps * value_z",earnings_surprises+value ratios,earnings_surprises+ratios/value,P0,requires_signal_impl
+L081,institutional_ownership_delta,ownership,"delta(inst_ownership_pct,1q)",institutional_holders,institutional_holders,P0,runnable_now
+L082,institutional_breadth_delta,ownership,"delta(holder_count,1q)",institutional_holders,institutional_holders,P0,requires_signal_impl
+L083,ownership_acceleration,ownership,"delta(inst_own_delta,2q)",institutional_holders,institutional_holders,P1,requires_signal_impl
+L084,owner_earnings_yield,ownership,"owner_earnings/market_cap",owner_earnings+market_cap,owner_earnings+market_cap_history,P0,runnable_now
+L085,owner_earnings_trend,ownership,"delta(owner_earnings_yield,4q)",owner_earnings history,owner_earnings+market_cap_history,P1,requires_signal_impl
+L086,crowded_value_trap_avoid,ownership,"value_z - crowding_z",value+turnover+inst_own,ratios/value+price_history+institutional_holders,P0,requires_signal_impl
+L087,de_crowding_momentum,ownership,"momentum - delta(crowding,1q)",price+turnover+inst_own,price_history+institutional_holders,P1,requires_signal_impl
+L088,ownership_x_quality,ownership,"inst_own_delta * quality_z",institutional_holders+quality ratios,institutional_holders+ratios/quality,P0,requires_signal_impl
+L089,ownership_x_value,ownership,"inst_own_delta * value_z",institutional_holders+value ratios,institutional_holders+ratios/value,P0,requires_signal_impl
+L090,ownership_dispersion_proxy,ownership,"-std(holder_share_change,4q)",institutional_holders,institutional_holders,P2,requires_signal_impl
+L091,trend_regime_switch,regime,"mom_signal * I(mkt_ma50>mkt_ma200)",market_ohlcv+stock_ohlcv,price_history,P0,requires_signal_impl
+L092,vol_regime_switch,regime,"low_vol_signal * I(vix_proxy_high)",stock_ohlcv+index_ohlcv,price_history,P1,requires_signal_impl
+L093,liquidity_regime_switch,regime,"value_signal * I(mkt_turnover_low)",stock+market volume,price_history,P1,requires_signal_impl
+L094,risk_on_off_breadth,regime,"breadth_momentum - breadth_defensive",universe returns,price_history,P1,requires_signal_impl
+L095,cross_section_dispersion_regime,regime,"alpha_signal * I(cs_dispersion_high)",universe returns,price_history,P1,requires_signal_impl
+L096,correlation_regime_proxy,regime,"quality_signal * (1-market_corr)",universe returns,price_history,P1,requires_signal_impl
+L097,defensive_rotation_proxy,regime,"quality - cyclicality_proxy",quality+beta+sector,ratios/quality+price_history+company_profiles,P1,requires_signal_impl
+L098,smallcap_seasonality_proxy,regime,"size_inv * seasonality(month)",market_cap+calendar,market_cap_history,P2,requires_signal_impl
+L099,earnings_season_alpha,regime,"event_signal * I(earnings_season)",earnings_calendar+event signals,earnings_calendar+earnings_surprises,P1,requires_signal_impl
+L100,state_weighted_meta_signal,regime,"w1*value+w2*quality+w3*event with state-dependent w",multi-block composite,multi_source,P2,requires_signal_impl

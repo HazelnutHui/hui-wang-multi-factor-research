@@ -397,6 +397,21 @@ class FactorEngine:
 
         return float(signal)
 
+    def calculate_residual_mom_12_1(self, symbol: str, date: str) -> Optional[float]:
+        bak = self.config.get("MOMENTUM_USE_RESIDUAL")
+        self.config["MOMENTUM_USE_RESIDUAL"] = True
+        try:
+            return self.calculate_momentum(symbol, date, lookback=252, skip=21)
+        finally:
+            if bak is None:
+                self.config.pop("MOMENTUM_USE_RESIDUAL", None)
+            else:
+                self.config["MOMENTUM_USE_RESIDUAL"] = bak
+
+    def calculate_idio_mom_vs_sector(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy: use market-residual momentum when sector ETF mapping is unavailable.
+        return self.calculate_residual_mom_12_1(symbol, date)
+
     def calculate_reversal(self, symbol: str, date: str,
                            lookback: Optional[int] = None) -> Optional[float]:
         if lookback is None:
@@ -472,6 +487,366 @@ class FactorEngine:
                 signal = float(signal / vol)
 
         return float(signal)
+
+    def calculate_extreme_reversal_ex_earnings(self, symbol: str, date: str) -> Optional[float]:
+        ret1 = self.calculate_reversal(symbol, date, lookback=1)
+        if ret1 is None or pd.isna(ret1):
+            return None
+        if self._has_earnings_near_date(symbol, date, days=2):
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=126 * 3)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < 60:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna().tail(126)
+        if len(r) < 60:
+            return None
+        thr = float(r.abs().quantile(0.95))
+        return float(ret1 if abs(float(r.iloc[-1])) >= thr else 0.0)
+
+    def calculate_intraday_reversion_proxy(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("INTRADAY_REV_WINDOW", 10))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window:
+            return None
+        work = df.copy()
+        work["open"] = pd.to_numeric(work["open"], errors="coerce")
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["open"] > 0) & (work["close"] > 0)].dropna(subset=["open", "close"])
+        if len(work) < window:
+            return None
+        intraday = ((work["close"] - work["open"]) / work["open"]).tail(window)
+        return float(-intraday.sum())
+
+    def calculate_range_followthrough(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("RANGE_FOLLOW_WINDOW", 20))
+        ret_w = int(self.config.get("RANGE_FOLLOW_RET_WINDOW", 5))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(window, ret_w) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < max(window, ret_w) + 1:
+            return None
+        work = df.copy()
+        for c in ("high", "low", "close"):
+            work[c] = pd.to_numeric(work[c], errors="coerce")
+        work = work.dropna(subset=["high", "low", "close"])
+        work = work[(work["close"] > 0) & (work["high"] > 0) & (work["low"] > 0)]
+        if len(work) < max(window, ret_w) + 1:
+            return None
+        range_pct = ((work["high"] - work["low"]) / work["close"]).tail(window)
+        rp_std = float(range_pct.std(ddof=1))
+        if not np.isfinite(rp_std) or rp_std <= 0:
+            return None
+        rp_z = (float(range_pct.iloc[-1]) - float(range_pct.mean())) / rp_std
+        ret5 = np.log(work["close"] / work["close"].shift(ret_w)).iloc[-1]
+        if pd.isna(ret5):
+            return None
+        return float(rp_z * np.sign(float(ret5)))
+
+    def calculate_st_reversal_liquidity_filtered(self, symbol: str, date: str) -> Optional[float]:
+        bak = self.config.get("REVERSAL_MIN_DOLLAR_VOL")
+        self.config["REVERSAL_MIN_DOLLAR_VOL"] = float(self.config.get("ST_REV_MIN_DOLLAR_VOL", 2e6))
+        try:
+            return self.calculate_reversal(symbol, date, lookback=5)
+        finally:
+            if bak is None:
+                self.config.pop("REVERSAL_MIN_DOLLAR_VOL", None)
+            else:
+                self.config["REVERSAL_MIN_DOLLAR_VOL"] = bak
+
+    def calculate_post_spike_cooldown(self, symbol: str, date: str) -> Optional[float]:
+        vol_w = int(self.config.get("POST_SPIKE_VOL_WINDOW", 20))
+        z_thr = float(self.config.get("POST_SPIKE_VOL_Z", 2.0))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=vol_w * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < vol_w + 2:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)].dropna(subset=["close", "volume"])
+        if len(work) < vol_w + 2:
+            return None
+        vol = work["volume"].tail(vol_w)
+        std = float(vol.std(ddof=1))
+        if not np.isfinite(std) or std <= 0:
+            return None
+        vz = (float(vol.iloc[-1]) - float(vol.mean())) / std
+        ret1 = np.log(work["close"] / work["close"].shift(1)).iloc[-1]
+        if pd.isna(ret1):
+            return None
+        return float(-ret1 if vz > z_thr else 0.0)
+
+    def calculate_overreaction_volume_adjusted(self, symbol: str, date: str) -> Optional[float]:
+        ret_w = int(self.config.get("OVERREACT_RET_WINDOW", 3))
+        vol_w = int(self.config.get("OVERREACT_VOL_WINDOW", 20))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(ret_w, vol_w) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < max(ret_w, vol_w) + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)].dropna(subset=["close", "volume"])
+        if len(work) < max(ret_w, vol_w) + 1:
+            return None
+        ret = np.log(work["close"] / work["close"].shift(ret_w)).iloc[-1]
+        vol = work["volume"].tail(vol_w)
+        std = float(vol.std(ddof=1))
+        if not np.isfinite(std) or std <= 0 or pd.isna(ret):
+            return None
+        vz = (float(vol.iloc[-1]) - float(vol.mean())) / std
+        return float(-float(ret) / (1.0 + max(0.0, vz)))
+
+    def calculate_failed_breakout_reversal(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("FAILED_BREAKOUT_WINDOW", 20))
+        atr_w = int(self.config.get("FAILED_BREAKOUT_ATR_WINDOW", 20))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(window, atr_w) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < max(window, atr_w) + 1:
+            return None
+        work = df.copy()
+        for c in ("high", "low", "close"):
+            work[c] = pd.to_numeric(work[c], errors="coerce")
+        work = work.dropna(subset=["high", "low", "close"])
+        work = work[(work["close"] > 0) & (work["high"] > 0) & (work["low"] > 0)]
+        if len(work) < max(window, atr_w) + 1:
+            return None
+        prev_high = float(work["high"].tail(window + 1).iloc[:-1].max())
+        close_now = float(work["close"].iloc[-1])
+        if close_now >= prev_high:
+            return 0.0
+        tr = pd.concat(
+            [
+                (work["high"] - work["low"]).abs(),
+                (work["high"] - work["close"].shift(1)).abs(),
+                (work["low"] - work["close"].shift(1)).abs(),
+            ],
+            axis=1,
+        ).max(axis=1)
+        atr = float(tr.tail(atr_w).mean())
+        if not np.isfinite(atr) or atr <= 0:
+            return None
+        return float(-(close_now - prev_high) / atr)
+
+    def calculate_compression_reversal(self, symbol: str, date: str) -> Optional[float]:
+        short_w = int(self.config.get("COMPRESSION_SHORT_WINDOW", 20))
+        long_w = int(self.config.get("COMPRESSION_LONG_WINDOW", 120))
+        rev_w = int(self.config.get("COMPRESSION_REV_WINDOW", 5))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(short_w, long_w, rev_w) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < long_w + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna()
+        if len(r) < long_w:
+            return None
+        vol_short = float(r.tail(short_w).std(ddof=1))
+        vol_long = float(r.tail(long_w).std(ddof=1))
+        if not np.isfinite(vol_short) or not np.isfinite(vol_long) or vol_long <= 0:
+            return None
+        if vol_short >= vol_long:
+            return 0.0
+        rev = float(-r.tail(rev_w).sum())
+        return float(rev)
+
+    def calculate_skew_reversal(self, symbol: str, date: str) -> Optional[float]:
+        skew_w = int(self.config.get("SKEW_REV_SKEW_WINDOW", 20))
+        rev_w = int(self.config.get("SKEW_REV_RET_WINDOW", 2))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(skew_w, rev_w) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < skew_w + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna()
+        if len(r) < skew_w:
+            return None
+        skew = float(r.tail(skew_w).skew())
+        if not np.isfinite(skew):
+            return None
+        rev = float(-r.tail(rev_w).sum())
+        return float(rev if skew < 0 else 0.0)
+
+    def calculate_three_red_days_rebound(self, symbol: str, date: str) -> Optional[float]:
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=30)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < 6:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna()
+        if len(r) < 5:
+            return None
+        last3 = r.tail(3)
+        if (last3 < 0).all():
+            return float(abs(last3.sum()))
+        return 0.0
+
+    def calculate_large_gap_reversal(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("LARGE_GAP_WINDOW", 60))
+        q = float(self.config.get("LARGE_GAP_Q", 0.9))
+        q = min(max(q, 0.5), 0.99)
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["open"] = pd.to_numeric(work["open"], errors="coerce")
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["open"] > 0) & (work["close"] > 0)].dropna(subset=["open", "close"])
+        if len(work) < window + 1:
+            return None
+        gap = np.log(work["open"] / work["close"].shift(1)).dropna().tail(window)
+        if len(gap) < window:
+            return None
+        thr = float(gap.abs().quantile(q))
+        g = float(gap.iloc[-1])
+        return float(-g if abs(g) > thr else 0.0)
+
+    def calculate_flow_autocorr_20(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("FLOW_AUTOCORR_WINDOW", 20))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 8)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 2:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)].dropna(subset=["close", "volume"])
+        if len(work) < window + 2:
+            return None
+        ret = np.log(work["close"] / work["close"].shift(1))
+        flow = (ret * work["volume"]).dropna().tail(window + 1)
+        if len(flow) < window + 1:
+            return None
+        return float(flow.autocorr(lag=1))
+
+    def calculate_spread_proxy_stability(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("SPREAD_STABILITY_WINDOW", 60))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window:
+            return None
+        work = df.copy()
+        for c in ("high", "low", "close"):
+            work[c] = pd.to_numeric(work[c], errors="coerce")
+        work = work[(work["high"] > 0) & (work["low"] > 0) & (work["close"] > 0)].dropna(subset=["high", "low", "close"])
+        if len(work) < window:
+            return None
+        sp = ((work["high"] - work["low"]) / work["close"]).tail(window)
+        v = float(sp.std(ddof=1))
+        if not np.isfinite(v):
+            return None
+        return float(-v)
+
+    def calculate_vol_of_vol_126(self, symbol: str, date: str) -> Optional[float]:
+        short_w = int(self.config.get("VOL_OF_VOL_SHORT", 20))
+        long_w = int(self.config.get("VOL_OF_VOL_LONG", 126))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=long_w * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < long_w + short_w:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna()
+        if len(r) < long_w + short_w:
+            return None
+        rv = r.rolling(short_w).std(ddof=1).dropna().tail(long_w)
+        if len(rv) < long_w:
+            return None
+        vv = float(rv.std(ddof=1))
+        if not np.isfinite(vv):
+            return None
+        return float(-vv)
+
+    def calculate_jump_risk_proxy(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("JUMP_RISK_WINDOW", 126))
+        z_thr = float(self.config.get("JUMP_RISK_Z", 2.0))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["open"] = pd.to_numeric(work["open"], errors="coerce")
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["open"] > 0) & (work["close"] > 0)].dropna(subset=["open", "close"])
+        if len(work) < window + 1:
+            return None
+        gap = np.log(work["open"] / work["close"].shift(1)).dropna().tail(window)
+        if len(gap) < window:
+            return None
+        std = float(gap.std(ddof=1))
+        if not np.isfinite(std) or std <= 0:
+            return None
+        cnt = int((gap.abs() > (z_thr * std)).sum())
+        return float(-cnt)
+
+    def calculate_trend_regime_switch(self, symbol: str, date: str) -> Optional[float]:
+        mom = self.calculate_momentum(symbol, date)
+        if mom is None or pd.isna(mom):
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=800)).strftime("%Y-%m-%d")
+        mkt = self.data_engine.get_price("SPY", start_date=start_date, end_date=date)
+        if mkt is None or len(mkt) < 200:
+            return None
+        m = mkt.copy()
+        m["close"] = pd.to_numeric(m["close"], errors="coerce")
+        m = m[m["close"] > 0].dropna(subset=["close"])
+        if len(m) < 200:
+            return None
+        ma50 = float(m["close"].rolling(50).mean().iloc[-1])
+        ma200 = float(m["close"].rolling(200).mean().iloc[-1])
+        if not np.isfinite(ma50) or not np.isfinite(ma200):
+            return None
+        return float(mom if ma50 > ma200 else -mom)
+
+    def calculate_vol_regime_switch(self, symbol: str, date: str) -> Optional[float]:
+        lv = self.calculate_low_volatility(symbol, date, window=60)
+        vr = self.calculate_vol_regime(symbol, date)
+        if lv is None or vr is None or pd.isna(lv) or pd.isna(vr):
+            return None
+        gate = 1.0 if float(vr) > 0 else -1.0
+        return float(float(lv) * gate)
+
+    def calculate_liquidity_regime_switch(self, symbol: str, date: str) -> Optional[float]:
+        val = self.calculate_value(symbol, date)
+        ts = self.calculate_turnover_shock(symbol, date)
+        if val is None or ts is None or pd.isna(val) or pd.isna(ts):
+            return None
+        gate = 1.0 if float(ts) < 0 else -1.0
+        return float(float(val) * gate)
+
+    def calculate_earnings_season_alpha(self, symbol: str, date: str) -> Optional[float]:
+        d = pd.Timestamp(date)
+        in_season = 1.0 if d.month in (1, 2, 4, 5, 7, 8, 10, 11) else 0.0
+        sue = self.calculate_sue_eps_basic(symbol, date)
+        if sue is None or pd.isna(sue):
+            return None
+        return float(float(sue) * in_season)
+
+    def calculate_state_weighted_meta_signal(self, symbol: str, date: str) -> Optional[float]:
+        v = self.calculate_value(symbol, date)
+        q = self.calculate_quality(symbol, date)
+        e = self.calculate_sue_eps_basic(symbol, date)
+        vr = self.calculate_vol_regime(symbol, date)
+        if any(x is None or pd.isna(x) for x in (v, q, e, vr)):
+            return None
+        # high calm-regime -> emphasize value/quality; turbulent -> emphasize event
+        calm = min(max(float(vr), -1.0), 1.0)
+        w_v = 0.4 + 0.2 * max(calm, 0.0)
+        w_q = 0.4 + 0.2 * max(calm, 0.0)
+        w_e = 0.2 + 0.4 * max(-calm, 0.0)
+        denom = w_v + w_q + w_e
+        return float((w_v * float(v) + w_q * float(q) + w_e * float(e)) / denom)
 
     def _compress_component(self, value: float) -> float:
         # Signed log compression to reduce metric scale dominance.
@@ -732,6 +1107,98 @@ class FactorEngine:
             return None
         return float(beta)
 
+    def calculate_idiosyncratic_vol_63(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("IDIO_VOL_WINDOW", 63))
+        bench = self.config.get("BETA_BENCH_SYMBOL", "SPY")
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        s = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        m = self.data_engine.get_price(bench, start_date=start_date, end_date=date)
+        if s is None or m is None or len(s) < window + 1 or len(m) < window + 1:
+            return None
+        sdf = s.copy()
+        mdf = m.copy()
+        for df in (sdf, mdf):
+            df["close"] = pd.to_numeric(df["close"], errors="coerce")
+            df.loc[df["close"] <= 0, "close"] = np.nan
+        sdf["ret_s"] = np.log(sdf["close"] / sdf["close"].shift(1))
+        mdf["ret_m"] = np.log(mdf["close"] / mdf["close"].shift(1))
+        merged = sdf[["date", "ret_s"]].merge(mdf[["date", "ret_m"]], on="date", how="inner").dropna().tail(window)
+        if len(merged) < window:
+            return None
+        var_m = float(merged["ret_m"].var())
+        if not np.isfinite(var_m) or var_m <= 0:
+            return None
+        beta = float(merged["ret_s"].cov(merged["ret_m"]) / var_m)
+        resid = merged["ret_s"] - beta * merged["ret_m"]
+        v = float(resid.std(ddof=1))
+        if not np.isfinite(v):
+            return None
+        return float(-v)
+
+    def calculate_beta_instability_126(self, symbol: str, date: str) -> Optional[float]:
+        long_w = int(self.config.get("BETA_INSTAB_WINDOW", 126))
+        roll_w = int(self.config.get("BETA_INSTAB_ROLL", 63))
+        bench = self.config.get("BETA_BENCH_SYMBOL", "SPY")
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=(long_w + roll_w) * 6)).strftime("%Y-%m-%d")
+        s = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        m = self.data_engine.get_price(bench, start_date=start_date, end_date=date)
+        if s is None or m is None:
+            return None
+        sdf = s.copy()
+        mdf = m.copy()
+        for df in (sdf, mdf):
+            df["close"] = pd.to_numeric(df["close"], errors="coerce")
+            df.loc[df["close"] <= 0, "close"] = np.nan
+        sdf["ret_s"] = np.log(sdf["close"] / sdf["close"].shift(1))
+        mdf["ret_m"] = np.log(mdf["close"] / mdf["close"].shift(1))
+        merged = sdf[["date", "ret_s"]].merge(mdf[["date", "ret_m"]], on="date", how="inner").dropna().tail(long_w + roll_w + 5)
+        if len(merged) < long_w + roll_w:
+            return None
+        betas = []
+        r = merged.reset_index(drop=True)
+        for i in range(roll_w, len(r) + 1):
+            w = r.iloc[i - roll_w:i]
+            var_m = float(w["ret_m"].var())
+            if not np.isfinite(var_m) or var_m <= 0:
+                continue
+            betas.append(float(w["ret_s"].cov(w["ret_m"]) / var_m))
+        if len(betas) < 10:
+            return None
+        bstd = float(np.std(betas, ddof=1))
+        if not np.isfinite(bstd):
+            return None
+        return float(-bstd)
+
+    def calculate_downside_beta_crash(self, symbol: str, date: str) -> Optional[float]:
+        window = int(self.config.get("DOWNSIDE_BETA_WINDOW", 252))
+        bench = self.config.get("BETA_BENCH_SYMBOL", "SPY")
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        s = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        m = self.data_engine.get_price(bench, start_date=start_date, end_date=date)
+        if s is None or m is None:
+            return None
+        sdf = s.copy()
+        mdf = m.copy()
+        for df in (sdf, mdf):
+            df["close"] = pd.to_numeric(df["close"], errors="coerce")
+            df.loc[df["close"] <= 0, "close"] = np.nan
+        sdf["ret_s"] = np.log(sdf["close"] / sdf["close"].shift(1))
+        mdf["ret_m"] = np.log(mdf["close"] / mdf["close"].shift(1))
+        merged = sdf[["date", "ret_s"]].merge(mdf[["date", "ret_m"]], on="date", how="inner").dropna().tail(window)
+        if len(merged) < 60:
+            return None
+        q = float(merged["ret_m"].quantile(0.2))
+        crash = merged[merged["ret_m"] <= q]
+        if len(crash) < 20:
+            return None
+        var_m = float(crash["ret_m"].var())
+        if not np.isfinite(var_m) or var_m <= 0:
+            return None
+        beta = float(crash["ret_s"].cov(crash["ret_m"]) / var_m)
+        if not np.isfinite(beta):
+            return None
+        return float(-beta)
+
     def calculate_pead(self, symbol: str, date: str) -> Optional[float]:
         if not self.pead_factor:
             return None
@@ -863,6 +1330,320 @@ class FactorEngine:
             return None
         return float((vol_long - vol_short) / vol_long)
 
+    def calculate_trend_tstat(self, symbol: str, date: str) -> Optional[float]:
+        """Trend strength via slope t-stat on log price."""
+        window = int(self.config.get("TREND_TSTAT_WINDOW", 126))
+        if window < 20:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 3)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window:
+            return None
+        work = df.copy().tail(window)
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["close"] > 0)].dropna(subset=["close"])
+        if len(work) < max(20, int(window * 0.8)):
+            return None
+        y = np.log(work["close"].values.astype(float))
+        x = np.arange(len(y), dtype=float)
+        xm = x.mean()
+        ym = y.mean()
+        sxx = np.sum((x - xm) ** 2)
+        if sxx <= 0:
+            return None
+        slope = float(np.sum((x - xm) * (y - ym)) / sxx)
+        yhat = ym + slope * (x - xm)
+        resid = y - yhat
+        dof = len(y) - 2
+        if dof <= 0:
+            return None
+        sigma2 = float(np.sum(resid ** 2) / dof)
+        if not np.isfinite(sigma2) or sigma2 <= 0:
+            return None
+        se = float(np.sqrt(sigma2 / sxx))
+        if se <= 0:
+            return None
+        return float(slope / se)
+
+    def calculate_high_52w_proximity(self, symbol: str, date: str) -> Optional[float]:
+        """Close proximity to 52-week high: close / rolling_max(252)."""
+        window = int(self.config.get("HIGH_52W_WINDOW", 252))
+        if window < 50:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 3)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window:
+            return None
+        work = df.copy().tail(window)
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["close"] > 0)].dropna(subset=["close"])
+        if len(work) < window:
+            return None
+        px = float(work.iloc[-1]["close"])
+        hi = float(work["close"].max())
+        if hi <= 0:
+            return None
+        return float(px / hi)
+
+    def calculate_breakout_persistence(self, symbol: str, date: str) -> Optional[float]:
+        """
+        Breakout persistence proxy:
+        (close - rolling_max(window)) / ATR(atr_window)
+        """
+        window = int(self.config.get("BREAKOUT_WINDOW", 252))
+        atr_window = int(self.config.get("BREAKOUT_ATR_WINDOW", 20))
+        lookback_days = max(window, atr_window) * 3
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < max(window, atr_window):
+            return None
+        work = df.copy()
+        for c in ("high", "low", "close"):
+            work[c] = pd.to_numeric(work[c], errors="coerce")
+        work = work.dropna(subset=["high", "low", "close"])
+        work = work[(work["close"] > 0) & (work["high"] > 0) & (work["low"] > 0)]
+        if len(work) < max(window, atr_window):
+            return None
+        hist = work.tail(window)
+        close_now = float(hist.iloc[-1]["close"])
+        high_ref = float(hist["high"].max())
+        tr = pd.concat(
+            [
+                (work["high"] - work["low"]).abs(),
+                (work["high"] - work["close"].shift(1)).abs(),
+                (work["low"] - work["close"].shift(1)).abs(),
+            ],
+            axis=1,
+        ).max(axis=1)
+        atr = tr.tail(atr_window).mean()
+        if atr is None or np.isnan(atr) or float(atr) <= 0:
+            return None
+        return float((close_now - high_ref) / float(atr))
+
+    def calculate_pullback_in_uptrend(self, symbol: str, date: str) -> Optional[float]:
+        """Pullback score: -distance to MA20 when MA50 > MA200."""
+        lookback = 220
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback * 3)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < 200:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["close"] > 0)].dropna(subset=["close"])
+        if len(work) < 200:
+            return None
+        close = work["close"]
+        ma20 = close.rolling(20).mean()
+        ma50 = close.rolling(50).mean()
+        ma200 = close.rolling(200).mean()
+        if np.isnan(ma20.iloc[-1]) or np.isnan(ma50.iloc[-1]) or np.isnan(ma200.iloc[-1]):
+            return None
+        if float(ma50.iloc[-1]) <= float(ma200.iloc[-1]):
+            return None
+        denom = float(ma20.iloc[-1])
+        if denom == 0:
+            return None
+        return float(-(float(close.iloc[-1]) - denom) / abs(denom))
+
+    def calculate_momentum_crash_adjusted(self, symbol: str, date: str) -> Optional[float]:
+        """Momentum adjusted by short-horizon downside tail risk."""
+        mom = self.calculate_momentum(symbol, date)
+        if mom is None or pd.isna(mom):
+            return None
+        tail_w = int(self.config.get("MOM_CRASH_TAIL_WINDOW", 21))
+        q = float(self.config.get("MOM_CRASH_TAIL_QUANTILE", 0.1))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=tail_w * 8)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < tail_w:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna().tail(tail_w)
+        if len(r) < tail_w:
+            return None
+        q = min(max(q, 0.01), 0.49)
+        left = float(abs(r.quantile(q)))
+        scale = float(r.std(ddof=1))
+        if not np.isfinite(scale) or scale <= 0:
+            return float(mom)
+        tail_risk = left / scale
+        return float(float(mom) * (1.0 - tail_risk))
+
+    def calculate_overnight_drift(self, symbol: str, date: str) -> Optional[float]:
+        """Sum of overnight log returns over window."""
+        window = int(self.config.get("OVERNIGHT_DRIFT_WINDOW", 63))
+        if window < 5:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["open"] = pd.to_numeric(work["open"], errors="coerce")
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["open"] > 0) & (work["close"] > 0)].dropna(subset=["open", "close"])
+        if len(work) < window + 1:
+            return None
+        overnight = np.log(work["open"] / work["close"].shift(1)).dropna().tail(window)
+        if len(overnight) < window:
+            return None
+        return float(overnight.sum())
+
+    def calculate_gap_fill_propensity(self, symbol: str, date: str) -> Optional[float]:
+        """Negative z-score of recent opening gaps (larger gap -> stronger mean-reversion propensity)."""
+        window = int(self.config.get("GAP_FILL_WINDOW", 20))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["open"] = pd.to_numeric(work["open"], errors="coerce")
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["open"] > 0) & (work["close"] > 0)].dropna(subset=["open", "close"])
+        if len(work) < window + 1:
+            return None
+        gap = np.log(work["open"] / work["close"].shift(1)).dropna().tail(window)
+        if len(gap) < window:
+            return None
+        std = float(gap.std(ddof=1))
+        if not np.isfinite(std) or std <= 0:
+            return None
+        z = (float(gap.iloc[-1]) - float(gap.mean())) / std
+        return float(-z)
+
+    def calculate_amihud_illiquidity(self, symbol: str, date: str) -> Optional[float]:
+        """Amihud illiquidity: mean(|ret| / dollar_volume, window)."""
+        window = int(self.config.get("AMIHUD_WINDOW", 20))
+        if window < 5:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)].dropna(subset=["close", "volume"])
+        if len(work) < window + 1:
+            return None
+        work["ret"] = work["close"].pct_change()
+        work["dollar_vol"] = work["close"] * work["volume"]
+        tail = work.tail(window + 1).dropna(subset=["ret", "dollar_vol"])
+        tail = tail[tail["dollar_vol"] > 0]
+        if len(tail) < window:
+            return None
+        illiq = (tail["ret"].abs() / tail["dollar_vol"]).tail(window).mean()
+        if illiq is None or np.isnan(illiq):
+            return None
+        return float(illiq)
+
+    def calculate_amihud_improving(self, symbol: str, date: str) -> Optional[float]:
+        """-delta(amihud, delta_window): positive means improving liquidity."""
+        delta_window = int(self.config.get("AMIHUD_DELTA_WINDOW", 20))
+        if delta_window < 1:
+            return None
+        cur = self.calculate_amihud_illiquidity(symbol, date)
+        if cur is None or pd.isna(cur):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=delta_window)).strftime("%Y-%m-%d")
+        past = self.calculate_amihud_illiquidity(symbol, past_date)
+        if past is None or pd.isna(past):
+            return None
+        return float(-(float(cur) - float(past)))
+
+    def calculate_dollar_volume_trend(self, symbol: str, date: str) -> Optional[float]:
+        """Slope of log(ADV) over trend_window."""
+        adv_window = int(self.config.get("DOLLAR_VOL_ADV_WINDOW", 20))
+        trend_window = int(self.config.get("DOLLAR_VOL_TREND_WINDOW", 63))
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=max(adv_window, trend_window) * 6)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < adv_window + trend_window:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work["volume"] = pd.to_numeric(work["volume"], errors="coerce")
+        work = work[(work["close"] > 0) & (work["volume"] >= 0)].dropna(subset=["close", "volume"])
+        if len(work) < adv_window + trend_window:
+            return None
+        work["adv"] = (work["close"] * work["volume"]).rolling(adv_window).mean()
+        s = np.log(work["adv"]).replace([np.inf, -np.inf], np.nan).dropna().tail(trend_window)
+        if len(s) < trend_window:
+            return None
+        x = np.arange(len(s), dtype=float)
+        xm = x.mean()
+        ym = float(s.mean())
+        sxx = float(np.sum((x - xm) ** 2))
+        if sxx <= 0:
+            return None
+        slope = float(np.sum((x - xm) * (s.values - ym)) / sxx)
+        return float(slope)
+
+    def calculate_downside_volatility(self, symbol: str, date: str) -> Optional[float]:
+        """Negative downside volatility over window."""
+        window = int(self.config.get("DOWNSIDE_VOL_WINDOW", 60))
+        if window < 5:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna().tail(window)
+        if len(r) < window:
+            return None
+        r_down = r.where(r < 0, 0.0)
+        vol = float(r_down.std(ddof=1))
+        if not np.isfinite(vol):
+            return None
+        return float(-vol)
+
+    def calculate_left_tail_es5(self, symbol: str, date: str) -> Optional[float]:
+        """Negative expected shortfall at 5% tail over window."""
+        window = int(self.config.get("LEFT_TAIL_WINDOW", 126))
+        q = float(self.config.get("LEFT_TAIL_Q", 0.05))
+        q = min(max(q, 0.01), 0.20)
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window + 1:
+            return None
+        work = df.copy()
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work.loc[work["close"] <= 0, "close"] = np.nan
+        r = np.log(work["close"] / work["close"].shift(1)).dropna().tail(window)
+        if len(r) < window:
+            return None
+        threshold = float(r.quantile(q))
+        tail = r[r <= threshold]
+        if len(tail) == 0:
+            return None
+        es = float(tail.mean())
+        return float(-es)
+
+    def calculate_max_drawdown_126(self, symbol: str, date: str) -> Optional[float]:
+        """Negative max drawdown over rolling window."""
+        window = int(self.config.get("MAX_DRAWDOWN_WINDOW", 126))
+        if window < 20:
+            return None
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=window * 4)).strftime("%Y-%m-%d")
+        df = self.data_engine.get_price(symbol, start_date=start_date, end_date=date)
+        if df is None or len(df) < window:
+            return None
+        work = df.copy().tail(window)
+        work["close"] = pd.to_numeric(work["close"], errors="coerce")
+        work = work[(work["close"] > 0)].dropna(subset=["close"])
+        if len(work) < window:
+            return None
+        px = work["close"]
+        running_max = px.cummax()
+        dd = (px / running_max) - 1.0
+        mdd = float(dd.min())
+        if not np.isfinite(mdd):
+            return None
+        return float(-abs(mdd))
+
     def calculate_quality_trend(self, symbol: str, date: str) -> Optional[float]:
         """
         Fundamental improvement score:
@@ -972,6 +1753,321 @@ class FactorEngine:
             return None
         return float(float(cur_v) - float(past_v))
 
+    def calculate_earnings_yield_ttm(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("VALUE_COMPONENT_METRIC")
+        self.config["VALUE_COMPONENT_METRIC"] = "earnings_yield"
+        try:
+            return self.calculate_value_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("VALUE_COMPONENT_METRIC", None)
+            else:
+                self.config["VALUE_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_ocf_yield_ttm(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy fallback under current value-engine fields.
+        return self.calculate_fcf_yield_ttm(symbol, date)
+
+    def calculate_fcf_yield_ttm(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("VALUE_COMPONENT_METRIC")
+        self.config["VALUE_COMPONENT_METRIC"] = "fcf_yield"
+        try:
+            return self.calculate_value_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("VALUE_COMPONENT_METRIC", None)
+            else:
+                self.config["VALUE_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_ebitda_ev_yield(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("VALUE_COMPONENT_METRIC")
+        self.config["VALUE_COMPONENT_METRIC"] = "ev_ebitda_yield"
+        try:
+            return self.calculate_value_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("VALUE_COMPONENT_METRIC", None)
+            else:
+                self.config["VALUE_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_sales_ev_yield(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy fallback with EV-based yield currently available.
+        return self.calculate_ebitda_ev_yield(symbol, date)
+
+    def calculate_book_to_market(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy fallback when book-equity field is unavailable in current engine.
+        return self.calculate_earnings_yield_ttm(symbol, date)
+
+    def calculate_shareholder_yield(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_owner_earnings_yield_proxy(symbol, date)
+
+    def calculate_net_payout_yield(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_owner_earnings_yield_proxy(symbol, date)
+
+    def calculate_value_composite_sector_neutral(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_value(symbol, date)
+
+    def calculate_value_rerating_trend(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("VALUE_TREND_METRIC")
+        self.config["VALUE_TREND_METRIC"] = "earnings_yield"
+        try:
+            return self.calculate_value_metric_trend(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("VALUE_TREND_METRIC", None)
+            else:
+                self.config["VALUE_TREND_METRIC"] = metric_bak
+
+    def calculate_roe_ttm(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_COMPONENT_METRIC")
+        self.config["QUALITY_COMPONENT_METRIC"] = "roe"
+        try:
+            return self.calculate_quality_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_COMPONENT_METRIC", None)
+            else:
+                self.config["QUALITY_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_gross_profitability(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_gross_profitability_proxy(symbol, date)
+
+    def calculate_roic_ttm(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy with ROE/ROA blend under current fields.
+        roe = self.calculate_roe_ttm(symbol, date)
+        roa = self.calculate_roa_ttm(symbol, date)
+        if roe is None and roa is None:
+            return None
+        if roe is None:
+            return float(roa)
+        if roa is None:
+            return float(roe)
+        return float(0.6 * float(roe) + 0.4 * float(roa))
+
+    def calculate_accruals_inverse(self, symbol: str, date: str) -> Optional[float]:
+        roa = self.calculate_roa_ttm(symbol, date)
+        cfoa = self.calculate_cfo_to_assets(symbol, date)
+        if roa is None or cfoa is None or pd.isna(roa) or pd.isna(cfoa):
+            return None
+        return float(-(float(roa) - float(cfoa)))
+
+    def calculate_roa_ttm(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_COMPONENT_METRIC")
+        self.config["QUALITY_COMPONENT_METRIC"] = "roa"
+        try:
+            return self.calculate_quality_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_COMPONENT_METRIC", None)
+            else:
+                self.config["QUALITY_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_gross_profitability_proxy(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_COMPONENT_METRIC")
+        self.config["QUALITY_COMPONENT_METRIC"] = "gross_margin"
+        try:
+            return self.calculate_quality_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_COMPONENT_METRIC", None)
+            else:
+                self.config["QUALITY_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_qmj_proxy_composite(self, symbol: str, date: str) -> Optional[float]:
+        q = self.calculate_quality(symbol, date)
+        v = self.calculate_value(symbol, date)
+        if q is None or v is None or pd.isna(q) or pd.isna(v):
+            return None
+        wq = float(self.config.get("QMJ_PROXY_QUALITY_WEIGHT", 0.7))
+        wv = float(self.config.get("QMJ_PROXY_VALUE_WEIGHT", 0.3))
+        denom = abs(wq) + abs(wv)
+        if denom <= 0:
+            return None
+        return float((wq * float(q) + wv * float(v)) / denom)
+
+    def _collect_quality_metric_series(self, symbol: str, date: str, metric: str, n_points: int = 12, step_days: int = 90) -> list[float]:
+        vals = []
+        for i in range(n_points):
+            dt = (pd.Timestamp(date) - pd.Timedelta(days=i * step_days)).strftime("%Y-%m-%d")
+            if not self.fundamentals_engine:
+                break
+            m = self.fundamentals_engine.get_latest_metrics(symbol, dt)
+            if not m:
+                continue
+            v = m.get(metric)
+            if v is None or pd.isna(v):
+                continue
+            vals.append(float(v))
+        return list(reversed(vals))
+
+    def calculate_margin_stability_12q(self, symbol: str, date: str) -> Optional[float]:
+        vals = self._collect_quality_metric_series(symbol, date, metric="gross_margin", n_points=12, step_days=90)
+        if len(vals) < 6:
+            return None
+        v = float(np.std(vals, ddof=1))
+        if not np.isfinite(v):
+            return None
+        return float(-v)
+
+    def calculate_earnings_stability_12q(self, symbol: str, date: str) -> Optional[float]:
+        vals = self._collect_quality_metric_series(symbol, date, metric="roa", n_points=12, step_days=90)
+        if len(vals) < 6:
+            return None
+        v = float(np.std(vals, ddof=1))
+        if not np.isfinite(v):
+            return None
+        return float(-v)
+
+    def calculate_interest_coverage(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy with profitability-to-leverage composite.
+        pml = self.calculate_profitability_minus_leverage(symbol, date)
+        return float(pml) if pml is not None and not pd.isna(pml) else None
+
+    def calculate_revenue_growth_quality_adj(self, symbol: str, date: str) -> Optional[float]:
+        qtrend = self.calculate_quality_metric_trend(symbol, date)
+        qual = self.calculate_quality(symbol, date)
+        if qtrend is None or qual is None or pd.isna(qtrend) or pd.isna(qual):
+            return None
+        return float(float(qtrend) * float(qual))
+
+    def calculate_eps_growth_quality_adj(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_revenue_growth_quality_adj(symbol, date)
+
+    def calculate_fcf_growth_persistence(self, symbol: str, date: str) -> Optional[float]:
+        vtrend = self.calculate_value_metric_trend(symbol, date)
+        if vtrend is None or pd.isna(vtrend):
+            return None
+        past = self.calculate_value_metric_trend(symbol, (pd.Timestamp(date) - pd.Timedelta(days=252)).strftime("%Y-%m-%d"))
+        if past is None or pd.isna(past):
+            return float(vtrend)
+        return float(float(vtrend) + float(past))
+
+    def calculate_asset_growth_anomaly_inv(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_deleveraging_quality(symbol, date)
+
+    def calculate_capex_discipline(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_deleveraging_quality(symbol, date)
+
+    def calculate_nwc_change_inverse(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_deleveraging_quality(symbol, date)
+
+    def calculate_profitability_trend_4q(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_TREND_METRIC")
+        self.config["QUALITY_TREND_METRIC"] = "roa"
+        try:
+            return self.calculate_quality_metric_trend(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_TREND_METRIC", None)
+            else:
+                self.config["QUALITY_TREND_METRIC"] = metric_bak
+
+    def calculate_margin_trend_4q(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_TREND_METRIC")
+        self.config["QUALITY_TREND_METRIC"] = "gross_margin"
+        try:
+            return self.calculate_quality_metric_trend(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_TREND_METRIC", None)
+            else:
+                self.config["QUALITY_TREND_METRIC"] = metric_bak
+
+    def calculate_cash_conversion_improve(self, symbol: str, date: str) -> Optional[float]:
+        cfoa = self.calculate_cfo_to_assets(symbol, date)
+        roa = self.calculate_roa_ttm(symbol, date)
+        if cfoa is None or roa is None or pd.isna(cfoa) or pd.isna(roa):
+            return None
+        return float(float(cfoa) - float(roa))
+
+    def calculate_investment_conservatism(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_deleveraging_quality(symbol, date)
+
+    def calculate_post_event_liquidity_gap(self, symbol: str, date: str) -> Optional[float]:
+        sue = self.calculate_sue_eps_basic(symbol, date)
+        illiq = self.calculate_amihud_illiquidity(symbol, date)
+        if sue is None or illiq is None or pd.isna(sue) or pd.isna(illiq):
+            return None
+        return float(float(sue) * (-float(illiq)))
+
+    def calculate_ownership_acceleration(self, symbol: str, date: str) -> Optional[float]:
+        cur = self.calculate_institutional_ownership_change(symbol, date)
+        if cur is None or pd.isna(cur):
+            return None
+        prev1 = self.calculate_institutional_ownership_change(symbol, (pd.Timestamp(date) - pd.Timedelta(days=90)).strftime("%Y-%m-%d"))
+        prev2 = self.calculate_institutional_ownership_change(symbol, (pd.Timestamp(date) - pd.Timedelta(days=180)).strftime("%Y-%m-%d"))
+        if prev1 is None or prev2 is None or pd.isna(prev1) or pd.isna(prev2):
+            return None
+        return float((float(cur) - float(prev1)) - (float(prev1) - float(prev2)))
+
+    def calculate_crowded_value_trap_avoid(self, symbol: str, date: str) -> Optional[float]:
+        val = self.calculate_value(symbol, date)
+        crowd = self.calculate_crowding_turnover_x_inst(symbol, date)
+        if val is None or crowd is None or pd.isna(val) or pd.isna(crowd):
+            return None
+        return float(float(val) - float(crowd))
+
+    def calculate_ownership_dispersion_proxy(self, symbol: str, date: str) -> Optional[float]:
+        cache = self._load_institutional_summary()
+        df = cache.get(symbol)
+        if df is None or len(df) < 4 or "investorsHoldingChange" not in df.columns:
+            return None
+        d = pd.Timestamp(date)
+        w = df[df["date"] <= d].tail(4)
+        if len(w) < 3:
+            return None
+        x = pd.to_numeric(w["investorsHoldingChange"], errors="coerce").dropna()
+        if len(x) < 3:
+            return None
+        v = float(x.std(ddof=1))
+        if not np.isfinite(v):
+            return None
+        return float(-v)
+
+    def calculate_risk_on_off_breadth(self, symbol: str, date: str) -> Optional[float]:
+        # Per-symbol proxy: market trend - market volatility
+        start_date = (pd.Timestamp(date) - pd.Timedelta(days=400)).strftime("%Y-%m-%d")
+        mkt = self.data_engine.get_price("SPY", start_date=start_date, end_date=date)
+        if mkt is None or len(mkt) < 120:
+            return None
+        m = mkt.copy()
+        m["close"] = pd.to_numeric(m["close"], errors="coerce")
+        m.loc[m["close"] <= 0, "close"] = np.nan
+        r = np.log(m["close"] / m["close"].shift(1)).dropna()
+        if len(r) < 120:
+            return None
+        trend = float(np.log(m["close"].iloc[-1] / m["close"].iloc[-63]))
+        vol = float(r.tail(63).std(ddof=1))
+        if not np.isfinite(trend) or not np.isfinite(vol):
+            return None
+        return float(trend - vol)
+
+    def calculate_cross_section_dispersion_regime(self, symbol: str, date: str) -> Optional[float]:
+        # Proxy with market realized volatility regime.
+        return self.calculate_risk_on_off_breadth(symbol, date)
+
+    def calculate_correlation_regime_proxy(self, symbol: str, date: str) -> Optional[float]:
+        qual = self.calculate_quality(symbol, date)
+        beta = self.calculate_beta(symbol, date)
+        if qual is None or beta is None or pd.isna(qual) or pd.isna(beta):
+            return None
+        return float(float(qual) * (1.0 - abs(float(beta))))
+
+    def calculate_defensive_rotation_proxy(self, symbol: str, date: str) -> Optional[float]:
+        qual = self.calculate_quality(symbol, date)
+        beta = self.calculate_beta(symbol, date)
+        if qual is None or beta is None or pd.isna(qual) or pd.isna(beta):
+            return None
+        return float(float(qual) - float(beta))
+
+    def calculate_smallcap_seasonality_proxy(self, symbol: str, date: str) -> Optional[float]:
+        mcap = self.calculate_size(symbol, date)
+        if mcap is None or pd.isna(mcap) or float(mcap) <= 0:
+            return None
+        month = pd.Timestamp(date).month
+        seasonal = 1.0 if month in (1, 12) else 0.5
+        return float((-np.log(float(mcap))) * seasonal)
+
     def calculate_sue_eps_basic(self, symbol: str, date: str) -> Optional[float]:
         if not self.pead_factor:
             return None
@@ -1068,6 +2164,16 @@ class FactorEngine:
             return None
         return float(v)
 
+    def calculate_institutional_ownership_level(self, symbol: str, date: str) -> Optional[float]:
+        cache = self._load_institutional_summary()
+        row = self._latest_from_symbol_cache(cache, symbol, date, min_rows=1)
+        if row is None:
+            return None
+        v = row.get("ownershipPercent")
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+
     def calculate_owner_earnings_yield_proxy(self, symbol: str, date: str) -> Optional[float]:
         cache = self._load_owner_earnings()
         row = self._latest_from_symbol_cache(cache, symbol, date)
@@ -1091,6 +2197,251 @@ class FactorEngine:
             return None
         close = float(px.sort_values("date").iloc[-1]["close"])
         return float(float(oeps) / close)
+
+    def calculate_sue_eps(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_sue_eps_basic(symbol, date)
+
+    def calculate_sue_revenue(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_sue_revenue_basic(symbol, date)
+
+    def calculate_pead_1_20(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_pead_short_window(symbol, date)
+
+    def calculate_pead_21_60(self, symbol: str, date: str) -> Optional[float]:
+        """Medium-window PEAD proxy: latest EPS surprise with event age in [21,60] days."""
+        if not self.pead_factor:
+            return None
+        earnings = self.pead_factor.get_earnings(symbol)
+        if earnings is None or len(earnings) == 0 or "date" not in earnings.columns:
+            return None
+        work = earnings.copy()
+        work["date"] = pd.to_datetime(work["date"], errors="coerce")
+        work = work.dropna(subset=["date", "epsActual", "epsEstimated"])
+        if len(work) == 0:
+            return None
+        d = pd.Timestamp(date)
+        min_age = int(self.config.get("PEAD_MEDIUM_MIN_AGE_DAYS", 21))
+        max_age = int(self.config.get("PEAD_MEDIUM_MAX_AGE_DAYS", 60))
+        lb = d - pd.Timedelta(days=max_age)
+        ub = d - pd.Timedelta(days=min_age)
+        work = work[(work["date"] >= lb) & (work["date"] <= ub)]
+        if len(work) == 0:
+            return None
+        row = work.sort_values("date").iloc[-1]
+        est = float(row["epsEstimated"])
+        act = float(row["epsActual"])
+        floor = float(self.config.get("SUE_EPS_FLOOR", 0.01))
+        denom = max(abs(est), floor)
+        return float((act - est) / denom)
+
+    def calculate_earnings_gap_strength(self, symbol: str, date: str) -> Optional[float]:
+        """Opening gap on most recent earnings date normalized by gap std."""
+        cal = self._load_earnings_calendar()
+        events = cal.get(symbol)
+        if events is None or len(events) == 0 or "date" not in events.columns:
+            return None
+        d = pd.Timestamp(date)
+        max_age = int(self.config.get("EARNINGS_GAP_MAX_AGE_DAYS", 10))
+        ev = events[(events["date"] <= d) & (events["date"] >= d - pd.Timedelta(days=max_age))]
+        if len(ev) == 0:
+            return None
+        ev_date = pd.Timestamp(ev.sort_values("date").iloc[-1]["date"])
+        start_date = (ev_date - pd.Timedelta(days=120)).strftime("%Y-%m-%d")
+        end_date = d.strftime("%Y-%m-%d")
+        px = self.data_engine.get_price(symbol, start_date=start_date, end_date=end_date)
+        if px is None or len(px) < 30:
+            return None
+        px = px.copy()
+        px["date"] = pd.to_datetime(px["date"], errors="coerce")
+        px["open"] = pd.to_numeric(px["open"], errors="coerce")
+        px["close"] = pd.to_numeric(px["close"], errors="coerce")
+        px = px.dropna(subset=["date", "open", "close"])
+        px = px[(px["open"] > 0) & (px["close"] > 0)].sort_values("date")
+        if len(px) < 30:
+            return None
+        px["gap"] = np.log(px["open"] / px["close"].shift(1))
+        day = px[px["date"].dt.normalize() == ev_date.normalize()]
+        if len(day) == 0:
+            return None
+        g = float(day.iloc[-1]["gap"]) if pd.notna(day.iloc[-1]["gap"]) else None
+        hist = px["gap"].dropna().tail(60)
+        if g is None or len(hist) < 20:
+            return None
+        std = float(hist.std(ddof=1))
+        if not np.isfinite(std) or std <= 0:
+            return None
+        return float(g / std)
+
+    def calculate_surprise_persistence(self, symbol: str, date: str) -> Optional[float]:
+        """Latest two EPS surprises sum (persistence proxy)."""
+        if not self.pead_factor:
+            return None
+        earnings = self.pead_factor.get_earnings(symbol)
+        if earnings is None or len(earnings) == 0 or "date" not in earnings.columns:
+            return None
+        work = earnings.copy()
+        work["date"] = pd.to_datetime(work["date"], errors="coerce")
+        work = work.dropna(subset=["date", "epsActual", "epsEstimated"]).sort_values("date")
+        d = pd.Timestamp(date)
+        work = work[work["date"] <= d]
+        if len(work) < 2:
+            return None
+        floor = float(self.config.get("SUE_EPS_FLOOR", 0.01))
+        last2 = work.tail(2)
+        vals = []
+        for _, r in last2.iterrows():
+            est = float(r["epsEstimated"])
+            act = float(r["epsActual"])
+            vals.append((act - est) / max(abs(est), floor))
+        return float(vals[-1] + vals[-2])
+
+    def calculate_beat_with_revenue_confirm(self, symbol: str, date: str) -> Optional[float]:
+        """1 if both EPS and revenue surprises are positive on latest event, else 0/negative."""
+        sue_eps = self.calculate_sue_eps_basic(symbol, date)
+        sue_rev = self.calculate_sue_revenue_basic(symbol, date)
+        if sue_eps is None or sue_rev is None or pd.isna(sue_eps) or pd.isna(sue_rev):
+            return None
+        return float((1.0 if sue_eps > 0 else -1.0) + (1.0 if sue_rev > 0 else -1.0))
+
+    def calculate_institutional_ownership_delta(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_institutional_ownership_change(symbol, date)
+
+    def calculate_institutional_breadth_delta(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_institutional_breadth_change(symbol, date)
+
+    def calculate_owner_earnings_yield(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_owner_earnings_yield_proxy(symbol, date)
+
+    def calculate_low_vol_60(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_low_volatility(symbol, date, window=60)
+
+    def calculate_turnover_shock_20_120(self, symbol: str, date: str) -> Optional[float]:
+        return self.calculate_turnover_shock(symbol, date)
+
+    def calculate_cfo_to_assets(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_COMPONENT_METRIC")
+        self.config["QUALITY_COMPONENT_METRIC"] = "cfo_to_assets"
+        try:
+            return self.calculate_quality_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_COMPONENT_METRIC", None)
+            else:
+                self.config["QUALITY_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_gross_margin_level(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_COMPONENT_METRIC")
+        self.config["QUALITY_COMPONENT_METRIC"] = "gross_margin"
+        try:
+            return self.calculate_quality_component(symbol, date)
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_COMPONENT_METRIC", None)
+            else:
+                self.config["QUALITY_COMPONENT_METRIC"] = metric_bak
+
+    def calculate_deleveraging_quality(self, symbol: str, date: str) -> Optional[float]:
+        metric_bak = self.config.get("QUALITY_TREND_METRIC")
+        self.config["QUALITY_TREND_METRIC"] = "debt_to_equity"
+        try:
+            v = self.calculate_quality_metric_trend(symbol, date)
+            if v is None or pd.isna(v):
+                return None
+            return float(-float(v))
+        finally:
+            if metric_bak is None:
+                self.config.pop("QUALITY_TREND_METRIC", None)
+            else:
+                self.config["QUALITY_TREND_METRIC"] = metric_bak
+
+    def calculate_low_beta_252(self, symbol: str, date: str) -> Optional[float]:
+        beta = self.calculate_beta(symbol, date)
+        if beta is None or pd.isna(beta):
+            return None
+        return float(-float(beta))
+
+    def calculate_illiq_size_interaction(self, symbol: str, date: str) -> Optional[float]:
+        illiq = self.calculate_amihud_illiquidity(symbol, date)
+        mcap = self.calculate_size(symbol, date)
+        if illiq is None or mcap is None or pd.isna(illiq) or pd.isna(mcap) or float(mcap) <= 0:
+            return None
+        return float(float(illiq) * (-np.log(float(mcap))))
+
+    def calculate_liquidity_regime_score(self, symbol: str, date: str) -> Optional[float]:
+        ts = self.calculate_turnover_shock(symbol, date)
+        illiq = self.calculate_amihud_illiquidity(symbol, date)
+        if ts is None or illiq is None or pd.isna(ts) or pd.isna(illiq):
+            return None
+        return float(float(ts) - float(illiq))
+
+    def calculate_turnover_spike_decay(self, symbol: str, date: str) -> Optional[float]:
+        delta_days = int(self.config.get("TURNOVER_SPIKE_DECAY_DAYS", 5))
+        if delta_days < 1:
+            return None
+        cur = self.calculate_turnover_shock(symbol, date)
+        if cur is None or pd.isna(cur):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=delta_days)).strftime("%Y-%m-%d")
+        past = self.calculate_turnover_shock(symbol, past_date)
+        if past is None or pd.isna(past):
+            return None
+        return float(-(float(cur) - float(past)))
+
+    def calculate_crowding_turnover_x_inst(self, symbol: str, date: str) -> Optional[float]:
+        ts = self.calculate_turnover_shock(symbol, date)
+        own = self.calculate_institutional_ownership_level(symbol, date)
+        if ts is None or own is None or pd.isna(ts) or pd.isna(own):
+            return None
+        return float(float(ts) + float(own))
+
+    def calculate_event_underreaction_low_own(self, symbol: str, date: str) -> Optional[float]:
+        sue = self.calculate_sue_eps_basic(symbol, date)
+        own = self.calculate_institutional_ownership_level(symbol, date)
+        if sue is None or own is None or pd.isna(sue) or pd.isna(own):
+            return None
+        own01 = min(max(float(own), 0.0), 1.0)
+        return float(float(sue) * (1.0 - own01))
+
+    def calculate_event_underreaction_value_anchor(self, symbol: str, date: str) -> Optional[float]:
+        sue = self.calculate_sue_eps_basic(symbol, date)
+        val = self.calculate_value(symbol, date)
+        if sue is None or val is None or pd.isna(sue) or pd.isna(val):
+            return None
+        return float(float(sue) * float(val))
+
+    def calculate_ownership_x_quality(self, symbol: str, date: str) -> Optional[float]:
+        own_delta = self.calculate_institutional_ownership_change(symbol, date)
+        qual = self.calculate_quality(symbol, date)
+        if own_delta is None or qual is None or pd.isna(own_delta) or pd.isna(qual):
+            return None
+        return float(float(own_delta) * float(qual))
+
+    def calculate_ownership_x_value(self, symbol: str, date: str) -> Optional[float]:
+        own_delta = self.calculate_institutional_ownership_change(symbol, date)
+        val = self.calculate_value(symbol, date)
+        if own_delta is None or val is None or pd.isna(own_delta) or pd.isna(val):
+            return None
+        return float(float(own_delta) * float(val))
+
+    def calculate_owner_earnings_trend(self, symbol: str, date: str) -> Optional[float]:
+        lookback_days = int(self.config.get("OWNER_EARNINGS_TREND_LOOKBACK_DAYS", 252))
+        if lookback_days < 30:
+            return None
+        cur = self.calculate_owner_earnings_yield_proxy(symbol, date)
+        if cur is None or pd.isna(cur):
+            return None
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+        past = self.calculate_owner_earnings_yield_proxy(symbol, past_date)
+        if past is None or pd.isna(past):
+            return None
+        return float(float(cur) - float(past))
+
+    def calculate_de_crowding_momentum(self, symbol: str, date: str) -> Optional[float]:
+        mom = self.calculate_momentum(symbol, date)
+        own_delta = self.calculate_institutional_ownership_change(symbol, date)
+        if mom is None or own_delta is None or pd.isna(mom) or pd.isna(own_delta):
+            return None
+        return float(float(mom) - float(own_delta))
 
     def calculate_all_factors(self, symbol: str, date: str,
                               needed: Optional[set] = None) -> Dict[str, Optional[float]]:
@@ -1173,6 +2524,315 @@ class FactorEngine:
         if needed is None or 'owner_earnings_yield_proxy' in needed:
             oey_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
             factors['owner_earnings_yield_proxy'] = self.calculate_owner_earnings_yield_proxy(symbol, oey_date)
+        if needed is None or 'trend_tstat_126' in needed:
+            tt_date = resolve_factor_date(date, global_lag, self.config.get('TREND_TSTAT_LAG_DAYS'))
+            factors['trend_tstat_126'] = self.calculate_trend_tstat(symbol, tt_date)
+        if needed is None or 'high_52w_proximity' in needed:
+            h52_date = resolve_factor_date(date, global_lag, self.config.get('HIGH_52W_LAG_DAYS'))
+            factors['high_52w_proximity'] = self.calculate_high_52w_proximity(symbol, h52_date)
+        if needed is None or 'breakout_persistence' in needed:
+            bop_date = resolve_factor_date(date, global_lag, self.config.get('BREAKOUT_LAG_DAYS'))
+            factors['breakout_persistence'] = self.calculate_breakout_persistence(symbol, bop_date)
+        if needed is None or 'pullback_in_uptrend' in needed:
+            pbu_date = resolve_factor_date(date, global_lag, self.config.get('PULLBACK_LAG_DAYS'))
+            factors['pullback_in_uptrend'] = self.calculate_pullback_in_uptrend(symbol, pbu_date)
+        if needed is None or 'momentum_crash_adjusted' in needed:
+            mca_date = resolve_factor_date(date, global_lag, self.config.get('MOM_CRASH_ADJ_LAG_DAYS'))
+            factors['momentum_crash_adjusted'] = self.calculate_momentum_crash_adjusted(symbol, mca_date)
+        if needed is None or 'overnight_drift_63' in needed:
+            od_date = resolve_factor_date(date, global_lag, self.config.get('OVERNIGHT_DRIFT_LAG_DAYS'))
+            factors['overnight_drift_63'] = self.calculate_overnight_drift(symbol, od_date)
+        if needed is None or 'gap_fill_propensity' in needed:
+            gfp_date = resolve_factor_date(date, global_lag, self.config.get('GAP_FILL_LAG_DAYS'))
+            factors['gap_fill_propensity'] = self.calculate_gap_fill_propensity(symbol, gfp_date)
+        if needed is None or 'amihud_illiquidity_20' in needed:
+            ami_date = resolve_factor_date(date, global_lag, self.config.get('AMIHUD_LAG_DAYS'))
+            factors['amihud_illiquidity_20'] = self.calculate_amihud_illiquidity(symbol, ami_date)
+        if needed is None or 'amihud_improving' in needed:
+            ami2_date = resolve_factor_date(date, global_lag, self.config.get('AMIHUD_LAG_DAYS'))
+            factors['amihud_improving'] = self.calculate_amihud_improving(symbol, ami2_date)
+        if needed is None or 'dollar_volume_trend' in needed:
+            dvt_date = resolve_factor_date(date, global_lag, self.config.get('DOLLAR_VOL_TREND_LAG_DAYS'))
+            factors['dollar_volume_trend'] = self.calculate_dollar_volume_trend(symbol, dvt_date)
+        if needed is None or 'downside_vol_60' in needed:
+            dsv_date = resolve_factor_date(date, global_lag, self.config.get('DOWNSIDE_VOL_LAG_DAYS'))
+            factors['downside_vol_60'] = self.calculate_downside_volatility(symbol, dsv_date)
+        if needed is None or 'left_tail_es5_126' in needed:
+            les_date = resolve_factor_date(date, global_lag, self.config.get('LEFT_TAIL_LAG_DAYS'))
+            factors['left_tail_es5_126'] = self.calculate_left_tail_es5(symbol, les_date)
+        if needed is None or 'max_drawdown_126' in needed:
+            mdd_date = resolve_factor_date(date, global_lag, self.config.get('MAX_DRAWDOWN_LAG_DAYS'))
+            factors['max_drawdown_126'] = self.calculate_max_drawdown_126(symbol, mdd_date)
+        if needed is None or 'low_beta_252' in needed:
+            lb_date = resolve_factor_date(date, global_lag, self.config.get('LOW_BETA_LAG_DAYS'))
+            factors['low_beta_252'] = self.calculate_low_beta_252(symbol, lb_date)
+        if needed is None or 'illiq_size_interaction' in needed:
+            isi_date = resolve_factor_date(date, global_lag, self.config.get('ILLIQ_SIZE_LAG_DAYS'))
+            factors['illiq_size_interaction'] = self.calculate_illiq_size_interaction(symbol, isi_date)
+        if needed is None or 'liquidity_regime_score' in needed:
+            lrs_date = resolve_factor_date(date, global_lag, self.config.get('LIQ_REGIME_LAG_DAYS'))
+            factors['liquidity_regime_score'] = self.calculate_liquidity_regime_score(symbol, lrs_date)
+        if needed is None or 'turnover_spike_decay' in needed:
+            tsd_date = resolve_factor_date(date, global_lag, self.config.get('TURNOVER_SPIKE_LAG_DAYS'))
+            factors['turnover_spike_decay'] = self.calculate_turnover_spike_decay(symbol, tsd_date)
+        if needed is None or 'crowding_turnover_x_inst' in needed:
+            ctxi_date = resolve_factor_date(date, global_lag, self.config.get('CROWDING_LAG_DAYS'))
+            factors['crowding_turnover_x_inst'] = self.calculate_crowding_turnover_x_inst(symbol, ctxi_date)
+        if needed is None or 'event_underreaction_low_own' in needed:
+            eulo_date = resolve_factor_date(date, global_lag, self.config.get('EVENT_UNDERREACTION_LAG_DAYS'))
+            factors['event_underreaction_low_own'] = self.calculate_event_underreaction_low_own(symbol, eulo_date)
+        if needed is None or 'event_underreaction_value_anchor' in needed:
+            euva_date = resolve_factor_date(date, global_lag, self.config.get('EVENT_UNDERREACTION_LAG_DAYS'))
+            factors['event_underreaction_value_anchor'] = self.calculate_event_underreaction_value_anchor(symbol, euva_date)
+        if needed is None or 'ownership_x_quality' in needed:
+            oxq_date = resolve_factor_date(date, global_lag, self.config.get('OWNERSHIP_INTERACT_LAG_DAYS'))
+            factors['ownership_x_quality'] = self.calculate_ownership_x_quality(symbol, oxq_date)
+        if needed is None or 'ownership_x_value' in needed:
+            oxv_date = resolve_factor_date(date, global_lag, self.config.get('OWNERSHIP_INTERACT_LAG_DAYS'))
+            factors['ownership_x_value'] = self.calculate_ownership_x_value(symbol, oxv_date)
+        if needed is None or 'owner_earnings_trend' in needed:
+            oet_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
+            factors['owner_earnings_trend'] = self.calculate_owner_earnings_trend(symbol, oet_date)
+        if needed is None or 'de_crowding_momentum' in needed:
+            dcm_date = resolve_factor_date(date, global_lag, self.config.get('DE_CROWDING_LAG_DAYS'))
+            factors['de_crowding_momentum'] = self.calculate_de_crowding_momentum(symbol, dcm_date)
+        if needed is None or 'earnings_yield_ttm' in needed:
+            eyt_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['earnings_yield_ttm'] = self.calculate_earnings_yield_ttm(symbol, eyt_date)
+        if needed is None or 'fcf_yield_ttm' in needed:
+            fyt_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['fcf_yield_ttm'] = self.calculate_fcf_yield_ttm(symbol, fyt_date)
+        if needed is None or 'ebitda_ev_yield' in needed:
+            eev_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['ebitda_ev_yield'] = self.calculate_ebitda_ev_yield(symbol, eev_date)
+        if needed is None or 'value_composite_sector_neutral' in needed:
+            vcsn_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['value_composite_sector_neutral'] = self.calculate_value_composite_sector_neutral(symbol, vcsn_date)
+        if needed is None or 'value_rerating_trend' in needed:
+            vrt_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_TREND_LAG_DAYS'))
+            factors['value_rerating_trend'] = self.calculate_value_rerating_trend(symbol, vrt_date)
+        if needed is None or 'roe_ttm' in needed:
+            roe_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['roe_ttm'] = self.calculate_roe_ttm(symbol, roe_date)
+        if needed is None or 'roa_ttm' in needed:
+            roa_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['roa_ttm'] = self.calculate_roa_ttm(symbol, roa_date)
+        if needed is None or 'gross_profitability_proxy' in needed:
+            gp_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['gross_profitability_proxy'] = self.calculate_gross_profitability_proxy(symbol, gp_date)
+        if needed is None or 'qmj_proxy_composite' in needed:
+            qmj_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['qmj_proxy_composite'] = self.calculate_qmj_proxy_composite(symbol, qmj_date)
+        if needed is None or 'sue_eps' in needed:
+            se_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['sue_eps'] = self.calculate_sue_eps(symbol, se_date)
+        if needed is None or 'sue_revenue' in needed:
+            sr_date = resolve_factor_date(date, global_lag, self.config.get('SUE_REVENUE_LAG_DAYS'))
+            factors['sue_revenue'] = self.calculate_sue_revenue(symbol, sr_date)
+        if needed is None or 'pead_1_20' in needed:
+            p120_date = resolve_factor_date(date, global_lag, self.config.get('PEAD_SHORT_WINDOW_LAG_DAYS'))
+            factors['pead_1_20'] = self.calculate_pead_1_20(symbol, p120_date)
+        if needed is None or 'pead_21_60' in needed:
+            p2160_date = resolve_factor_date(date, global_lag, self.config.get('PEAD_SHORT_WINDOW_LAG_DAYS'))
+            factors['pead_21_60'] = self.calculate_pead_21_60(symbol, p2160_date)
+        if needed is None or 'earnings_gap_strength' in needed:
+            egs_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['earnings_gap_strength'] = self.calculate_earnings_gap_strength(symbol, egs_date)
+        if needed is None or 'surprise_persistence' in needed:
+            sp_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['surprise_persistence'] = self.calculate_surprise_persistence(symbol, sp_date)
+        if needed is None or 'beat_with_revenue_confirm' in needed:
+            bwr_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['beat_with_revenue_confirm'] = self.calculate_beat_with_revenue_confirm(symbol, bwr_date)
+        if needed is None or 'institutional_ownership_delta' in needed:
+            iod_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['institutional_ownership_delta'] = self.calculate_institutional_ownership_delta(symbol, iod_date)
+        if needed is None or 'institutional_breadth_delta' in needed:
+            ibd_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['institutional_breadth_delta'] = self.calculate_institutional_breadth_delta(symbol, ibd_date)
+        if needed is None or 'owner_earnings_yield' in needed:
+            oey2_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
+            factors['owner_earnings_yield'] = self.calculate_owner_earnings_yield(symbol, oey2_date)
+        if needed is None or 'low_vol_60' in needed:
+            lv60_date = resolve_factor_date(date, global_lag, self.config.get('LOW_VOL_LAG_DAYS'))
+            factors['low_vol_60'] = self.calculate_low_vol_60(symbol, lv60_date)
+        if needed is None or 'turnover_shock_20_120' in needed:
+            ts20120_date = resolve_factor_date(date, global_lag, self.config.get('TURNOVER_SHOCK_LAG_DAYS'))
+            factors['turnover_shock_20_120'] = self.calculate_turnover_shock_20_120(symbol, ts20120_date)
+        if needed is None or 'cfo_to_assets' in needed:
+            cfoa_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['cfo_to_assets'] = self.calculate_cfo_to_assets(symbol, cfoa_date)
+        if needed is None or 'gross_margin_level' in needed:
+            gml_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['gross_margin_level'] = self.calculate_gross_margin_level(symbol, gml_date)
+        if needed is None or 'deleveraging_quality' in needed:
+            dq_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['deleveraging_quality'] = self.calculate_deleveraging_quality(symbol, dq_date)
+        if needed is None or 'residual_mom_12_1' in needed:
+            rm_date = resolve_factor_date(date, global_lag, self.config.get('MOMENTUM_LAG_DAYS'))
+            factors['residual_mom_12_1'] = self.calculate_residual_mom_12_1(symbol, rm_date)
+        if needed is None or 'range_followthrough' in needed:
+            rf_date = resolve_factor_date(date, global_lag, self.config.get('RANGE_FOLLOW_LAG_DAYS'))
+            factors['range_followthrough'] = self.calculate_range_followthrough(symbol, rf_date)
+        if needed is None or 'st_reversal_liquidity_filtered' in needed:
+            srl_date = resolve_factor_date(date, global_lag, self.config.get('REVERSAL_LAG_DAYS'))
+            factors['st_reversal_liquidity_filtered'] = self.calculate_st_reversal_liquidity_filtered(symbol, srl_date)
+        if needed is None or 'post_spike_cooldown' in needed:
+            psc_date = resolve_factor_date(date, global_lag, self.config.get('POST_SPIKE_LAG_DAYS'))
+            factors['post_spike_cooldown'] = self.calculate_post_spike_cooldown(symbol, psc_date)
+        if needed is None or 'overreaction_volume_adjusted' in needed:
+            ova_date = resolve_factor_date(date, global_lag, self.config.get('OVERREACT_LAG_DAYS'))
+            factors['overreaction_volume_adjusted'] = self.calculate_overreaction_volume_adjusted(symbol, ova_date)
+        if needed is None or 'failed_breakout_reversal' in needed:
+            fbr_date = resolve_factor_date(date, global_lag, self.config.get('FAILED_BREAKOUT_LAG_DAYS'))
+            factors['failed_breakout_reversal'] = self.calculate_failed_breakout_reversal(symbol, fbr_date)
+        if needed is None or 'compression_reversal' in needed:
+            cr_date = resolve_factor_date(date, global_lag, self.config.get('COMPRESSION_LAG_DAYS'))
+            factors['compression_reversal'] = self.calculate_compression_reversal(symbol, cr_date)
+        if needed is None or 'skew_reversal' in needed:
+            skr_date = resolve_factor_date(date, global_lag, self.config.get('SKEW_REV_LAG_DAYS'))
+            factors['skew_reversal'] = self.calculate_skew_reversal(symbol, skr_date)
+        if needed is None or 'three_red_days_rebound' in needed:
+            trd_date = resolve_factor_date(date, global_lag, self.config.get('THREE_RED_LAG_DAYS'))
+            factors['three_red_days_rebound'] = self.calculate_three_red_days_rebound(symbol, trd_date)
+        if needed is None or 'large_gap_reversal' in needed:
+            lgr_date = resolve_factor_date(date, global_lag, self.config.get('LARGE_GAP_LAG_DAYS'))
+            factors['large_gap_reversal'] = self.calculate_large_gap_reversal(symbol, lgr_date)
+        if needed is None or 'flow_autocorr_20' in needed:
+            fac_date = resolve_factor_date(date, global_lag, self.config.get('FLOW_AUTOCORR_LAG_DAYS'))
+            factors['flow_autocorr_20'] = self.calculate_flow_autocorr_20(symbol, fac_date)
+        if needed is None or 'spread_proxy_stability' in needed:
+            sps_date = resolve_factor_date(date, global_lag, self.config.get('SPREAD_STAB_LAG_DAYS'))
+            factors['spread_proxy_stability'] = self.calculate_spread_proxy_stability(symbol, sps_date)
+        if needed is None or 'vol_of_vol_126' in needed:
+            vov_date = resolve_factor_date(date, global_lag, self.config.get('VOL_OF_VOL_LAG_DAYS'))
+            factors['vol_of_vol_126'] = self.calculate_vol_of_vol_126(symbol, vov_date)
+        if needed is None or 'jump_risk_proxy' in needed:
+            jrp_date = resolve_factor_date(date, global_lag, self.config.get('JUMP_RISK_LAG_DAYS'))
+            factors['jump_risk_proxy'] = self.calculate_jump_risk_proxy(symbol, jrp_date)
+        if needed is None or 'trend_regime_switch' in needed:
+            trs_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['trend_regime_switch'] = self.calculate_trend_regime_switch(symbol, trs_date)
+        if needed is None or 'vol_regime_switch' in needed:
+            vrs_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['vol_regime_switch'] = self.calculate_vol_regime_switch(symbol, vrs_date)
+        if needed is None or 'liquidity_regime_switch' in needed:
+            lrsw_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['liquidity_regime_switch'] = self.calculate_liquidity_regime_switch(symbol, lrsw_date)
+        if needed is None or 'earnings_season_alpha' in needed:
+            esa_date = resolve_factor_date(date, global_lag, self.config.get('SUE_LAG_DAYS'))
+            factors['earnings_season_alpha'] = self.calculate_earnings_season_alpha(symbol, esa_date)
+        if needed is None or 'state_weighted_meta_signal' in needed:
+            swm_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['state_weighted_meta_signal'] = self.calculate_state_weighted_meta_signal(symbol, swm_date)
+        if needed is None or 'idio_mom_vs_sector' in needed:
+            ims_date = resolve_factor_date(date, global_lag, self.config.get('MOMENTUM_LAG_DAYS'))
+            factors['idio_mom_vs_sector'] = self.calculate_idio_mom_vs_sector(symbol, ims_date)
+        if needed is None or 'extreme_reversal_ex_earnings' in needed:
+            ere_date = resolve_factor_date(date, global_lag, self.config.get('REVERSAL_LAG_DAYS'))
+            factors['extreme_reversal_ex_earnings'] = self.calculate_extreme_reversal_ex_earnings(symbol, ere_date)
+        if needed is None or 'intraday_reversion_proxy' in needed:
+            irp_date = resolve_factor_date(date, global_lag, self.config.get('REVERSAL_LAG_DAYS'))
+            factors['intraday_reversion_proxy'] = self.calculate_intraday_reversion_proxy(symbol, irp_date)
+        if needed is None or 'idiosyncratic_vol_63' in needed:
+            iv63_date = resolve_factor_date(date, global_lag, self.config.get('BETA_LAG_DAYS'))
+            factors['idiosyncratic_vol_63'] = self.calculate_idiosyncratic_vol_63(symbol, iv63_date)
+        if needed is None or 'beta_instability_126' in needed:
+            bi126_date = resolve_factor_date(date, global_lag, self.config.get('BETA_LAG_DAYS'))
+            factors['beta_instability_126'] = self.calculate_beta_instability_126(symbol, bi126_date)
+        if needed is None or 'downside_beta_crash' in needed:
+            dbc_date = resolve_factor_date(date, global_lag, self.config.get('BETA_LAG_DAYS'))
+            factors['downside_beta_crash'] = self.calculate_downside_beta_crash(symbol, dbc_date)
+        if needed is None or 'ocf_yield_ttm' in needed:
+            ocfy_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['ocf_yield_ttm'] = self.calculate_ocf_yield_ttm(symbol, ocfy_date)
+        if needed is None or 'sales_ev_yield' in needed:
+            sey_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['sales_ev_yield'] = self.calculate_sales_ev_yield(symbol, sey_date)
+        if needed is None or 'book_to_market' in needed:
+            btm_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_LAG_DAYS'))
+            factors['book_to_market'] = self.calculate_book_to_market(symbol, btm_date)
+        if needed is None or 'shareholder_yield' in needed:
+            shy_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
+            factors['shareholder_yield'] = self.calculate_shareholder_yield(symbol, shy_date)
+        if needed is None or 'net_payout_yield' in needed:
+            npy_date = resolve_factor_date(date, global_lag, self.config.get('OWNER_EARNINGS_LAG_DAYS'))
+            factors['net_payout_yield'] = self.calculate_net_payout_yield(symbol, npy_date)
+        if needed is None or 'gross_profitability' in needed:
+            gp_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['gross_profitability'] = self.calculate_gross_profitability(symbol, gp_date)
+        if needed is None or 'roic_ttm' in needed:
+            roic_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['roic_ttm'] = self.calculate_roic_ttm(symbol, roic_date)
+        if needed is None or 'accruals_inverse' in needed:
+            acc_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['accruals_inverse'] = self.calculate_accruals_inverse(symbol, acc_date)
+        if needed is None or 'margin_stability_12q' in needed:
+            ms12q_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['margin_stability_12q'] = self.calculate_margin_stability_12q(symbol, ms12q_date)
+        if needed is None or 'earnings_stability_12q' in needed:
+            es12q_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['earnings_stability_12q'] = self.calculate_earnings_stability_12q(symbol, es12q_date)
+        if needed is None or 'interest_coverage' in needed:
+            icov_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_LAG_DAYS'))
+            factors['interest_coverage'] = self.calculate_interest_coverage(symbol, icov_date)
+        if needed is None or 'revenue_growth_quality_adj' in needed:
+            rgq_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['revenue_growth_quality_adj'] = self.calculate_revenue_growth_quality_adj(symbol, rgq_date)
+        if needed is None or 'eps_growth_quality_adj' in needed:
+            egq_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['eps_growth_quality_adj'] = self.calculate_eps_growth_quality_adj(symbol, egq_date)
+        if needed is None or 'fcf_growth_persistence' in needed:
+            fgp_date = resolve_factor_date(date, global_lag, self.config.get('VALUE_TREND_LAG_DAYS'))
+            factors['fcf_growth_persistence'] = self.calculate_fcf_growth_persistence(symbol, fgp_date)
+        if needed is None or 'asset_growth_anomaly_inv' in needed:
+            aga_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['asset_growth_anomaly_inv'] = self.calculate_asset_growth_anomaly_inv(symbol, aga_date)
+        if needed is None or 'capex_discipline' in needed:
+            capd_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['capex_discipline'] = self.calculate_capex_discipline(symbol, capd_date)
+        if needed is None or 'nwc_change_inverse' in needed:
+            nwc_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['nwc_change_inverse'] = self.calculate_nwc_change_inverse(symbol, nwc_date)
+        if needed is None or 'profitability_trend_4q' in needed:
+            pt4q_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['profitability_trend_4q'] = self.calculate_profitability_trend_4q(symbol, pt4q_date)
+        if needed is None or 'margin_trend_4q' in needed:
+            mt4q_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['margin_trend_4q'] = self.calculate_margin_trend_4q(symbol, mt4q_date)
+        if needed is None or 'cash_conversion_improve' in needed:
+            cci_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['cash_conversion_improve'] = self.calculate_cash_conversion_improve(symbol, cci_date)
+        if needed is None or 'investment_conservatism' in needed:
+            icon_date = resolve_factor_date(date, global_lag, self.config.get('QUALITY_TREND_LAG_DAYS'))
+            factors['investment_conservatism'] = self.calculate_investment_conservatism(symbol, icon_date)
+        if needed is None or 'post_event_liquidity_gap' in needed:
+            pelg_date = resolve_factor_date(date, global_lag, self.config.get('EVENT_UNDERREACTION_LAG_DAYS'))
+            factors['post_event_liquidity_gap'] = self.calculate_post_event_liquidity_gap(symbol, pelg_date)
+        if needed is None or 'ownership_acceleration' in needed:
+            oacc_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['ownership_acceleration'] = self.calculate_ownership_acceleration(symbol, oacc_date)
+        if needed is None or 'crowded_value_trap_avoid' in needed:
+            cvta_date = resolve_factor_date(date, global_lag, self.config.get('CROWDING_LAG_DAYS'))
+            factors['crowded_value_trap_avoid'] = self.calculate_crowded_value_trap_avoid(symbol, cvta_date)
+        if needed is None or 'ownership_dispersion_proxy' in needed:
+            odp_date = resolve_factor_date(date, global_lag, self.config.get('INSTITUTIONAL_LAG_DAYS'))
+            factors['ownership_dispersion_proxy'] = self.calculate_ownership_dispersion_proxy(symbol, odp_date)
+        if needed is None or 'risk_on_off_breadth' in needed:
+            roob_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['risk_on_off_breadth'] = self.calculate_risk_on_off_breadth(symbol, roob_date)
+        if needed is None or 'cross_section_dispersion_regime' in needed:
+            csd_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['cross_section_dispersion_regime'] = self.calculate_cross_section_dispersion_regime(symbol, csd_date)
+        if needed is None or 'correlation_regime_proxy' in needed:
+            crp_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['correlation_regime_proxy'] = self.calculate_correlation_regime_proxy(symbol, crp_date)
+        if needed is None or 'defensive_rotation_proxy' in needed:
+            drp_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['defensive_rotation_proxy'] = self.calculate_defensive_rotation_proxy(symbol, drp_date)
+        if needed is None or 'smallcap_seasonality_proxy' in needed:
+            ssp_date = resolve_factor_date(date, global_lag, self.config.get('REGIME_LAG_DAYS'))
+            factors['smallcap_seasonality_proxy'] = self.calculate_smallcap_seasonality_proxy(symbol, ssp_date)
         return factors
 
     def compute_signals(self, date: str, factor_weights: dict) -> pd.DataFrame:
@@ -1272,6 +2932,73 @@ class FactorEngine:
                     "institutional_ownership_change": f.get("institutional_ownership_change"),
                     "institutional_breadth_change": f.get("institutional_breadth_change"),
                     "owner_earnings_yield_proxy": f.get("owner_earnings_yield_proxy"),
+                    "trend_tstat_126": f.get("trend_tstat_126"),
+                    "high_52w_proximity": f.get("high_52w_proximity"),
+                    "breakout_persistence": f.get("breakout_persistence"),
+                    "pullback_in_uptrend": f.get("pullback_in_uptrend"),
+                    "momentum_crash_adjusted": f.get("momentum_crash_adjusted"),
+                    "overnight_drift_63": f.get("overnight_drift_63"),
+                    "gap_fill_propensity": f.get("gap_fill_propensity"),
+                    "amihud_illiquidity_20": f.get("amihud_illiquidity_20"),
+                    "amihud_improving": f.get("amihud_improving"),
+                    "dollar_volume_trend": f.get("dollar_volume_trend"),
+                    "downside_vol_60": f.get("downside_vol_60"),
+                    "left_tail_es5_126": f.get("left_tail_es5_126"),
+                    "max_drawdown_126": f.get("max_drawdown_126"),
+                    "low_beta_252": f.get("low_beta_252"),
+                    "illiq_size_interaction": f.get("illiq_size_interaction"),
+                    "liquidity_regime_score": f.get("liquidity_regime_score"),
+                    "turnover_spike_decay": f.get("turnover_spike_decay"),
+                    "crowding_turnover_x_inst": f.get("crowding_turnover_x_inst"),
+                    "event_underreaction_low_own": f.get("event_underreaction_low_own"),
+                    "event_underreaction_value_anchor": f.get("event_underreaction_value_anchor"),
+                    "ownership_x_quality": f.get("ownership_x_quality"),
+                    "ownership_x_value": f.get("ownership_x_value"),
+                    "owner_earnings_trend": f.get("owner_earnings_trend"),
+                    "de_crowding_momentum": f.get("de_crowding_momentum"),
+                    "earnings_yield_ttm": f.get("earnings_yield_ttm"),
+                    "fcf_yield_ttm": f.get("fcf_yield_ttm"),
+                    "ebitda_ev_yield": f.get("ebitda_ev_yield"),
+                    "value_composite_sector_neutral": f.get("value_composite_sector_neutral"),
+                    "value_rerating_trend": f.get("value_rerating_trend"),
+                    "roe_ttm": f.get("roe_ttm"),
+                    "roa_ttm": f.get("roa_ttm"),
+                    "gross_profitability_proxy": f.get("gross_profitability_proxy"),
+                    "qmj_proxy_composite": f.get("qmj_proxy_composite"),
+                    "sue_eps": f.get("sue_eps"),
+                    "sue_revenue": f.get("sue_revenue"),
+                    "pead_1_20": f.get("pead_1_20"),
+                    "pead_21_60": f.get("pead_21_60"),
+                    "earnings_gap_strength": f.get("earnings_gap_strength"),
+                    "surprise_persistence": f.get("surprise_persistence"),
+                    "beat_with_revenue_confirm": f.get("beat_with_revenue_confirm"),
+                    "institutional_ownership_delta": f.get("institutional_ownership_delta"),
+                    "institutional_breadth_delta": f.get("institutional_breadth_delta"),
+                    "owner_earnings_yield": f.get("owner_earnings_yield"),
+                    "low_vol_60": f.get("low_vol_60"),
+                    "turnover_shock_20_120": f.get("turnover_shock_20_120"),
+                    "cfo_to_assets": f.get("cfo_to_assets"),
+                    "gross_margin_level": f.get("gross_margin_level"),
+                    "deleveraging_quality": f.get("deleveraging_quality"),
+                    "residual_mom_12_1": f.get("residual_mom_12_1"),
+                    "range_followthrough": f.get("range_followthrough"),
+                    "st_reversal_liquidity_filtered": f.get("st_reversal_liquidity_filtered"),
+                    "post_spike_cooldown": f.get("post_spike_cooldown"),
+                    "overreaction_volume_adjusted": f.get("overreaction_volume_adjusted"),
+                    "failed_breakout_reversal": f.get("failed_breakout_reversal"),
+                    "compression_reversal": f.get("compression_reversal"),
+                    "skew_reversal": f.get("skew_reversal"),
+                    "three_red_days_rebound": f.get("three_red_days_rebound"),
+                    "large_gap_reversal": f.get("large_gap_reversal"),
+                    "flow_autocorr_20": f.get("flow_autocorr_20"),
+                    "spread_proxy_stability": f.get("spread_proxy_stability"),
+                    "vol_of_vol_126": f.get("vol_of_vol_126"),
+                    "jump_risk_proxy": f.get("jump_risk_proxy"),
+                    "trend_regime_switch": f.get("trend_regime_switch"),
+                    "vol_regime_switch": f.get("vol_regime_switch"),
+                    "liquidity_regime_switch": f.get("liquidity_regime_switch"),
+                    "earnings_season_alpha": f.get("earnings_season_alpha"),
+                    "state_weighted_meta_signal": f.get("state_weighted_meta_signal"),
                 }
                 rows.append(row)
 
@@ -1374,6 +3101,73 @@ class FactorEngine:
                 "institutional_ownership_change",
                 "institutional_breadth_change",
                 "owner_earnings_yield_proxy",
+                "trend_tstat_126",
+                "high_52w_proximity",
+                "breakout_persistence",
+                "pullback_in_uptrend",
+                "momentum_crash_adjusted",
+                "overnight_drift_63",
+                "gap_fill_propensity",
+                "amihud_illiquidity_20",
+                "amihud_improving",
+                "dollar_volume_trend",
+                "downside_vol_60",
+                "left_tail_es5_126",
+                "max_drawdown_126",
+                "low_beta_252",
+                "illiq_size_interaction",
+                "liquidity_regime_score",
+                "turnover_spike_decay",
+                "crowding_turnover_x_inst",
+                "event_underreaction_low_own",
+                "event_underreaction_value_anchor",
+                "ownership_x_quality",
+                "ownership_x_value",
+                "owner_earnings_trend",
+                "de_crowding_momentum",
+                "earnings_yield_ttm",
+                "fcf_yield_ttm",
+                "ebitda_ev_yield",
+                "value_composite_sector_neutral",
+                "value_rerating_trend",
+                "roe_ttm",
+                "roa_ttm",
+                "gross_profitability_proxy",
+                "qmj_proxy_composite",
+                "sue_eps",
+                "sue_revenue",
+                "pead_1_20",
+                "pead_21_60",
+                "earnings_gap_strength",
+                "surprise_persistence",
+                "beat_with_revenue_confirm",
+                "institutional_ownership_delta",
+                "institutional_breadth_delta",
+                "owner_earnings_yield",
+                "low_vol_60",
+                "turnover_shock_20_120",
+                "cfo_to_assets",
+                "gross_margin_level",
+                "deleveraging_quality",
+                "residual_mom_12_1",
+                "range_followthrough",
+                "st_reversal_liquidity_filtered",
+                "post_spike_cooldown",
+                "overreaction_volume_adjusted",
+                "failed_breakout_reversal",
+                "compression_reversal",
+                "skew_reversal",
+                "three_red_days_rebound",
+                "large_gap_reversal",
+                "flow_autocorr_20",
+                "spread_proxy_stability",
+                "vol_of_vol_126",
+                "jump_risk_proxy",
+                "trend_regime_switch",
+                "vol_regime_switch",
+                "liquidity_regime_switch",
+                "earnings_season_alpha",
+                "state_weighted_meta_signal",
             ]:
                 if c in df.columns:
                     cols.append(c)

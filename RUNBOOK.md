@@ -1,8 +1,13 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-27 (Reset mode; no formal historical result retained; batchA100_logic100_v1 pending approval)
+Last updated: 2026-02-28 (formal logic100 run in progress on workstation)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
+
+Current runtime snapshot:
+- official batch: `batchA100_logic100_formal_v1`
+- run id: `2026-02-28_095939_batchA100_logic100_formal_v1`
+- status: `running` (no final results yet)
 
 Status boundary note:
 - command execution success (`exit_code=0`) is not equal to gate pass.

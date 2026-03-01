@@ -1,10 +1,10 @@
 # Session Continuity Protocol
 
-Last updated: 2026-02-27 (reset mode; no formal historical result retained)
+Last updated: 2026-02-28 (formal logic100 runtime sync)
 
 ## Session Contract
 1. Start from reset declaration and master table.
-2. Treat `batchA100_logic100_v1` as first official batch.
+2. Treat `batchA100_logic100_formal_v1` as first official batch.
 3. Do not run any batch before manual approval.
 4. Keep docs synchronized with real runtime state.
 
@@ -21,10 +21,13 @@ Last updated: 2026-02-27 (reset mode; no formal historical result retained)
 10. `docs/production_research/OPS_PLAYBOOK.md`
 
 ## Completion Checks
-1. Confirm there is no active batch process.
-2. Confirm current batch id is `batchA100_logic100_v1`.
-3. Confirm master table has only current post-reset candidates.
+1. Confirm current active batch process status on workstation (running/finished).
+2. Confirm current batch id is `batchA100_logic100_formal_v1`.
+3. Confirm master table matches formal logic100 SSOT and implementation map.
 4. Confirm run approval file path: `configs/research/factory_queue/run_approval.json`.
+5. Confirm next-batch design status:
+   - `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.md/.csv` exist,
+   - status is `design-only` (not approved, not running).
 
 ## Runtime First Commands (Workstation)
 ```bash

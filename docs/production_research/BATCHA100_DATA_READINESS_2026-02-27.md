@@ -2,7 +2,7 @@
 
 As-of: 2026-02-27
 
-Scope: `batchA100_logic100_v1` (100 distinct logic candidates, one candidate per logic).
+Scope: `batchA100_logic100_formal_v1` (100 distinct logic candidates, one candidate per logic).
 
 Workstation data root: `/home/hui/projects/hui-wang-multi-factor-research/data/fmp`
 
@@ -27,7 +27,8 @@ Workstation data root: `/home/hui/projects/hui-wang-multi-factor-research/data/f
 
 ## Execution Boundary
 
-- First official post-reset batch: `batchA100_logic100_v1`.
+- First official post-reset batch: `batchA100_logic100_formal_v1`.
+- Runtime status (as-of 2026-02-28): running on workstation.
 - Master table SSOT:
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
