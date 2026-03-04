@@ -28,7 +28,7 @@ Each factor follows the same research gate:
 
 Default single-factor path is `SF-L1 -> SF-L2`; `SF-DIAG` is optional and non-gating.
 
-## Current Operating Mode (2026-02-27)
+## Current Operating Mode (2026-03-04)
 - authoritative pipeline is frozen in:
   - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 - factor factory governance:
@@ -42,6 +42,12 @@ Default single-factor path is `SF-L1 -> SF-L2`; `SF-DIAG` is optional and non-ga
   3. single-factor validation (`SF-L1` mandatory + `SF-L2` mandatory; `SF-DIAG` optional)
   4. combo Layer1/Layer2/Layer3
   5. production gates
+
+Current runtime status:
+- formal run `2026-02-28_095939_batchA100_logic100_formal_v1` is closed
+- active workstation jobs are targeted remediation reruns
+  - FMP/coverage-affected subset
+  - duplicate-implementation subset
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration

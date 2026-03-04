@@ -1,13 +1,15 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-02-28 (formal logic100 run in progress on workstation)
+Last updated: 2026-03-04 (formal logic100 closed; remediation reruns active)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
 Current runtime snapshot:
 - official batch: `batchA100_logic100_formal_v1`
-- run id: `2026-02-28_095939_batchA100_logic100_formal_v1`
-- status: `running` (no final results yet)
+- formal run id (closed): `2026-02-28_095939_batchA100_logic100_formal_v1`
+- current status: remediation reruns running on workstation
+  - FMP/coverage remediation subset
+  - duplicate-implementation remediation subset
 
 Status boundary note:
 - command execution success (`exit_code=0`) is not equal to gate pass.
@@ -15,6 +17,10 @@ Status boundary note:
 - if a documented workstation run is not present in local paths, mark it as `pending_local_sync` until artifacts are synced and verified.
 - factor-factory full-batch runs default to workstation with at least `--jobs 4` (local default is `--dry-run` planning).
 - factor-factory ranking comparability baseline is fixed in policy `default_set`: `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`.
+
+Remediation snapshot (2026-03-04):
+- current rerun scope: `21` factors
+- expected unaffected: `79` factors
 
 ## 1) Environment
 - Python 3.11 recommended

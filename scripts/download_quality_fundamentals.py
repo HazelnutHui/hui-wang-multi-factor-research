@@ -4,10 +4,14 @@ import os
 import time
 import json
 import random
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 import pandas as pd
-import requests
 
 API_BASE = "https://financialmodelingprep.com/stable"
 START_DATE = "2010-01-01"
@@ -28,7 +32,7 @@ if not API_KEY:
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-session = requests.Session()
+write_lock = threading.Lock()
 
 
 def log(msg: str):
@@ -52,13 +56,25 @@ def fetch_json(endpoint: str, symbol: str):
         "period": PERIOD,
         "limit": LIMIT,
     }
-    r = session.get(f"{API_BASE}/{endpoint}", params=params, timeout=30)
-    if r.status_code == 429:
-        return "rate_limit", None
-    if r.status_code != 200:
-        return f"http_{r.status_code}", None
+    url = f"{API_BASE}/{endpoint}?{urlencode(params)}"
     try:
-        data = r.json()
+        with urlopen(url, timeout=30) as resp:
+            code = int(getattr(resp, "status", 200))
+            body = resp.read().decode("utf-8", errors="ignore")
+    except HTTPError as e:
+        if int(e.code) == 429:
+            return "rate_limit", None
+        return f"http_{int(e.code)}", None
+    except URLError:
+        return "network_error", None
+    except Exception:
+        return "network_error", None
+    if code == 429:
+        return "rate_limit", None
+    if code != 200:
+        return f"http_{code}", None
+    try:
+        data = json.loads(body)
     except json.JSONDecodeError:
         return "bad_json", None
     if isinstance(data, dict):
@@ -68,8 +84,21 @@ def fetch_json(endpoint: str, symbol: str):
     return "ok", data
 
 
+def _pick_first_series(df: pd.DataFrame, candidates: list[str]) -> pd.Series:
+    for col in candidates:
+        if col in df.columns:
+            s = pd.to_numeric(df[col], errors="coerce")
+            if s.notna().any():
+                return s
+    return pd.Series([None] * len(df), index=df.index)
+
+
 def build_quality_frame(symbol: str, start_date: str, end_date: str):
     status, ratios = fetch_json("ratios", symbol)
+    if status != "ok":
+        return status, None
+
+    status, inc = fetch_json("income-statement", symbol)
     if status != "ok":
         return status, None
 
@@ -82,6 +111,7 @@ def build_quality_frame(symbol: str, start_date: str, end_date: str):
         return status, None
 
     ratios_df = pd.DataFrame(ratios)
+    inc_df = pd.DataFrame(inc)
     bs_df = pd.DataFrame(bs)
     cf_df = pd.DataFrame(cf)
 
@@ -103,13 +133,15 @@ def build_quality_frame(symbol: str, start_date: str, end_date: str):
         return out
 
     ratios_df = prep(ratios_df)
+    inc_df = prep(inc_df)
     bs_df = prep(bs_df)
     cf_df = prep(cf_df)
-    if ratios_df is None or bs_df is None or cf_df is None:
+    if ratios_df is None or inc_df is None or bs_df is None or cf_df is None:
         return "no_date", None
 
     # Merge on period end date
-    df = ratios_df.merge(bs_df, on='date', suffixes=('', '_bs'))
+    df = ratios_df.merge(inc_df, on='date', suffixes=('', '_inc'))
+    df = df.merge(bs_df, on='date', suffixes=('', '_bs'))
     df = df.merge(cf_df, on='date', suffixes=('', '_cf'))
     if len(df) == 0:
         return "empty_merge", None
@@ -119,10 +151,42 @@ def build_quality_frame(symbol: str, start_date: str, end_date: str):
     df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
     if len(df) == 0:
         return "empty_date_range", None
-    df['roe'] = df.get('returnOnEquity')
-    df['roa'] = df.get('returnOnAssets')
-    df['gross_margin'] = df.get('grossProfitMargin')
-    df['debt_to_equity'] = df.get('debtToEquityRatio')
+    # FMP field names can vary by endpoint/version; use first non-empty alias.
+    df['roe'] = _pick_first_series(df, [
+        'returnOnEquity',
+        'returnOnEquityTTM',
+        'roe',
+    ])
+    df['roa'] = _pick_first_series(df, [
+        'returnOnAssets',
+        'returnOnAssetsTTM',
+        'roa',
+    ])
+    df['gross_margin'] = _pick_first_series(df, [
+        'grossProfitMargin',
+        'grossMargin',
+        'gross_margin',
+    ])
+    df['debt_to_equity'] = _pick_first_series(df, [
+        'debtToEquityRatio',
+        'debtToEquity',
+        'debt_to_equity',
+    ])
+
+    # Fallback derivation when ratio endpoint does not expose ROE/ROA.
+    ni = _pick_first_series(df, ['netIncome', 'netIncome_inc'])
+    equity = _pick_first_series(df, ['totalStockholdersEquity', 'totalEquity', 'totalStockholdersEquity_bs', 'totalEquity_bs'])
+    assets = _pick_first_series(df, ['totalAssets', 'totalAssets_bs'])
+    if 'roe' in df.columns:
+        miss_roe = pd.to_numeric(df['roe'], errors='coerce').isna()
+        if miss_roe.any():
+            alt_roe = (ni / equity.replace(0, pd.NA)).replace([float("inf"), float("-inf")], pd.NA)
+            df.loc[miss_roe, 'roe'] = alt_roe.loc[miss_roe]
+    if 'roa' in df.columns:
+        miss_roa = pd.to_numeric(df['roa'], errors='coerce').isna()
+        if miss_roa.any():
+            alt_roa = (ni / assets.replace(0, pd.NA)).replace([float("inf"), float("-inf")], pd.NA)
+            df.loc[miss_roa, 'roa'] = alt_roa.loc[miss_roa]
 
     # CFO/Assets
     if 'operatingCashFlow' in df.columns and 'totalAssets' in df.columns:
@@ -158,6 +222,7 @@ def main():
     parser.add_argument("--start-date", default=START_DATE, help="YYYY-MM-DD")
     parser.add_argument("--end-date", default=END_DATE, help="YYYY-MM-DD")
     parser.add_argument("--sleep", type=float, default=0.25, help="Sleep between symbols")
+    parser.add_argument("--workers", type=int, default=8, help="Parallel workers")
     args = parser.parse_args()
 
     active_syms = load_symbols(ACTIVE_SRC)
@@ -177,31 +242,37 @@ def main():
     skipped = 0
     errors = 0
 
-    for i, sym in enumerate(symbols, 1):
+    def task(sym: str):
         out_path = OUT_DIR / f"{sym}.pkl"
         if out_path.exists() and not args.overwrite:
-            skipped += 1
-            if i % 200 == 0:
-                log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")
-            continue
+            return ("skipped", sym, None)
 
         status, df = build_quality_frame(sym, args.start_date, args.end_date)
         if status == "ok":
-            df.to_pickle(out_path)
-            ok += 1
-        elif status == "rate_limit":
-            errors += 1
-            log(f"Rate limit hit at {sym}. Sleeping 60s...")
-            time.sleep(60)
-            continue
-        else:
-            errors += 1
-            log(f"Error {status} for {sym}")
+            with write_lock:
+                df.to_pickle(out_path)
+            if args.sleep > 0:
+                time.sleep(args.sleep)
+            return ("ok", sym, None)
+        return ("error", sym, status)
 
-        time.sleep(args.sleep)
+    workers = max(1, int(args.workers))
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = [ex.submit(task, sym) for sym in symbols]
+        for i, fut in enumerate(as_completed(futs), 1):
+            state, sym, detail = fut.result()
+            if state == "ok":
+                ok += 1
+            elif state == "skipped":
+                skipped += 1
+            else:
+                errors += 1
+                log(f"Error {detail} for {sym}")
+                if detail == "rate_limit":
+                    log("Rate limit observed; consider lowering --workers or increasing --sleep.")
 
-        if i % 200 == 0:
-            log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")
+            if i % 200 == 0 or i == total:
+                log(f"Progress {i}/{total} ok={ok} skipped={skipped} errors={errors}")
 
     log(f"Done. ok={ok} skipped={skipped} errors={errors}")
 

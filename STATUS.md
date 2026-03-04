@@ -1,13 +1,15 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-02-28 (formal logic100 run in progress on workstation)
+Last updated: 2026-03-04 (post-formal remediation reruns in progress on workstation)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 - First official post-reset batch: `batchA100_logic100_formal_v1`
-- Runtime state: `running` (workstation)
-- Current run id: `2026-02-28_095939_batchA100_logic100_formal_v1`
-- No official performance conclusion yet (run not finished)
+- Runtime state: `formal batch finished; targeted remediation reruns running` (workstation)
+- Formal batch run id (closed): `2026-02-28_095939_batchA100_logic100_formal_v1`
+- Current active run family: 2026-03-04 remediation reruns
+  - data-remediation reruns for FMP/coverage-affected factors
+  - logic-remediation reruns for duplicate-implementation factors
 
 ## 2) What Is Frozen Now
 - Comparison baseline remains fixed for round-1:
@@ -25,6 +27,9 @@ Last updated: 2026-02-28 (formal logic100 run in progress on workstation)
   - `native=75`
   - `alias_proxy=18`
   - `proxy=7`
+- Current remediation scope (2026-03-04):
+  - `21` factors queued/rerun as remediation set
+  - expected unaffected set: `79` factors
 - Master query table:
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
@@ -49,3 +54,14 @@ Last updated: 2026-02-28 (formal logic100 run in progress on workstation)
   - `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.md`
   - `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.csv`
   - `docs/production_research/BATCHB100_FMP_DOWNLOAD_REQUIREMENTS_2026-03-01.md`
+
+## 8) Pipeline Patch (Governance)
+- Completeness patch drafted (docs-only; no runtime impact on current running batch):
+  - `docs/production_research/PIPELINE_COMPLETENESS_PATCH_2026-03-01.md`
+
+## 9) Rerun Risk Notes (2026-03-04)
+- `crowding_turnover_x_inst` is marked as rerun-required after institutional data refresh.
+  - prior formal run evidence: only `2/9` segments had non-zero signals (`segment_summary.csv` in run `2026-02-28_095939_batchA100_logic100_formal_v1`).
+  - data dependency: price turnover + institutional ownership level (`data/fmp/institutional/institutional-ownership__symbol-positions-summary.jsonl`).
+- Additional rerun candidates may still be added if low-coverage patterns persist after current remediation runs finish.
+- Potential API redirection/download-path anomaly should be reviewed in FMP ingestion scripts/logs before rerun promotion.
