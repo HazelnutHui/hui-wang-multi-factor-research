@@ -28,7 +28,7 @@ Workstation data root: `/home/hui/projects/hui-wang-multi-factor-research/data/f
 ## Execution Boundary
 
 - First official post-reset batch: `batchA100_logic100_formal_v1`.
-- Runtime status (as-of 2026-02-28): running on workstation.
+- Runtime final status (as-of 2026-03-05): final consolidated result ready (`100/100`) at canonical output path.
 - Master table SSOT:
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`

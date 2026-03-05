@@ -1,12 +1,14 @@
 # Production Research Governance Docs
 
-Last updated: 2026-03-04 (post-formal remediation runtime sync)
+Last updated: 2026-03-05 (logic100 final consolidated runtime sync)
 
 ## Current Operating State
 - No formal historical factor result is retained.
 - First official research batch is `batchA100_logic100_formal_v1`.
 - Formal run status: `closed` (`run_id=2026-02-28_095939_batchA100_logic100_formal_v1`).
-- Current status: remediation reruns `running` on workstation (FMP/coverage + duplicate-implementation subsets).
+- Current status: final consolidated logic100 result is ready (`100/100`).
+- Canonical output path:
+  - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
 - Any run launch requires manual approval.
 
 ## Primary Documents
@@ -20,6 +22,7 @@ Last updated: 2026-03-04 (post-formal remediation runtime sync)
 - `BATCHA100_PHASE1_RUNNABLE10_2026-02-28.csv`
 - `BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.md`
 - `BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.csv`
+- `BATCHA100_FINAL_RESULT_STATUS_2026-03-05.md`
 - `FACTOR_FACTORY_STANDARD.md`
 - `FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 - `PIPELINE_COMPLETENESS_PATCH_2026-03-01.md`

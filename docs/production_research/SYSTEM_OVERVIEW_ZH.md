@@ -1,6 +1,6 @@
 # V4 量化研究系统白皮书（中文）
 
-Last updated: 2026-02-28
+Last updated: 2026-03-05
 
 ## 0. 文档定位与阅读顺序
 
@@ -15,12 +15,17 @@ Last updated: 2026-02-28
 
 本文档为客观技术说明，不含主观叙述与人称指代。
 
-当前运行快照（2026-02-28）：
+当前运行快照（2026-03-05）：
 1. 重置前历史结果：已退役（当前决策不作为正式结果使用）。
-2. 当前在跑批次：`batchA100_logic100_formal_v1`（工作站运行中）。
+2. formal 批次：`batchA100_logic100_formal_v1`（已关闭）。
    - run id：`2026-02-28_095939_batchA100_logic100_formal_v1`
 3. formal 逻辑覆盖：`100/100` 已映射到运行入口（含原生/代理实现分类）。
-4. 治理边界：
+4. 当前结果状态：
+   - logic100 最终合并结果已就绪（`100/100`）
+   - 统一解释路径：
+     - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
+   - 中间补跑产物不再作为解释口径。
+5. 治理边界：
    - 后续新批次/新队列仍需人工审批后才能启动。
    - 审批门文件：`configs/research/factory_queue/run_approval.json`
 

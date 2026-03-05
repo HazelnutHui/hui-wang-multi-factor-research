@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-03-04 (post-formal remediation runtime sync)
+Last updated: 2026-03-05 (logic100 final consolidated sync)
 
 ## Current Source of Truth
 - `docs/production_research/RESET_STATE_2026-02-27.md`
@@ -13,6 +13,7 @@ Last updated: 2026-03-04 (post-formal remediation runtime sync)
 - `docs/production_research/BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.md`
 - `docs/production_research/BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.csv`
 - `docs/production_research/BATCHA100_FMP_DOWNLOAD_REQUIREMENTS_2026-02-28.md`
+- `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-05.md`
 - `STATUS.md`
 - `RUNBOOK.md`
 - `SESSION_CONTINUITY_PROTOCOL.md`
@@ -41,4 +42,7 @@ Last updated: 2026-03-04 (post-formal remediation runtime sync)
 - Pre-reset result snapshots and legacy baseline docs were removed.
 - First official batch is `batchA100_logic100_formal_v1`.
 - Formal run `2026-02-28_095939_batchA100_logic100_formal_v1` is closed.
-- Current status: targeted remediation reruns are running on workstation (FMP/coverage + duplicate-implementation fixes).
+- Current status: logic100 final consolidated result is ready.
+- Canonical output path:
+  - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
+- Final interpretation: use canonical path only (intermediate rerun artifacts retired).
