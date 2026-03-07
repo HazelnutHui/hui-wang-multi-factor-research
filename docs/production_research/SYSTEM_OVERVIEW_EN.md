@@ -1,6 +1,6 @@
 # V4 Quant Research System White Paper (English)
 
-Last updated: 2026-03-05
+Last updated: 2026-03-07
 
 ## 0. Document Positioning
 
@@ -14,20 +14,10 @@ Primary goals:
 
 This is a technical system description, not a strategy marketing note.
 
-Current operational snapshot (2026-03-05):
-- pre-reset historical result status: retired (not considered formal for current decisions)
-- formal batch: `batchA100_logic100_formal_v1`
-  - run id: `2026-02-28_095939_batchA100_logic100_formal_v1`
-  - status: `closed`
-- formal logic coverage in runtime mapping: `100/100`
-- current result status:
-  - final consolidated logic100 output ready (`100/100`)
-  - canonical output path:
-    - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
-  - intermediate rerun artifacts are retired from interpretation scope
-- governance boundary:
-  - new future queue/batch launches still require manual approval
-  - approval gate file: `configs/research/factory_queue/run_approval.json`
+Current operational snapshot is maintained in SSOT docs only:
+- project-level status: `../../STATUS.md`
+- row-level final status: `BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+- approval gate file: `configs/research/factory_queue/run_approval.json`
 
 ---
 
@@ -374,7 +364,6 @@ Search V1 explores parameter spaces for combo_v2 through structured trial plans.
 
 - policy: `configs/research/auto_research_search_v1_policy.json`
 - builder: `scripts/build_search_v1_trials.py`
-- standard: `docs/production_research/AUTO_RESEARCH_SEARCH_V1.md`
 
 ### 11.3 Output Contract
 
@@ -413,7 +402,7 @@ Single-entry protocol:
 - `SESSION_CONTINUITY_PROTOCOL.md`
 
 Bootstrap sequence:
-- `docs/production_research/SESSION_BOOTSTRAP.md`
+- `SESSION_CONTINUITY_PROTOCOL.md`
 
 Readiness checker:
 - `scripts/check_session_handoff_readiness.py`
@@ -465,8 +454,7 @@ Recommended order:
 1. `SESSION_CONTINUITY_PROTOCOL.md`
 2. `DOCS_INDEX.md`
 3. this document (`SYSTEM_OVERVIEW_EN.md`)
-4. `docs/production_research/GATE_SPEC.md`
-5. `docs/production_research/AUTO_RESEARCH_ORCHESTRATION.md`
-6. latest `audit/system_closure/*/system_closure_report.json`
+4. `RUNBOOK.md`
+5. latest `audit/system_closure/*/system_closure_report.json`
 
 This path provides architecture understanding first, then operational confidence.

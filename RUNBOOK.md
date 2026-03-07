@@ -1,15 +1,12 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-03-05 (logic100 final consolidated result)
+Last updated: 2026-03-07 (logic100 final consolidated baseline)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
-Current runtime snapshot:
-- official batch: `batchA100_logic100_formal_v1`
-- formal run id (closed): `2026-02-28_095939_batchA100_logic100_formal_v1`
-- current status: final consolidated 100-factor result ready
-- canonical output path:
-  - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
+Runtime status source:
+- Authoritative project status: `STATUS.md`
+- Row-level final status: `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 
 Status boundary note:
 - command execution success (`exit_code=0`) is not equal to gate pass.
@@ -18,11 +15,9 @@ Status boundary note:
 - factor-factory full-batch runs default to workstation with at least `--jobs 4` (local default is `--dry-run` planning).
 - factor-factory ranking comparability baseline is fixed in policy `default_set`: `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`.
 
-Final snapshot (2026-03-05):
-- total factors with valid results: `100/100`
-- targeted replacements: `21/21` integrated
-- final status file:
-  - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-05.md`
+Snapshot details are maintained only in:
+- `STATUS.md`
+- `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 
 ## 1) Environment
 - Python 3.11 recommended

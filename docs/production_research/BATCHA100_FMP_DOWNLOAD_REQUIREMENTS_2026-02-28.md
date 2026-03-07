@@ -1,6 +1,9 @@
 # BatchA100 FMP Download Requirements (2026-02-28)
 
-As-of: 2026-02-28  
+As-of: 2026-02-28
+
+Primary callable reference (single-file):
+- `docs/production_research/FMP_CALLABLE_DATA_REFERENCE_2026-03-07.md`
 Status: required before full run of logic100 blueprint
 
 Purpose:

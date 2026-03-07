@@ -1,9 +1,9 @@
 # Production Ops Playbook
 
-Last updated: 2026-02-24
+Last updated: 2026-03-07
 
 Related daily operating standard:
-- `docs/production_research/DAILY_DEV_RESEARCH_FLOW.md`
+- `../../RUNBOOK.md`
 
 ## 1) One-time setup
 

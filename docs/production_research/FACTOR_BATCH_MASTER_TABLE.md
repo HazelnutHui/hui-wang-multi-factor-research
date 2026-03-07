@@ -1,6 +1,6 @@
 # Factor Batch Master Table
 
-As-of: 2026-03-05
+As-of: 2026-03-07
 
 - Scope: first official post-reset research batch (formal logic100)
 - Batch ID: `batchA100_logic100_formal_v1`

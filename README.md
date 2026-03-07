@@ -28,26 +28,13 @@ Each factor follows the same research gate:
 
 Default single-factor path is `SF-L1 -> SF-L2`; `SF-DIAG` is optional and non-gating.
 
-## Current Operating Mode (2026-03-05)
-- authoritative pipeline is frozen in:
+## Current Operating Mode
+- Project-level runtime status (authoritative): `STATUS.md`
+- Row-level 100-factor final status: `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+- Pipeline/governance protocol:
   - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
-- factor factory governance:
-  - Reset declaration: `docs/production_research/RESET_STATE_2026-02-27.md`
-  - all next batches require manual approval before run:
-    - `configs/research/factory_queue/run_approval.json`
-  - fixed comparability profile (for approved runs): `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`
-- round design:
-  1. `S0` large-scale pre-screen
-  2. shortlist `1/3/5` holding-period robustness
-  3. single-factor validation (`SF-L1` mandatory + `SF-L2` mandatory; `SF-DIAG` optional)
-  4. combo Layer1/Layer2/Layer3
-  5. production gates
-
-Current runtime status:
-- formal run `2026-02-28_095939_batchA100_logic100_formal_v1` is closed
-- logic100 final consolidated result is ready (`100/100`)
-- canonical result path:
-  - `segment_results/factor_factory/2026-02-28_095939_batchA100_logic100_formal_v1`
+  - `docs/production_research/RESET_STATE_2026-02-27.md`
+  - `configs/research/factory_queue/run_approval.json`
 
 ## Core Architecture
 - `backtest/backtest_engine.py`: rebalance loop orchestration

@@ -36,9 +36,7 @@ def main() -> int:
     ]
     compiled = [re.compile(p) for p in patterns]
 
-    allowed_files = {
-        str((ROOT / "docs" / "production_research" / "CHANGELOG.md").resolve()),
-    }
+    allowed_files = set()
 
     violations: list[dict] = []
     scanned = _collect_md_files(ROOT)
@@ -102,4 +100,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

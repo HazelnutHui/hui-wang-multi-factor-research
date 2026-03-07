@@ -101,7 +101,7 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Finalize production gate run and append stage audit row.")
     p.add_argument("--run-dir", required=True, help="workstation run dir (audit/workstation_runs/<...>)")
     p.add_argument("--report-json", required=True, help="production_gates_report.json path")
-    p.add_argument("--stage-log", default="docs/production_research/STAGE_AUDIT_LOG.md")
+    p.add_argument("--stage-log", default="audit/stage_audit_log.md")
     p.add_argument("--objective", default="S3 production gates official rerun")
     p.add_argument("--summary-md", default="", help="Optional output markdown summary path")
     args = p.parse_args()

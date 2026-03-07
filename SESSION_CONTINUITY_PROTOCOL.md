@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-05 (logic100 final consolidated result)
+Last updated: 2026-03-07 (logic100 final consolidated baseline)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -11,27 +11,26 @@ Last updated: 2026-03-05 (logic100 final consolidated result)
 
 ## Mandatory Read Order
 1. `README.md`
-2. `RUNBOOK.md`
-3. `STATUS.md`
+2. `STATUS.md`
+3. `RUNBOOK.md`
 4. `DOCS_INDEX.md`
-5. `docs/production_research/RESET_STATE_2026-02-27.md`
-6. `docs/production_research/FACTOR_BATCH_MASTER_TABLE.md`
-7. `docs/production_research/FACTOR_FACTORY_STANDARD.md`
+5. `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+6. `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
+7. `docs/production_research/FACTOR_ENGINE_SNAPSHOT_2026-03-07.md`
 8. `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
-9. `docs/production_research/BATCHA100_DATA_READINESS_2026-02-27.md`
-10. `docs/production_research/OPS_PLAYBOOK.md`
+9. `docs/production_research/FACTOR_FACTORY_STANDARD.md`
 
 ## Completion Checks
 1. Confirm canonical final output path exists and is complete (100 factors with summaries).
 2. Confirm formal batch id is `batchA100_logic100_formal_v1`.
 3. Confirm master table matches formal logic100 SSOT and implementation map.
 4. Confirm run approval file path: `configs/research/factory_queue/run_approval.json`.
-5. Confirm next-batch design status:
-   - `docs/production_research/BATCHB100_LOGIC100_DESIGN_V1_2026-03-01.md/.csv` exist,
-   - status is `design-only` (not approved, not running).
-6. Confirm row-level 100-factor status from:
+5. Confirm row-level 100-factor status from:
    - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
-   - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-05.md`
+   - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+6. Confirm SSOT rule:
+   - only `STATUS.md` stores project-level runtime snapshot
+   - only `BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md` stores row-level final status snapshot
 
 ## Runtime First Commands (Workstation)
 ```bash

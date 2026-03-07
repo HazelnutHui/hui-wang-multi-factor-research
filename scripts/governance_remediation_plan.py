@@ -37,7 +37,7 @@ def _classify_failure(msg: str) -> tuple[str, str, str]:
         return (
             "Medium",
             "Ledger",
-            "Run finalize script again and verify STAGE_AUDIT_LOG has the decision_tag row.",
+            "Run finalize script again and verify audit/stage_audit_log.md has the decision_tag row.",
         )
     if "report_json" in s or "report_md" in s or "final summary" in s:
         return (

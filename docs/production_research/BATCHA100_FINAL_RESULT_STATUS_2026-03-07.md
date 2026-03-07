@@ -1,6 +1,6 @@
-# BatchA100 Final Result Status (2026-03-05)
+# BatchA100 Final Result Status (2026-03-07)
 
-As-of: 2026-03-05
+As-of: 2026-03-07
 
 ## Final Result
 - Batch: `batchA100_logic100_formal_v1`
@@ -20,3 +20,9 @@ As-of: 2026-03-05
 - Intermediate remediation logs were removed.
 - Only canonical formal output remains under:
   - `segment_results/factor_factory/`
+
+## Integrity Check
+- `accruals_inverse` and `cash_conversion_improve` are not identical in canonical output.
+- `eps_growth_quality_adj` and `revenue_growth_quality_adj` are not identical in canonical output.
+- `capex_discipline` and `fcf_growth_persistence` are not identical in canonical output.
+- Exact duplicate IC-vector groups in canonical set: `0`.

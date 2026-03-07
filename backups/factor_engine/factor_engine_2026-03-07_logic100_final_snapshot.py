@@ -88,6 +88,9 @@ class FactorEngine:
         self._owner_earnings_cache: Optional[Dict[str, pd.DataFrame]] = None
         self._earnings_calendar_cache: Optional[Dict[str, pd.DataFrame]] = None
         self._earnings_history_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._income_statement_ttm_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._cash_flow_statement_cache: Optional[Dict[str, pd.DataFrame]] = None
+        self._balance_sheet_statement_cache: Optional[Dict[str, pd.DataFrame]] = None
 
         # Optional industry neutralization
         self.industry_neutral = bool(self.config.get('INDUSTRY_NEUTRAL', False))
@@ -251,6 +254,9 @@ class FactorEngine:
                 except Exception:
                     continue
                 data = obj.get("data")
+                # Some FMP dumps use {"payload": [...]} instead of {"data": [...]}.
+                if data is None:
+                    data = obj.get("payload")
                 sym_fallback = obj.get("symbol")
                 if isinstance(data, dict):
                     data = [data]
@@ -297,6 +303,74 @@ class FactorEngine:
                 },
             )
         return self._earnings_history_cache
+
+    def _load_income_statement_ttm(self) -> Dict[str, pd.DataFrame]:
+        if self._income_statement_ttm_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("INCOME_STATEMENT_TTM_PATH"),
+                "data/fmp/statements/income-statement-ttm.jsonl",
+            )
+            self._income_statement_ttm_cache = self._load_symbol_data_cache(
+                p,
+                {"date", "revenue", "eps"},
+                aliases={
+                    "revenue": ["totalRevenue", "revenueTTM"],
+                    "eps": ["epsdiluted", "epsDiluted", "epsbasic", "epsBasic"],
+                },
+            )
+        return self._income_statement_ttm_cache
+
+    def _load_cash_flow_statement(self) -> Dict[str, pd.DataFrame]:
+        if self._cash_flow_statement_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("CASH_FLOW_STATEMENT_PATH"),
+                "data/fmp/statements/cash-flow-statement.jsonl",
+            )
+            self._cash_flow_statement_cache = self._load_symbol_data_cache(
+                p,
+                {"date", "freeCashFlow", "capitalExpenditure"},
+            )
+        return self._cash_flow_statement_cache
+
+    def _load_balance_sheet_statement(self) -> Dict[str, pd.DataFrame]:
+        if self._balance_sheet_statement_cache is None:
+            p = self._resolve_data_path(
+                self.config.get("BALANCE_SHEET_STATEMENT_PATH"),
+                "data/fmp/statements/balance-sheet-statement.jsonl",
+            )
+            self._balance_sheet_statement_cache = self._load_symbol_data_cache(
+                p,
+                {"date", "totalAssets"},
+            )
+        return self._balance_sheet_statement_cache
+
+    def _get_metric_asof(
+        self,
+        symbol_cache: Dict[str, pd.DataFrame],
+        symbol: str,
+        date: str,
+        metric: str,
+        aliases: Optional[list[str]] = None,
+    ) -> Optional[float]:
+        df = symbol_cache.get(symbol)
+        if df is None or len(df) == 0:
+            return None
+        if "date" not in df.columns:
+            return None
+        d = pd.Timestamp(date)
+        work = df[df["date"] <= d]
+        if len(work) == 0:
+            return None
+        row = work.iloc[-1]
+        candidates = [metric] + (aliases or [])
+        for col in candidates:
+            if col not in row.index:
+                continue
+            v = pd.to_numeric(row.get(col), errors="coerce")
+            if v is None or pd.isna(v):
+                continue
+            return float(v)
+        return None
 
     def calculate_momentum(self, symbol: str, date: str,
                            lookback: Optional[int] = None,
@@ -1997,23 +2071,67 @@ class FactorEngine:
         return float(pml) if pml is not None and not pd.isna(pml) else None
 
     def calculate_revenue_growth_quality_adj(self, symbol: str, date: str) -> Optional[float]:
-        qtrend = self.calculate_quality_metric_trend(symbol, date)
+        # Blueprint: revenue_yoy * z(quality)
+        # Here we output raw revenue_yoy * quality-level;
+        # cross-sectional zscore is applied by downstream factor processing.
         qual = self.calculate_quality(symbol, date)
-        if qtrend is None or qual is None or pd.isna(qtrend) or pd.isna(qual):
+        income = self._load_income_statement_ttm()
+        rev_now = self._get_metric_asof(income, symbol, date, "revenue", aliases=["totalRevenue", "revenueTTM"])
+        rev_past = self._get_metric_asof(
+            income,
+            symbol,
+            (pd.Timestamp(date) - pd.Timedelta(days=365)).strftime("%Y-%m-%d"),
+            "revenue",
+            aliases=["totalRevenue", "revenueTTM"],
+        )
+        if qual is None or rev_now is None or rev_past is None or pd.isna(qual):
             return None
-        return float(float(qtrend) * float(qual))
+        if abs(float(rev_past)) < 1e-12:
+            return None
+        rev_yoy = float(rev_now / rev_past - 1.0)
+        return float(rev_yoy * float(qual))
 
     def calculate_eps_growth_quality_adj(self, symbol: str, date: str) -> Optional[float]:
-        return self.calculate_revenue_growth_quality_adj(symbol, date)
+        # Blueprint: eps_yoy * z(quality)
+        qual = self.calculate_quality(symbol, date)
+        income = self._load_income_statement_ttm()
+        eps_now = self._get_metric_asof(
+            income,
+            symbol,
+            date,
+            "eps",
+            aliases=["epsdiluted", "epsDiluted", "epsbasic", "epsBasic"],
+        )
+        eps_past = self._get_metric_asof(
+            income,
+            symbol,
+            (pd.Timestamp(date) - pd.Timedelta(days=365)).strftime("%Y-%m-%d"),
+            "eps",
+            aliases=["epsdiluted", "epsDiluted", "epsbasic", "epsBasic"],
+        )
+        if qual is None or eps_now is None or eps_past is None or pd.isna(qual):
+            return None
+        if abs(float(eps_past)) < 1e-12:
+            return None
+        eps_yoy = float(eps_now / eps_past - 1.0)
+        return float(eps_yoy * float(qual))
 
     def calculate_fcf_growth_persistence(self, symbol: str, date: str) -> Optional[float]:
-        vtrend = self.calculate_value_metric_trend(symbol, date)
-        if vtrend is None or pd.isna(vtrend):
+        # Blueprint: fcf_yoy + fcf_yoy_lag1
+        cash = self._load_cash_flow_statement()
+        d0 = pd.Timestamp(date)
+        d1 = (d0 - pd.Timedelta(days=365)).strftime("%Y-%m-%d")
+        d2 = (d0 - pd.Timedelta(days=730)).strftime("%Y-%m-%d")
+        fcf0 = self._get_metric_asof(cash, symbol, date, "freeCashFlow")
+        fcf1 = self._get_metric_asof(cash, symbol, d1, "freeCashFlow")
+        fcf2 = self._get_metric_asof(cash, symbol, d2, "freeCashFlow")
+        if fcf0 is None or fcf1 is None or fcf2 is None:
             return None
-        past = self.calculate_value_metric_trend(symbol, (pd.Timestamp(date) - pd.Timedelta(days=252)).strftime("%Y-%m-%d"))
-        if past is None or pd.isna(past):
-            return float(vtrend)
-        return float(float(vtrend) + float(past))
+        if abs(float(fcf1)) < 1e-12 or abs(float(fcf2)) < 1e-12:
+            return None
+        yoy_t = float(fcf0 / fcf1 - 1.0)
+        yoy_l1 = float(fcf1 / fcf2 - 1.0)
+        return float(yoy_t + yoy_l1)
 
     def calculate_asset_growth_anomaly_inv(self, symbol: str, date: str) -> Optional[float]:
         # Distinct proxy with current field scope: trend in CFO/Assets.
@@ -2031,8 +2149,23 @@ class FactorEngine:
                 self.config["QUALITY_TREND_METRIC"] = metric_bak
 
     def calculate_capex_discipline(self, symbol: str, date: str) -> Optional[float]:
-        # Distinct proxy: persistent FCF improvement.
-        return self.calculate_fcf_growth_persistence(symbol, date)
+        # Blueprint: -(capex/assets)_delta
+        cash = self._load_cash_flow_statement()
+        bal = self._load_balance_sheet_statement()
+        d0 = pd.Timestamp(date)
+        d1s = (d0 - pd.Timedelta(days=365)).strftime("%Y-%m-%d")
+        capex0 = self._get_metric_asof(cash, symbol, date, "capitalExpenditure")
+        capex1 = self._get_metric_asof(cash, symbol, d1s, "capitalExpenditure")
+        assets0 = self._get_metric_asof(bal, symbol, date, "totalAssets")
+        assets1 = self._get_metric_asof(bal, symbol, d1s, "totalAssets")
+        if capex0 is None or capex1 is None or assets0 is None or assets1 is None:
+            return None
+        if abs(float(assets0)) < 1e-12 or abs(float(assets1)) < 1e-12:
+            return None
+        # cash-flow capex is usually negative; use absolute magnitude as investment intensity.
+        ratio0 = abs(float(capex0)) / abs(float(assets0))
+        ratio1 = abs(float(capex1)) / abs(float(assets1))
+        return float(-(ratio0 - ratio1))
 
     def calculate_nwc_change_inverse(self, symbol: str, date: str) -> Optional[float]:
         # Distinct proxy: cashflow efficiency relative to margin level.
@@ -2065,11 +2198,29 @@ class FactorEngine:
                 self.config["QUALITY_TREND_METRIC"] = metric_bak
 
     def calculate_cash_conversion_improve(self, symbol: str, date: str) -> Optional[float]:
+        # Distinct from accruals_inverse:
+        # use improvement in cash-conversion ratio over ~4 quarters.
         cfoa = self.calculate_cfo_to_assets(symbol, date)
         roa = self.calculate_roa_ttm(symbol, date)
         if cfoa is None or roa is None or pd.isna(cfoa) or pd.isna(roa):
             return None
-        return float(float(cfoa) - float(roa))
+        roa_f = float(roa)
+        if abs(roa_f) < 1e-6:
+            return None
+        cur = float(cfoa) / roa_f
+        past_date = (pd.Timestamp(date) - pd.Timedelta(days=252)).strftime("%Y-%m-%d")
+        cfoa_p = self.calculate_cfo_to_assets(symbol, past_date)
+        roa_p = self.calculate_roa_ttm(symbol, past_date)
+        if cfoa_p is None or roa_p is None or pd.isna(cfoa_p) or pd.isna(roa_p):
+            return float(cur)
+        roa_pf = float(roa_p)
+        if abs(roa_pf) < 1e-6:
+            return float(cur)
+        past = float(cfoa_p) / roa_pf
+        v = cur - past
+        if not np.isfinite(v):
+            return None
+        return float(v)
 
     def calculate_investment_conservatism(self, symbol: str, date: str) -> Optional[float]:
         # Distinct proxy: combine deleveraging and asset-growth-anomaly inverse.

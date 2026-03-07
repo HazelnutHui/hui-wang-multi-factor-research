@@ -26,7 +26,7 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Governance audit checker for production gate runs.")
     p.add_argument("--run-dir", required=True, help="audit/workstation_runs/<...>")
     p.add_argument("--report-json", required=True, help="gate_results/.../production_gates_report.json")
-    p.add_argument("--stage-log", default="docs/production_research/STAGE_AUDIT_LOG.md")
+    p.add_argument("--stage-log", default="audit/stage_audit_log.md")
     p.add_argument("--require-final-summary", action="store_true", default=False)
     args = p.parse_args()
 
