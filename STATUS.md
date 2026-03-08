@@ -69,5 +69,9 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline)
   - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
 - Canonical summary:
   - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+- Round2 hold robustness (1/3/5 shortlist check):
+  - `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md`
+  - `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.csv`
+  - current snapshot: `20` shortlist tested, `17` robust-pass
 - Post-fix note:
   - duplicate-logic fixes for `cash_conversion_improve`, `eps_growth_quality_adj`, and `capex_discipline` are integrated in canonical output.

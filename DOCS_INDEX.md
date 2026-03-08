@@ -7,6 +7,7 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline sync)
 - `STATUS.md`
 - `RUNBOOK.md`
 - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
+- `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md`
 - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
 - `docs/production_research/FACTOR_ENGINE_SNAPSHOT_2026-03-07.md`
 - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
