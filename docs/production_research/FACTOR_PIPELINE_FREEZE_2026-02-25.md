@@ -55,6 +55,46 @@ Fast-screen compute rule:
 5. Round E: production gates
 - stress/risk/statistical gates + audit completeness.
 
+## Single-Factor Admission Policy (Locked, v1.0)
+
+1. `SF-L2` rule:
+- `test_ic <= 0` means not eligible for main combo;
+- `train_ic <= 0` and `test_ic <= 0` means direct fail;
+- `train_ic <= 0` and `test_ic > 0` can stay only as low-priority candidate.
+
+2. `SF-L3` rule:
+- positive `test_ic` ratio across windows must be `>= 60%`;
+- no `3` consecutive negative windows.
+
+3. Cost rule:
+- out-of-sample metric under current cost model must stay positive.
+
+4. Grade mapping:
+- `A`: `test_ic >= 0.006` and all gates pass;
+- `B`: `0 < test_ic < 0.006` and all gates pass;
+- `C`: `test_ic <= 0` or WF/cost gate fail.
+
+Main combo input is restricted to grades `A` and `B`.
+
+## Combo Construction Policy (Locked, v1.0)
+
+1. Build order:
+- intra-group sub-combo first, inter-group combo second.
+
+2. Exposure control:
+- initial single-factor max weight cap: `<= 15%`;
+- if recent sample `|corr| > 0.7`, do not keep both at full weight.
+
+3. Retention rule:
+- a factor remains in combo only if it adds out-of-sample quality after cost.
+
+## Regime Adaptation Policy (Locked, v1.0)
+
+1. Long-history validation is the admission baseline.
+2. Recent `2-3` year window can adjust weights only.
+3. Relative weight tilt cap vs baseline: `+/-30%`.
+4. Any tilt change requires a new fixed train/test and walk-forward record.
+
 ## Compute Allocation Rule
 
 - heavy models are moved backward in the pipeline;

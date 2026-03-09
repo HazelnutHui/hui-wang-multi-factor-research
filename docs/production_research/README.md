@@ -1,6 +1,6 @@
 # Production Research Governance Docs
 
-Last updated: 2026-03-07 (logic100 final consolidated baseline sync)
+Last updated: 2026-03-09 (hard-rule baseline sync)
 
 ## Canonical Set (Minimal)
 - `../../STATUS.md` (project-level status SSOT)
@@ -9,6 +9,7 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline sync)
 - `FACTOR_BATCH_MASTER_TABLE.csv` (row-level query source)
 - `FACTOR_ENGINE_SNAPSHOT_2026-03-07.md` (frozen code snapshot reference)
 - `FACTOR_PIPELINE_FREEZE_2026-02-25.md` (pipeline boundary)
+- `../../SINGLE_FACTOR_BASELINE.md` (single-factor hard-rule baseline)
 - `FACTOR_FACTORY_STANDARD.md` (execution/governance standard)
 - `OPS_PLAYBOOK.md` (ops procedures)
 - `FMP_CALLABLE_DATA_REFERENCE_2026-03-07.md` (FMP callable data single-file reference)

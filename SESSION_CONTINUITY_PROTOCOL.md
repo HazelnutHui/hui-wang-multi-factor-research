@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-07 (logic100 final consolidated baseline)
+Last updated: 2026-03-09 (hard-rule baseline sync)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -19,6 +19,7 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline)
 7. `docs/production_research/FACTOR_ENGINE_SNAPSHOT_2026-03-07.md`
 8. `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 9. `docs/production_research/FACTOR_FACTORY_STANDARD.md`
+10. `SINGLE_FACTOR_BASELINE.md`
 
 ## Completion Checks
 1. Confirm canonical final output path exists and is complete (100 factors with summaries).
@@ -31,6 +32,9 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline)
 6. Confirm SSOT rule:
    - only `STATUS.md` stores project-level runtime snapshot
    - only `BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md` stores row-level final status snapshot
+7. Confirm hard-rule baseline is active:
+   - `SINGLE_FACTOR_BASELINE.md` includes Hard Rules v1.0
+   - pipeline freeze doc includes matching locked admission policy
 
 ## Runtime First Commands (Workstation)
 ```bash

@@ -1,6 +1,6 @@
 # Single-Factor Baseline (V4)
 
-Last checked: 2026-02-25
+Last checked: 2026-03-09
 
 Purpose: define a complete, modular baseline workflow for a new single factor before combination.
 
@@ -132,15 +132,34 @@ At least one of:
 
 ---
 
-## 4) Pass/Fail Baseline (Default Guidance)
+## 4) Pass/Fail Baseline (Hard Rules v1.0)
 
-Use this unless you override with your own standards.
+This section is mandatory and authoritative for single-factor admission.
 
-1. Segmented IC: majority of segments > 0, no long negative streaks.  
-2. Train/Test: test IC does not collapse to ~0.  
-3. Cost sensitivity: still positive at 2x cost.  
-4. Robustness: rank vs zscore does not flip sign.  
-5. Sub-universe: at least one sub-universe remains positive.  
+### 4.1 SF-L2 gate (fixed train/test)
+
+1. `test_ic <= 0`: fail for main-combo admission (move to observation pool).  
+2. `train_ic <= 0` and `test_ic > 0`: do not fail immediately; keep as low-priority candidate only.  
+3. `train_ic <= 0` and `test_ic <= 0`: fail (remove from combo candidate set).  
+
+### 4.2 SF-L3 gate (walk-forward)
+
+1. Positive-window ratio must satisfy: `test_ic > 0` in at least `60%` of windows.  
+2. No `3` consecutive negative `test_ic` windows are allowed.  
+3. If either rule fails: factor is not admitted to main combo.
+
+### 4.3 Cost gate
+
+1. Out-of-sample net metric under current cost model must stay positive.  
+2. If cost-adjusted out-of-sample turns negative: fail for main combo.
+
+### 4.4 Factor grade for combo input
+
+1. Grade `A`: `SF-L2 test_ic >= 0.006` and all gates above pass.  
+2. Grade `B`: `0 < SF-L2 test_ic < 0.006` and all gates above pass.  
+3. Grade `C`: `SF-L2 test_ic <= 0` or WF/cost gate fails.
+
+Only `A` and `B` are eligible for main combo construction.
 
 ---
 
@@ -149,3 +168,22 @@ Use this unless you override with your own standards.
 1. Update `STATUS.md` with latest `SF-L1`/`SF-L2` results (`SF-DIAG` only if used).  
 2. Update `docs/production_research/RESET_STATE_2026-02-27.md` and current batch master table with any logic changes or pitfalls.  
 3. Keep report outputs in `strategies/<factor>/reports/`.  
+
+## 6) Combo Admission And Weighting Rules (Hard Rules v1.0)
+
+1. Main combo candidate set: include only factors with grade `A` or `B`.
+2. Correlation control:
+   - if recent sample `|corr| > 0.7`, do not hold both at full weight;
+   - either keep one or apply explicit down-weighting.
+3. Initial single-factor max weight cap in combo: `<= 15%`.
+4. Build order:
+   - first intra-group sub-combo (equal weight or risk-balanced);
+   - then inter-group combo (equal weight by default).
+5. A new factor is retained only if it improves out-of-sample combo quality after cost.
+
+## 7) Regime Adaptation Rule (Hard Rules v1.0)
+
+1. Long-history validation remains admission baseline; do not bypass with recent-only performance.
+2. Recent `2-3` years are for weight tilt only, not for admission override.
+3. Weight tilt limit vs baseline weight: within `+/-30%` relative change.
+4. Any tilt update must be followed by a fresh fixed train/test + walk-forward record.

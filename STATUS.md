@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-07 (logic100 final consolidated baseline)
+Last updated: 2026-03-09 (single-factor hard-rule policy v1.0 locked)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -25,6 +25,20 @@ Last updated: 2026-03-07 (logic100 final consolidated baseline)
 - Source documents:
   - `docs/production_research/BATCHA100_LOGIC100_FORMAL_V1_2026-02-28.csv`
   - `docs/production_research/BATCHA100_LOGIC100_IMPLEMENTATION_MAP_2026-02-28.csv`
+
+## 2.1) Active Admission Standard (Locked)
+- Authoritative policy docs:
+  - `SINGLE_FACTOR_BASELINE.md` (Hard Rules v1.0)
+  - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md` (Locked v1.0 sections)
+- Current hard gates:
+  - `SF-L2`: `test_ic > 0` required for main combo
+  - `SF-L3`: positive-window ratio `>= 60%`, no 3 consecutive negative windows
+  - cost-adjusted out-of-sample must remain positive
+- Grade rule:
+  - `A`: `test_ic >= 0.006`
+  - `B`: `0 < test_ic < 0.006`
+  - `C`: `test_ic <= 0` or WF/cost fail
+- Main combo admission: only grades `A/B`
 
 ## 3) Final Batch Snapshot
 - Formal logic coverage in runtime mapping: `100/100`

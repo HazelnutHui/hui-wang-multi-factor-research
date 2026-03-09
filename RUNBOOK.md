@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-03-07 (logic100 final consolidated baseline)
+Last updated: 2026-03-09 (hard-rule baseline sync)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -47,6 +47,7 @@ bash scripts/ops_entry.sh factory_queue \
 Policy notes:
 - queue run is blocked unless approval gate matches target queue.
 - single-factor `SF-L1` is the mandatory segmented gate.
+- single-factor `SF-L2`/`SF-L3` hard admission rules follow `SINGLE_FACTOR_BASELINE.md`.
 - single-factor `SF-DIAG` is diagnostic optional (use only for debugging/triage).
 - after round-1 ranking, run shortlist robustness with `HOLDING_PERIOD=1/3/5`.
 

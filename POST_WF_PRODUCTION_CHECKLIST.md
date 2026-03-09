@@ -1,13 +1,12 @@
 # Post-WF Production Checklist (Combo Strategy)
 
-Last updated: 2026-02-17 (stress run completed and passed)
+Last updated: 2026-03-09 (generic, freeze-driven)
 
 Purpose: standardized post-walk-forward validation gates before paper/live deployment.
 
-Applies to current locked combo:
-- `COMBO_FORMULA=linear`
-- `value=0.90`, `momentum=0.10`
-- Stage2 strict neutralization and universe filters
+Scope:
+- This checklist is freeze-driven and does not assume fixed combo weights in the document.
+- Active combo weights/config must come from current frozen strategy yaml and freeze artifact.
 
 ## 1) Freeze Research Version
 - Do not change factor formulas or combo weights during this checklist.
@@ -106,12 +105,9 @@ Only after pass:
 2. Keep research config frozen during paper period.
 3. Define kill-switch thresholds before first live trade.
 
-## 8) Latest Completed Snapshot (2026-02-17)
-- Stress profile:
-  - `COST_MULTIPLIER=1.5`
-  - `MIN_MARKET_CAP=2e9`
-  - `MIN_DOLLAR_VOLUME=5e6`
-- Aggregate result:
-  - `test_ic`: `mean=0.053310`, `std=0.032486`, `pos_ratio=1.0000`, `n=13`
-  - `test_ic_overall`: `mean=0.046618`, `std=0.032058`, `pos_ratio=1.0000`, `n=13`
-- Verdict: pass, move to paper-trading candidate phase.
+## 8) Snapshot Logging Rule (Required)
+- Do not store fixed historical pass snapshots directly in this checklist.
+- Store run-specific evidence in run artifacts only:
+  - `gate_results/production_gates_<ts>/production_gates_report.json`
+  - `gate_results/production_gates_<ts>/production_gates_report.md`
+- Update `STATUS.md` for project-level state and keep this checklist procedural only.

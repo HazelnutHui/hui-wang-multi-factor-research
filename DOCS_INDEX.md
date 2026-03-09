@@ -1,11 +1,12 @@
 # Documentation Index
 
-Last updated: 2026-03-07 (logic100 final consolidated baseline sync)
+Last updated: 2026-03-09 (hard-rule baseline sync)
 
 ## Canonical Entry (Read First)
 - `SESSION_CONTINUITY_PROTOCOL.md`
 - `STATUS.md`
 - `RUNBOOK.md`
+- `SINGLE_FACTOR_BASELINE.md`
 - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 - `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md`
 - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
