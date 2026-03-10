@@ -62,3 +62,16 @@ Do not expose direct workflow scripts to the agent.
 
 ## 7) Security Note
 If your OpenClaw token has been exposed in terminal/chat history, rotate it before production use.
+
+## 8) OpenClaw and Codex
+- No direct hard integration is required.
+- Recommended split:
+  - OpenClaw: executes governed workflows via `agent_gateway.py`.
+  - Codex: edits code/docs, fixes pipeline logic, and prepares commits.
+- Keep this boundary to reduce accidental production-impacting operations.
+
+## 9) Recommended Agent Profile
+- Dedicated OpenClaw agent id: `v4`
+- Dedicated workspace:
+  - `/Users/hui/quant_score/v4/agent/openclaw_v4_workspace`
+- This profile is preloaded with V4 SSOT read-order and execution boundaries.
