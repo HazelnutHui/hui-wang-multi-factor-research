@@ -1,0 +1,19 @@
+{
+  "allowed_workflows": [
+    "train_test",
+    "segmented",
+    "walk_forward",
+    "production_gates",
+    "statistical_gates"
+  ],
+  "blocked_flags_execute": [
+    "--skip-guardrails",
+    "--skip-data-quality-check",
+    "--skip-validation",
+    "--apply"
+  ],
+  "require_approval_for_execute": true,
+  "approval_file": "configs/research/factory_queue/run_approval.json",
+  "approval_match_field": "approval_id",
+  "audit_root": "audit/agent_gateway"
+}

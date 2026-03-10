@@ -19,6 +19,8 @@ Last updated: 2026-03-09 (hard-rule baseline sync)
 - `docs/production_research/OPS_PLAYBOOK.md`
 - `docs/production_research/STAGE_EXECUTION_STANDARD.md`
 - `docs/production_research/FMP_CALLABLE_DATA_REFERENCE_2026-03-07.md`
+- `agent/docs/AGENT_INTEGRATION_READINESS_2026-03-10.md`
+- `agent/docs/AGENT_GATEWAY_INTEGRATION_2026-03-10.md`
 
 ## Notes
 - Status SSOT:

@@ -1,0 +1,20 @@
+{
+  "tool_name": "v4_agent_gateway",
+  "description": "Only entrypoint for V4 workflow execution from external agent",
+  "allowed_command_prefix": [
+    "python3",
+    "agent/scripts/agent_gateway.py"
+  ],
+  "forbidden_patterns": [
+    "scripts/run_with_config.py",
+    "scripts/run_segmented_factors.py",
+    "scripts/run_walk_forward.py",
+    "scripts/run_production_gates.py",
+    "--skip-guardrails",
+    "--skip-data-quality-check"
+  ],
+  "usage_examples": [
+    "python3 agent/scripts/agent_gateway.py --mode plan --workflow train_test -- --strategy configs/strategies/combo_v2_prod.yaml",
+    "python3 agent/scripts/agent_gateway.py --mode execute --approval-id 2026-03-10-agent-001 --workflow production_gates -- --strategy configs/strategies/combo_v2_prod.yaml --factor combo_v2 --cost-multipliers 1.0,1.5,2.0 --out-dir gate_results"
+  ]
+}

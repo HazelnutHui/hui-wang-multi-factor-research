@@ -13,6 +13,8 @@ Last updated: 2026-03-09 (hard-rule baseline sync)
 - `FACTOR_FACTORY_STANDARD.md` (execution/governance standard)
 - `OPS_PLAYBOOK.md` (ops procedures)
 - `FMP_CALLABLE_DATA_REFERENCE_2026-03-07.md` (FMP callable data single-file reference)
+- `../../agent/docs/AGENT_INTEGRATION_READINESS_2026-03-10.md` (agent integration boundary and readiness audit)
+- `../../agent/docs/AGENT_GATEWAY_INTEGRATION_2026-03-10.md` (external agent safe integration quickstart)
 
 ## Operating Constraint
 - Any new run launch requires manual approval:
