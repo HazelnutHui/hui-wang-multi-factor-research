@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-09 (hard-rule baseline sync)
+Last updated: 2026-03-10 (workstation dual-repo topology synced)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -43,3 +43,11 @@ pgrep -af "run_factor_factory_batch.py|run_segmented_factors.py" || true
 ls -1 segment_results/factor_factory 2>/dev/null
 ls -1 audit/factor_factory 2>/dev/null
 ```
+
+## Workstation Topology (Locked)
+- Runtime repo (active jobs, data, caches):
+  - `~/projects/hui-wang-multi-factor-research`
+- Clean sync repo (git mirror only):
+  - `~/projects/v4_clean`
+- Rule:
+  - do not run risky sync operations in runtime repo when active runs exist.

@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-03-09 (hard-rule baseline sync)
+Last updated: 2026-03-10 (workstation dual-repo sync policy)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -14,6 +14,11 @@ Status boundary note:
 - if a documented workstation run is not present in local paths, mark it as `pending_local_sync` until artifacts are synced and verified.
 - factor-factory full-batch runs default to workstation with at least `--jobs 4` (local default is `--dry-run` planning).
 - factor-factory ranking comparability baseline is fixed in policy `default_set`: `REBALANCE_FREQ=5`, `HOLDING_PERIOD=3`, `REBALANCE_MODE=None`.
+- workstation code-sync safety:
+  - keep runtime repo and clean sync repo separated on workstation:
+    - runtime: `~/projects/hui-wang-multi-factor-research`
+    - clean sync: `~/projects/v4_clean`
+  - do not force sync (`reset/clean/pull with conflict risk`) in runtime repo during active runs.
 
 Snapshot details are maintained only in:
 - `STATUS.md`

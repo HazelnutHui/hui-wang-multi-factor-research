@@ -187,3 +187,17 @@ Only `A` and `B` are eligible for main combo construction.
 2. Recent `2-3` years are for weight tilt only, not for admission override.
 3. Weight tilt limit vs baseline weight: within `+/-30%` relative change.
 4. Any tilt update must be followed by a fresh fixed train/test + walk-forward record.
+
+## 8) Execution Sequence (Locked, Minimal)
+
+Use this exact order for single-factor to combo admission:
+
+1. Run `SF-L1` (segmented strict).
+2. Run `SF-L2` (fixed train/test).
+3. Apply hard filter:
+   - `test_ic <= 0` -> remove from main combo pool.
+4. Run `SF-L3` (WF) for remaining candidates.
+5. Apply WF/cost hard filters.
+6. Assign grade `A/B/C`.
+7. Build combo from `A/B` only.
+8. Optionally apply recent-regime tilt within `+/-30%` bound.

@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-09 (single-factor hard-rule policy v1.0 locked)
+Last updated: 2026-03-10 (WF17 in progress + workstation dual-repo sync policy)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -89,3 +89,20 @@ Last updated: 2026-03-09 (single-factor hard-rule policy v1.0 locked)
   - current snapshot: `20` shortlist tested, `17` robust-pass
 - Post-fix note:
   - duplicate-logic fixes for `cash_conversion_improve`, `eps_growth_quality_adj`, and `capex_discipline` are integrated in canonical output.
+
+## 9) Active Runtime Snapshot (Current)
+- Running job (workstation):
+  - `SF-L3` full single-factor WF for 17 factors
+  - run dir: `runs/sf_l3_wf_17_20260309_212116`
+  - window design: train `3y`, test `1y`, test years `2013..2025` (total `221` tasks)
+- Latest checked snapshot:
+  - `started=81`
+  - `ended=73`
+  - `running=8`
+  - `failures=0`
+  - `remaining=148`
+- Workstation repository topology (locked):
+  - runtime repo (do not force pull while jobs run):
+    - `~/projects/hui-wang-multi-factor-research`
+  - clean sync repo (git-updated code mirror):
+    - `~/projects/v4_clean`
