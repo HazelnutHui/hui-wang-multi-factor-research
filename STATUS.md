@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-10 (WF17 in progress + workstation dual-repo sync policy)
+Last updated: 2026-03-11 (WF17 completed + execution boundary synced)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -91,18 +91,31 @@ Last updated: 2026-03-10 (WF17 in progress + workstation dual-repo sync policy)
   - duplicate-logic fixes for `cash_conversion_improve`, `eps_growth_quality_adj`, and `capex_discipline` are integrated in canonical output.
 
 ## 9) Active Runtime Snapshot (Current)
-- Running job (workstation):
+- Completed job (workstation):
   - `SF-L3` full single-factor WF for 17 factors
   - run dir: `runs/sf_l3_wf_17_20260309_212116`
   - window design: train `3y`, test `1y`, test years `2013..2025` (total `221` tasks)
-- Latest checked snapshot:
-  - `started=81`
-  - `ended=73`
-  - `running=8`
-  - `failures=0`
-  - `remaining=148`
+- Final execution snapshot:
+  - `done=221`
+  - `ok=221`
+  - `fail=0`
+  - `remaining=0`
+- Provisional single-factor admission grading (L2 + L3 only; cost gate pending):
+  - `A=7`
+  - `B=5`
+  - `C=5`
+  - reference: `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
 - Workstation repository topology (locked):
   - runtime repo (do not force pull while jobs run):
     - `~/projects/hui-wang-multi-factor-research`
   - clean sync repo (git-updated code mirror):
     - `~/projects/v4_clean`
+
+## 10) Current Execution Boundary
+- No active official combo run is in progress.
+- Local combo strategy drafts exist for configuration discussion only:
+  - `configs/strategies/combo_c1_value_core_v1.yaml`
+  - `configs/strategies/combo_c2_cashflow_alt_v1.yaml`
+  - `configs/strategies/combo_c3_balanced_v1.yaml`
+- Promotion boundary remains unchanged:
+  - no combo result is official until governed run + gate artifacts are produced.

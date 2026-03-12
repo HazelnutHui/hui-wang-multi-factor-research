@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-10 (workstation dual-repo topology synced)
+Last updated: 2026-03-11 (WF17 completion synced)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -20,6 +20,7 @@ Last updated: 2026-03-10 (workstation dual-repo topology synced)
 8. `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
 9. `docs/production_research/FACTOR_FACTORY_STANDARD.md`
 10. `SINGLE_FACTOR_BASELINE.md`
+11. `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
 
 ## Completion Checks
 1. Confirm canonical final output path exists and is complete (100 factors with summaries).
@@ -35,6 +36,9 @@ Last updated: 2026-03-10 (workstation dual-repo topology synced)
 7. Confirm hard-rule baseline is active:
    - `SINGLE_FACTOR_BASELINE.md` includes Hard Rules v1.0
    - pipeline freeze doc includes matching locked admission policy
+8. Confirm WF17 status is synchronized:
+   - `runs/sf_l3_wf_17_20260309_212116` is completed (`221/221`, `fail=0`)
+   - provisional grading reference: `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
 
 ## Runtime First Commands (Workstation)
 ```bash

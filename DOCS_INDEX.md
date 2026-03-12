@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-03-09 (hard-rule baseline sync)
+Last updated: 2026-03-11 (WF17 sync + stale-doc cleanup)
 
 ## Canonical Entry (Read First)
 - `SESSION_CONTINUITY_PROTOCOL.md`
@@ -9,6 +9,7 @@ Last updated: 2026-03-09 (hard-rule baseline sync)
 - `SINGLE_FACTOR_BASELINE.md`
 - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 - `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md`
+- `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
 - `docs/production_research/FACTOR_BATCH_MASTER_TABLE.csv`
 - `docs/production_research/FACTOR_ENGINE_SNAPSHOT_2026-03-07.md`
 - `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`

@@ -1,11 +1,12 @@
 # Production Research Governance Docs
 
-Last updated: 2026-03-09 (hard-rule baseline sync)
+Last updated: 2026-03-11 (WF17 sync)
 
 ## Canonical Set (Minimal)
 - `../../STATUS.md` (project-level status SSOT)
 - `BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md` (row-level final status SSOT)
 - `BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md` (shortlist 1/3/5 robustness summary)
+- `WF17_SINGLE_FACTOR_GRADE_2026-03-11.md` (17-factor L2/L3 provisional grading snapshot)
 - `FACTOR_BATCH_MASTER_TABLE.csv` (row-level query source)
 - `FACTOR_ENGINE_SNAPSHOT_2026-03-07.md` (frozen code snapshot reference)
 - `FACTOR_PIPELINE_FREEZE_2026-02-25.md` (pipeline boundary)
