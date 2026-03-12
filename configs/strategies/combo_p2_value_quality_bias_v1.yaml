@@ -1,8 +1,8 @@
 strategy:
-  id: "combo_c2_cashflow_alt_v1"
-  name: "COMBO_C2_CASHFLOW_ALT_V1"
-  version: "2.1"
-  output_dir: "strategies/combo_c2_cashflow_alt_v1"
+  id: "combo_p2_value_quality_bias_v1"
+  name: "COMBO_P2_VALUE_QUALITY_BIAS_V1"
+  version: "2.2"
+  output_dir: "strategies/combo_p2_value_quality_bias_v1"
 
 backtest_periods:
   train_start: "2010-01-04"
@@ -35,14 +35,18 @@ universe:
 
 factors:
   weights:
-    ocf_yield_ttm: 0.20
-    shareholder_yield: 0.18
-    ebitda_ev_yield: 0.14
-    value_rerating_trend: 0.14
-    trend_regime_switch: 0.12
-    ownership_dispersion_proxy: 0.10
-    smallcap_seasonality_proxy: 0.07
-    failed_breakout_reversal: 0.05
+    fcf_yield_ttm: 0.160
+    ocf_yield_ttm: 0.140
+    shareholder_yield: 0.140
+    ebitda_ev_yield: 0.120
+    value_rerating_trend: 0.120
+    trend_regime_switch: 0.090
+    ownership_dispersion_proxy: 0.070
+    smallcap_seasonality_proxy: 0.060
+    failed_breakout_reversal: 0.050
+    gap_fill_propensity: 0.030
+    liquidity_regime_switch: 0.010
+    earnings_gap_strength: 0.010
   momentum:
     lookback: 126
     skip: 21

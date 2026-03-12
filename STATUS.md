@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-11 (WF17 completed + execution boundary synced)
+Last updated: 2026-03-11 (combo L2 preregistered12 running on workstation)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -112,10 +112,22 @@ Last updated: 2026-03-11 (WF17 completed + execution boundary synced)
     - `~/projects/v4_clean`
 
 ## 10) Current Execution Boundary
-- No active official combo run is in progress.
-- Local combo strategy drafts exist for configuration discussion only:
-  - `configs/strategies/combo_c1_value_core_v1.yaml`
-  - `configs/strategies/combo_c2_cashflow_alt_v1.yaml`
-  - `configs/strategies/combo_c3_balanced_v1.yaml`
+- Combo preregistered set (cycle-1) is locked at 12 candidates:
+  - `docs/production_research/COMBO_PREREGISTERED_SET_2026-03-11.md`
+  - strategy configs: `configs/strategies/combo_p0_*` ... `combo_p11_*`
+- Combo-layer baseline is now locked:
+  - `docs/production_research/COMBO_RESEARCH_BASELINE_2026-03-11.md`
 - Promotion boundary remains unchanged:
   - no combo result is official until governed run + gate artifacts are produced.
+
+## 11) Active Combo Runtime Snapshot (Current)
+- Running job (workstation, background):
+  - stage: `Layer2` (fixed train/test)
+  - scope: `12` preregistered combo candidates (`combo_p0..combo_p11`)
+  - parallelism: `8`
+  - runtime repo: `~/projects/hui-wang-multi-factor-research`
+  - run dir: `runs/combo_l2_preregistered12_20260312_013348`
+  - launcher pid: `103388`
+- Monitoring files:
+  - driver log: `runs/combo_l2_preregistered12_20260312_013348/batch_driver.log`
+  - per-combo logs: `runs/combo_l2_preregistered12_20260312_013348/logs/*.log`

@@ -1,8 +1,8 @@
 strategy:
-  id: "combo_c3_balanced_v1"
-  name: "COMBO_C3_BALANCED_V1"
-  version: "2.1"
-  output_dir: "strategies/combo_c3_balanced_v1"
+  id: "combo_p0_ab12_equal_v1"
+  name: "COMBO_P0_AB12_EQUAL_V1"
+  version: "2.2"
+  output_dir: "strategies/combo_p0_ab12_equal_v1"
 
 backtest_periods:
   train_start: "2010-01-04"
@@ -35,17 +35,18 @@ universe:
 
 factors:
   weights:
-    fcf_yield_ttm: 0.14
-    ocf_yield_ttm: 0.14
-    shareholder_yield: 0.14
-    ebitda_ev_yield: 0.12
-    value_rerating_trend: 0.12
-    trend_regime_switch: 0.10
-    ownership_dispersion_proxy: 0.08
-    smallcap_seasonality_proxy: 0.06
-    failed_breakout_reversal: 0.05
-    gap_fill_propensity: 0.03
-    liquidity_regime_switch: 0.02
+    ocf_yield_ttm: 0.084
+    fcf_yield_ttm: 0.084
+    shareholder_yield: 0.084
+    value_rerating_trend: 0.084
+    ebitda_ev_yield: 0.083
+    smallcap_seasonality_proxy: 0.083
+    failed_breakout_reversal: 0.083
+    trend_regime_switch: 0.083
+    ownership_dispersion_proxy: 0.083
+    gap_fill_propensity: 0.083
+    liquidity_regime_switch: 0.083
+    earnings_gap_strength: 0.083
   momentum:
     lookback: 126
     skip: 21

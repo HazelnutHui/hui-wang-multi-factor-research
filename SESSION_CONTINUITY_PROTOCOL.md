@@ -21,6 +21,8 @@ Last updated: 2026-03-11 (WF17 completion synced)
 9. `docs/production_research/FACTOR_FACTORY_STANDARD.md`
 10. `SINGLE_FACTOR_BASELINE.md`
 11. `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
+12. `docs/production_research/COMBO_RESEARCH_BASELINE_2026-03-11.md`
+13. `docs/production_research/COMBO_PREREGISTERED_SET_2026-03-11.md`
 
 ## Completion Checks
 1. Confirm canonical final output path exists and is complete (100 factors with summaries).
@@ -39,6 +41,12 @@ Last updated: 2026-03-11 (WF17 completion synced)
 8. Confirm WF17 status is synchronized:
    - `runs/sf_l3_wf_17_20260309_212116` is completed (`221/221`, `fail=0`)
    - provisional grading reference: `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`
+9. Confirm combo-layer baseline is locked:
+   - `docs/production_research/COMBO_RESEARCH_BASELINE_2026-03-11.md`
+   - combo runs must follow pre-registered candidate set and hard-gate-first policy.
+10. Confirm combo preregistered set is unchanged before run:
+   - `docs/production_research/COMBO_PREREGISTERED_SET_2026-03-11.md`
+   - `configs/strategies/combo_p*.yaml` contains the 12-cycle candidate set only.
 
 ## Runtime First Commands (Workstation)
 ```bash

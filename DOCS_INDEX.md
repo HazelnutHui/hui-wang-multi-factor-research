@@ -7,6 +7,8 @@ Last updated: 2026-03-11 (WF17 sync + stale-doc cleanup)
 - `STATUS.md`
 - `RUNBOOK.md`
 - `SINGLE_FACTOR_BASELINE.md`
+- `docs/production_research/COMBO_RESEARCH_BASELINE_2026-03-11.md`
+- `docs/production_research/COMBO_PREREGISTERED_SET_2026-03-11.md`
 - `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 - `docs/production_research/BATCHA100_ROUND2_HOLD_ROBUSTNESS_2026-03-07.md`
 - `docs/production_research/WF17_SINGLE_FACTOR_GRADE_2026-03-11.md`

@@ -1,0 +1,97 @@
+strategy:
+  id: "combo_p10_defensive_stability_v1"
+  name: "COMBO_P10_DEFENSIVE_STABILITY_V1"
+  version: "2.2"
+  output_dir: "strategies/combo_p10_defensive_stability_v1"
+
+backtest_periods:
+  train_start: "2010-01-04"
+  train_end: "2017-12-31"
+  test_start: "2018-01-01"
+  test_end: "2026-01-28"
+
+execution:
+  rebalance_freq: 5
+  holding_period: 3
+
+calendar:
+  rebalance_mode: "None"
+
+neutralization:
+  industry_neutral: true
+  industry_min_group: 5
+  signal_zscore: true
+  signal_rank: false
+  signal_winsor_pct_low: 0.01
+  signal_winsor_pct_high: 0.99
+  signal_missing_policy: "drop"
+  signal_neutralize_size: true
+  signal_neutralize_beta: true
+
+universe:
+  min_market_cap: 1000000000.0
+  min_dollar_volume: 2000000.0
+  min_price: 5.0
+
+factors:
+  weights:
+    ocf_yield_ttm: 0.160
+    fcf_yield_ttm: 0.160
+    shareholder_yield: 0.130
+    value_rerating_trend: 0.120
+    ebitda_ev_yield: 0.110
+    trend_regime_switch: 0.090
+    ownership_dispersion_proxy: 0.080
+    smallcap_seasonality_proxy: 0.070
+    liquidity_regime_switch: 0.040
+    failed_breakout_reversal: 0.020
+    gap_fill_propensity: 0.010
+    earnings_gap_strength: 0.010
+  momentum:
+    lookback: 126
+    skip: 21
+    use_monthly: false
+    lookback_months: 6
+    skip_months: 1
+    use_residual: true
+    bench_symbol: "SPY"
+    resid_est_window: 252
+  value:
+    weights:
+      earnings_yield: 1.0
+      fcf_yield: 1.0
+      ev_ebitda_yield: 1.0
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 2
+    component_missing_policy: "drop"
+  quality:
+    weights:
+      roe: 1.0
+      roa: 0.5
+      gross_margin: 0.5
+      cfo_to_assets: 1.0
+      debt_to_equity: -0.5
+    mainstream_composite: true
+    component_transform: "identity"
+    component_industry_zscore: true
+    component_winsor_pct_low: 0.01
+    component_winsor_pct_high: 0.99
+    component_min_count: 3
+    component_missing_policy: "drop"
+  quality_trend:
+    lookback_days: 252
+    lag_days: 1
+  turnover_shock:
+    short: 20
+    long: 120
+    min_obs: 80
+    lag_days: 1
+  vol_regime:
+    short: 20
+    long: 120
+    min_obs: 80
+    lag_days: 1
