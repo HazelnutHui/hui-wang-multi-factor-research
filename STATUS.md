@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-17 (combo L3 preregistered12 completed on workstation)
+Last updated: 2026-03-17 (post-L3 operations synchronized: incremental data refresh completed; gate/backtest reruns relaunched)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -135,3 +135,16 @@ Last updated: 2026-03-17 (combo L3 preregistered12 completed on workstation)
   - `remaining=0`
 - Next governed step:
   - run production gates on top `<=3` survivors per preregistered ranking rule.
+
+## 12) Immediate Runtime Operations (2026-03-17)
+- Workstation incremental refresh for ranking-day readiness is completed:
+  - coverage task: `runs/fmp_inc_rankprep_20260317.csv`
+  - scope: active-universe incremental update for `prices_divadj` and `market_cap_history`
+  - status: finished (`1602/1602`, `err=0`)
+- Temporary local ranking-prep test note has been retired:
+  - removed file: `TMP_INCREMENTAL_2026-03-17_RANKING_PREP.md`
+- User-directed reruns currently tracked on workstation:
+  - gate missing-item rerun (targeted recover): `runs/recover_p2_x2_20260317_205256`
+  - best-strategy Feb/Mar rerun (latest boundary synced to `2026-03-17`): `runs/tmp_p6_feb_mar_6c_20260317_205445`
+- Preservation rule for this cycle:
+  - keep completed `8/9` gate outputs untouched; only rerun the interrupted missing item.

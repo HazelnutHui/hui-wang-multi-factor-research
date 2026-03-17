@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-17 (combo L3 preregistered12 completion synced)
+Last updated: 2026-03-17 (post-L3 runtime operations synced)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -50,6 +50,12 @@ Last updated: 2026-03-17 (combo L3 preregistered12 completion synced)
 11. Confirm combo `Layer3` run status is synchronized:
    - `runs/combo_l3_wf_12_20260314_065842` is completed (`156/156`, `fail=0`)
    - next step remains production gates on top survivors only.
+12. Confirm 2026-03-17 runtime operations are reflected:
+   - incremental data refresh run record exists: `runs/fmp_inc_rankprep_20260317.csv`
+   - temporary ranking-prep note is removed: `TMP_INCREMENTAL_2026-03-17_RANKING_PREP.md` (retired)
+   - targeted rerun dirs exist and are used as current execution boundary:
+     - `runs/recover_p2_x2_20260317_205256`
+     - `runs/tmp_p6_feb_mar_6c_20260317_205445`
 
 ## Runtime First Commands (Workstation)
 ```bash

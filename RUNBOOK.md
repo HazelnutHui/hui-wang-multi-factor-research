@@ -1,6 +1,6 @@
 # V4 Runbook (Public English Edition)
 
-Last updated: 2026-03-10 (workstation dual-repo sync policy)
+Last updated: 2026-03-17 (runtime cleanup + targeted rerun operations synced)
 
 This runbook contains the minimal commands needed to run, validate, and inspect factors in this repository.
 
@@ -19,6 +19,7 @@ Status boundary note:
     - runtime: `~/projects/hui-wang-multi-factor-research`
     - clean sync: `~/projects/v4_clean`
   - do not force sync (`reset/clean/pull with conflict risk`) in runtime repo during active runs.
+ - temporary test artifacts must be deleted after conclusion and replaced by SSOT status entries.
 
 Snapshot details are maintained only in:
 - `STATUS.md`

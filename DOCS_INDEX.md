@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-03-17 (combo L3 preregistered12 completion sync)
+Last updated: 2026-03-17 (post-L3 runtime operation sync)
 
 ## Canonical Entry (Read First)
 - `SESSION_CONTINUITY_PROTOCOL.md`
@@ -30,3 +30,4 @@ Last updated: 2026-03-17 (combo L3 preregistered12 completion sync)
   - project-level: `STATUS.md`
   - row-level: `docs/production_research/BATCHA100_FINAL_RESULT_STATUS_2026-03-07.md`
 - Non-canonical docs must have explicit active use; remove outdated files instead of retaining archive-only copies.
+- Temporary operation notes should be deleted after status is consolidated into SSOT docs.
