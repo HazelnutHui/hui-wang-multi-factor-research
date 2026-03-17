@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: 2026-03-11 (WF17 sync + stale-doc cleanup)
+Last updated: 2026-03-17 (combo L3 preregistered12 completion sync)
 
 ## Canonical Entry (Read First)
 - `SESSION_CONTINUITY_PROTOCOL.md`

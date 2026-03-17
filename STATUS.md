@@ -1,6 +1,6 @@
 # V4 Project Status (Public English Edition)
 
-Last updated: 2026-03-11 (combo L2 preregistered12 running on workstation)
+Last updated: 2026-03-17 (combo L3 preregistered12 completed on workstation)
 
 ## 1) Current Mode (Authoritative)
 - Active pipeline: `docs/production_research/FACTOR_PIPELINE_FREEZE_2026-02-25.md`
@@ -120,14 +120,18 @@ Last updated: 2026-03-11 (combo L2 preregistered12 running on workstation)
 - Promotion boundary remains unchanged:
   - no combo result is official until governed run + gate artifacts are produced.
 
-## 11) Active Combo Runtime Snapshot (Current)
-- Running job (workstation, background):
-  - stage: `Layer2` (fixed train/test)
+## 11) Combo Runtime Snapshot (Latest)
+- Completed job (workstation, background):
+  - stage: `Layer3` (walk-forward)
   - scope: `12` preregistered combo candidates (`combo_p0..combo_p11`)
+  - window design: train `3y`, test `1y`, test years `2013..2025`
   - parallelism: `8`
   - runtime repo: `~/projects/hui-wang-multi-factor-research`
-  - run dir: `runs/combo_l2_preregistered12_20260312_013348`
-  - launcher pid: `103388`
-- Monitoring files:
-  - driver log: `runs/combo_l2_preregistered12_20260312_013348/batch_driver.log`
-  - per-combo logs: `runs/combo_l2_preregistered12_20260312_013348/logs/*.log`
+  - run dir: `runs/combo_l3_wf_12_20260314_065842`
+- Final execution snapshot:
+  - `done=156`
+  - `ok=156`
+  - `fail=0`
+  - `remaining=0`
+- Next governed step:
+  - run production gates on top `<=3` survivors per preregistered ranking rule.

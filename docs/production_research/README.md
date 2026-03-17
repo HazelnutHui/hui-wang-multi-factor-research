@@ -1,6 +1,6 @@
 # Production Research Governance Docs
 
-Last updated: 2026-03-11 (WF17 sync)
+Last updated: 2026-03-17 (combo L3 status sync via STATUS.md)
 
 ## Canonical Set (Minimal)
 - `../../STATUS.md` (project-level status SSOT)

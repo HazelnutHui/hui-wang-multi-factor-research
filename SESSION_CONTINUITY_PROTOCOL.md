@@ -1,6 +1,6 @@
 # Session Continuity Protocol
 
-Last updated: 2026-03-11 (WF17 completion synced)
+Last updated: 2026-03-17 (combo L3 preregistered12 completion synced)
 
 ## Session Contract
 1. Start from reset declaration and master table.
@@ -47,6 +47,9 @@ Last updated: 2026-03-11 (WF17 completion synced)
 10. Confirm combo preregistered set is unchanged before run:
    - `docs/production_research/COMBO_PREREGISTERED_SET_2026-03-11.md`
    - `configs/strategies/combo_p*.yaml` contains the 12-cycle candidate set only.
+11. Confirm combo `Layer3` run status is synchronized:
+   - `runs/combo_l3_wf_12_20260314_065842` is completed (`156/156`, `fail=0`)
+   - next step remains production gates on top survivors only.
 
 ## Runtime First Commands (Workstation)
 ```bash
