@@ -146,5 +146,8 @@ Last updated: 2026-03-17 (post-L3 operations synchronized: incremental data refr
 - User-directed reruns currently tracked on workstation:
   - gate missing-item rerun (targeted recover): `runs/recover_p2_x2_20260317_205256`
   - best-strategy Feb/Mar rerun (latest boundary synced to `2026-03-17`): `runs/tmp_p6_feb_mar_6c_20260317_205445`
+- Top3 gate execution evidence note:
+  - this cycle followed a custom top3 gate path (`8/9` + targeted recover `+1`) rather than a single standard `run_production_gates.py` artifact chain.
+  - reference: `docs/production_research/COMBO_TOP3_GATE_EXEC_EVIDENCE_2026-03-17.md`
 - Preservation rule for this cycle:
   - keep completed `8/9` gate outputs untouched; only rerun the interrupted missing item.
